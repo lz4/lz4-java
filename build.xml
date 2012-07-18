@@ -1,0 +1,76 @@
+<project name="lz4-java" default="dist" basedir="." xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks">
+
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="dist"/>
+
+  <condition property="platform" value="linux">
+   <os name="Linux"/>
+  </condition>
+  <condition property="platform" value="win32">
+   <os family="windows"/>
+  </condition>
+  <condition property="platform" value="solaris">
+   <os name="SunOS"/>
+  </condition>
+
+  <target name="clean">
+    <delete dir="${build}" />
+    <delete dir="${dist}" />
+  </target>
+
+  <target name="init">
+    <tstamp />
+  </target>
+
+  <target name="compile-java" depends="init">
+    <mkdir dir="${build}/classes" />
+    <javac
+      includeAntRuntime="false"
+      srcdir="${src}/java"
+      encoding="UTF-8"
+      debug="true"
+      destdir="${build}/classes"/>
+  </target>
+
+  <target name="generate-header" depends="compile-java">
+    <mkdir dir="${build}/jni-headers" />
+    <javah
+      destDir="${build}/jni-headers">
+      <classpath>
+        <pathelement location="${build}/classes/" />
+      </classpath>
+      <class name="net.jpountz.lz4.LZ4" />
+    </javah>
+  </target>
+
+  <target name="compile-jni" depends="generate-header">
+    <mkdir dir="${build}/objects" />
+    <mkdir dir="${build}/jni/${platform}/${os.arch}" />
+    <cpptasks:cc
+      optimize="speed"
+      objdir="${build}/objects"
+      outfile="${build}/jni/${platform}/${os.arch}/lz4-java"
+      outtype="shared">
+      <includepath path="${src}/lz4" />
+      <includepath path="${java.home}/../include" />
+      <includepath path="${java.home}/../include/${platform}/" />
+      <includepath path="${build}/jni-headers" />
+      <fileset dir="${src}/lz4" includes="lz4.c, lz4hc.c" />
+      <fileset dir="${src}/jni" includes="*.c" />
+      <linker />
+    </cpptasks:cc>
+  </target>
+
+  <target name="compile" depends="compile-java, compile-jni" />
+
+  <target name="dist" depends="compile">
+    <mkdir dir="${dist}" />
+    <jar
+      destfile="${dist}/lz4-java.jar">
+      <fileset dir="${build}/classes" />
+      <fileset dir="${build}/jni" />
+    </jar>
+  </target>
+
+</project>
