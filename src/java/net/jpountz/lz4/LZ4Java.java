@@ -345,7 +345,7 @@ public enum LZ4Java implements LZ4 {
     for (int i = 0; i < data.length; ++i) {
       data[i] = (byte) r.nextInt(5);
     }
-    byte[] buf = new byte[LZ4JavaUnsafe.FAST.maxCompressedLength(data.length)];
+    byte[] buf = new byte[lz4.maxCompressedLength(data.length)];
     int h = 0;
     long start = System.currentTimeMillis();
     for (int i = 0; i < 50000; ++i) {
