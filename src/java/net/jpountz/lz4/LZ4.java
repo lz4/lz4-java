@@ -34,9 +34,9 @@ public interface LZ4 {
   int uncompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
 
   /**
-   * Uncompress <code>src[srcOff:srcLen]</code> into <code>dest[destOff:destOff+maxDestLen]</code>.
+   * Uncompress <code>src[srcOff:srcLen]</code> into <code>dest[destOff:]</code>.
    * Returns the number of uncompressed bytes written into <code>dest</code>.
    */
-  int uncompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
+  int uncompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
 
 }

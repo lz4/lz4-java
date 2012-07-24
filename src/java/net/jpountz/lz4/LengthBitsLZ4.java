@@ -5,8 +5,10 @@ package net.jpountz.lz4;
  * the beginning of the stream and uses
  * {@link LZ4#uncompressUnknownSize(byte[], int, int, byte[], int, int)} to
  * uncompress data.
+ *
+ * Only for testing purposes.
  */
-public class LengthBitsLZ4 extends CompressionCodec {
+class LengthBitsLZ4 extends CompressionCodec {
 
   private final LZ4 lz4;
 
@@ -39,8 +41,7 @@ public class LengthBitsLZ4 extends CompressionCodec {
   @Override
   public int uncompress(byte[] src, int srcOff, int srcLen, byte[] dest,
       int destOff) {
-    final int maxDestLen = maxUncompressedLength(src, srcOff, srcLen);
-    return lz4.uncompressUnknownSize(src, srcOff + 1, srcLen - 1, dest, destOff, Math.min(maxDestLen, dest.length - destOff));
+    return lz4.uncompressUnknownSize(src, srcOff + 1, srcLen - 1, dest, destOff);
   }
 
 }

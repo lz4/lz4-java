@@ -17,7 +17,6 @@ import static net.jpountz.lz4.LZ4Utils.hash;
 import java.lang.reflect.Field;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-import java.util.Random;
 
 import sun.misc.Unsafe;
 
@@ -35,7 +34,7 @@ public enum LZ4JavaUnsafe implements LZ4 {
     @Override
     public int compress(byte[] src, final int srcOff, int srcLen, byte[] dest, final int destOff) {
       checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff);
+      checkRange(dest, destOff, maxCompressedLength(srcLen));
 
       final int srcEnd = srcOff + srcLen;
       final int srcLimit = srcEnd - LAST_LITERALS;
@@ -92,7 +91,7 @@ public enum LZ4JavaUnsafe implements LZ4 {
           }
 
           // catch up
-          while (sOff > anchor && ref > srcOff && src[sOff - 1] == src[ref - 1]) {
+          while (sOff > anchor && ref > srcOff && readByte(src, sOff - 1) == readByte(src, ref - 1)) {
             --sOff;
             --ref;
           }
@@ -115,19 +114,37 @@ public enum LZ4JavaUnsafe implements LZ4 {
           }
 
           // copy literals
-          arraycopy(src, anchor, dest, dOff, runLen);
+          wildArraycopy(src, anchor, dest, dOff, runLen);
           dOff += runLen;
 
           while (true) {
             // encode offset
-            dest[dOff++] = (byte) back;
-            dest[dOff++] = (byte) (back >>> 8);
+            writeShortLittleEndian(dest, dOff, back);
+            dOff += 2;
 
             // count nb matches
             sOff += MIN_MATCH;
             ref += MIN_MATCH;
-            final int matchLen = commonBytes(src, sOff, ref, srcLimit);
-            sOff += matchLen;
+            int matchLen = 0;
+            while (sOff < srcLimit - 8) {
+              final long diff = readLong(src, sOff) - readLong(src, ref);
+              final int zeroBits;
+              if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
+                zeroBits = Long.numberOfLeadingZeros(diff);
+              } else {
+                zeroBits = Long.numberOfTrailingZeros(diff);
+              }
+              if (zeroBits == 64) {
+                matchLen += 8;
+                sOff += 8;
+                ref += 8;
+              } else {
+                final int inc = zeroBits >>> 3;
+                matchLen += inc;
+                sOff += inc;
+                break;
+              }
+            }
 
             // encode match len
             if (matchLen >= ML_MASK) {
@@ -187,7 +204,7 @@ public enum LZ4JavaUnsafe implements LZ4 {
         dest[dOff++] = (byte) (runLen << ML_BITS);
       }
       // copy literals
-      arraycopy(src, anchor, dest, dOff, runLen);
+      safeArraycopy(src, anchor, dest, dOff, runLen);
       dOff += runLen;
 
       return dOff - destOff;
@@ -195,9 +212,7 @@ public enum LZ4JavaUnsafe implements LZ4 {
 
   };
 
-  private static final int[] DEC = {0, 3, 2, 3, 0, 0, 0, 0};
-  private static final int[] DEC2 = {0, 0, 0, -1, 0, 1, 2, 3};
-
+  private static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
   private static final Unsafe UNSAFE;
   private static final long BYTE_ARRAY_OFFSET;
   private static final long INT_ARRAY_OFFSET;
@@ -208,8 +223,6 @@ public enum LZ4JavaUnsafe implements LZ4 {
       Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
       theUnsafe.setAccessible(true);
       UNSAFE = (Unsafe) theUnsafe.get(null);
-      // make sure that copyMemory is implemented
-      arraycopy(new byte[1], 0, new byte[1], 0, 1);
       BYTE_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
       INT_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(int[].class);
       INT_ARRAY_SCALE = UNSAFE.arrayIndexScale(int[].class);
@@ -222,48 +235,42 @@ public enum LZ4JavaUnsafe implements LZ4 {
     }
   }
 
-  static void arraycopy(byte[] src, int srcOff, byte[] dest, int destOff, int len) {
-    if (len <= 16 && src.length - srcOff >= 16 && dest.length - destOff >= 16) {
-      writeLong(dest, destOff, readLong(src, srcOff));
-      writeLong(dest, destOff + 8, readLong(src, srcOff + 8));
-      return;
-    }
-    int fastLen = len & 0xFFFFFFF8;
-    if (fastLen <= 64) {
-      for (int i = 0; i < fastLen; i += 8) {
-        writeLong(dest, destOff + i, readLong(src, srcOff + i));
-      }
-      int slowLen = len & 0x7;
-      for (int i = 0; i < slowLen; i += 1) {
-        dest[destOff + fastLen + i] = src[srcOff + fastLen + i];
-      }
-    } else {
-      UNSAFE.copyMemory(src, BYTE_ARRAY_OFFSET + srcOff, dest, BYTE_ARRAY_OFFSET + destOff, len);
+  static void safeArraycopy(byte[] src, int srcOff, byte[] dest, int destOff, int len) {
+    final int fastLen = len & 0xFFFFFFF8;
+    wildArraycopy(src, srcOff, dest, destOff, fastLen);
+    for (int i = 0, slowLen = len & 0x7; i < slowLen; i += 1) {
+      writeByte(dest, destOff + fastLen + i, readByte(src, srcOff + fastLen + i));
     }
   }
 
-  static void incrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
-    final int back = dOff - matchOff;
-    if (back < 8) {
-      dest[dOff++] = dest[matchOff++];
-      dest[dOff++] = dest[matchOff++];
-      dest[dOff++] = dest[matchOff++];
-      dest[dOff++] = dest[matchOff++];
-      matchOff -= DEC[back];
-      writeInt(dest, dOff, readInt(dest, matchOff));
-      matchOff -= DEC2[back];
-      dOff += 4;
-    } else {
-      writeLong(dest, dOff, readLong(dest, matchOff));
-      dOff += 8;
-      matchOff += 8;
+  static void wildArraycopy(byte[] src, int srcOff, byte[] dest, int destOff, int len) {
+    for (int i = 0; i < len; i += 8) {
+      writeLong(dest, destOff + i, readLong(src, srcOff + i));
     }
-    while (dOff <= matchCopyEnd - 8) {
-      writeLong(dest, dOff, readLong(dest, matchOff));
-      dOff += 8;
-      matchOff += 8;
-    }
+  }
+
+  static void safeIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
     LZ4Utils.incrementalCopy(dest, matchOff, dOff, matchCopyEnd - dOff);
+  }
+
+  static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
+    while (dOff - matchOff < COPY_LENGTH) {
+      writeLong(dest, dOff, readLong(dest, matchOff));
+      dOff += dOff - matchOff;
+    }
+    while (dOff < matchCopyEnd) {
+      writeLong(dest, dOff, readLong(dest, matchOff));
+      dOff += 8;
+      matchOff += 8;
+    }
+  }
+
+  static byte readByte(byte[] src, int srcOff) {
+    return UNSAFE.getByte(src, BYTE_ARRAY_OFFSET + srcOff);
+  }
+
+  static void writeByte(byte[] dest, int destOff, byte value) {
+    UNSAFE.putByte(dest, BYTE_ARRAY_OFFSET + destOff, value);
   }
 
   static long readLong(byte[] src, int srcOff) {
@@ -282,6 +289,14 @@ public enum LZ4JavaUnsafe implements LZ4 {
     UNSAFE.putInt(dest, BYTE_ARRAY_OFFSET + destOff, value);
   }
 
+  static short readShort(byte[] src, int srcOff) {
+    return UNSAFE.getShort(src, BYTE_ARRAY_OFFSET + srcOff);
+  }
+
+  static void writeShort(byte[] dest, int destOff, short value) {
+    UNSAFE.putShort(dest, BYTE_ARRAY_OFFSET + destOff, value);
+  }
+
   static int readInt(int[] src, int srcOff) {
     return UNSAFE.getInt(src, INT_ARRAY_OFFSET + INT_ARRAY_SCALE * srcOff);
   }
@@ -290,26 +305,20 @@ public enum LZ4JavaUnsafe implements LZ4 {
     UNSAFE.putInt(dest, INT_ARRAY_OFFSET + INT_ARRAY_SCALE * destOff, value);
   }
 
-  static int commonBytes(byte[] src, int sOff, int ref, int srcLimit) {
-    int result = 0;
-    while (sOff < srcLimit - 8) {
-      final long diff = readLong(src, sOff) - readLong(src, ref);
-      final int zeroBits;
-      if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
-        zeroBits = Long.numberOfLeadingZeros(diff);
-      } else {
-        zeroBits = Long.numberOfTrailingZeros(diff);
-      }
-      if (zeroBits == 64) {
-        result += 8;
-        sOff += 8;
-        ref += 8;
-      } else {
-        result += zeroBits >>> 3;
-        break;
-      }
+  static int readShortLittleEndian(byte[] src, int srcOff) {
+    short s = readShort(src, srcOff);
+    if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
+      s = Short.reverseBytes(s);
     }
-    return result;
+    return s & 0xFFFF;
+  }
+
+  static void writeShortLittleEndian(byte[] dest, int destOff, int value) {
+    short s = (short) value;
+    if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
+      s = Short.reverseBytes(s);
+    }
+    writeShort(dest, destOff, s);
   }
 
   public int uncompress(byte[] src, final int srcOff, byte[] dest, final int destOff, int destLen) {
@@ -339,18 +348,19 @@ public enum LZ4JavaUnsafe implements LZ4 {
         if (literalCopyEnd > destEnd) {
           throw new LZ4Exception("Malformed input at " + sOff);
         } else {
-          arraycopy(src, sOff, dest, dOff, literalLen);
+          safeArraycopy(src, sOff, dest, dOff, literalLen);
           sOff += literalLen;
           break; // EOF
         }
       }
 
-      arraycopy(src, sOff, dest, dOff, literalLen);
+      wildArraycopy(src, sOff, dest, dOff, literalLen);
       sOff += literalLen;
       dOff = literalCopyEnd;
 
       // matchs
-      final int matchDec = (src[sOff++] & 0xFF) | ((src[sOff++] & 0xFF) << 8);
+      final int matchDec = readShortLittleEndian(src, sOff);
+      sOff += 2;
       int matchOff = dOff - matchDec;
 
       if (matchOff < destOff) {
@@ -368,11 +378,15 @@ public enum LZ4JavaUnsafe implements LZ4 {
       matchLen += MIN_MATCH;
 
       final int matchCopyEnd = dOff + matchLen;
-      if (matchCopyEnd > destEnd) {
-        throw new LZ4Exception("Malformed input at " + sOff);
-      }
 
-      incrementalCopy(dest, matchOff, dOff, matchCopyEnd);
+      if (matchCopyEnd > dest.length - COPY_LENGTH) {
+        if (matchCopyEnd > destEnd) {
+          throw new LZ4Exception("Malformed input at " + sOff);
+        }
+        safeIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
+      } else {
+        wildIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
+      }
       dOff = matchCopyEnd;
     }
 
@@ -381,12 +395,11 @@ public enum LZ4JavaUnsafe implements LZ4 {
 
   @Override
   public int uncompressUnknownSize(byte[] src, int srcOff, int srcLen,
-      byte[] dest, int destOff, int maxDestLen) {
+      byte[] dest, int destOff) {
     checkRange(src, srcOff, srcLen);
-    checkRange(dest, destOff, maxDestLen);
+    checkRange(dest, destOff);
 
     final int srcEnd = srcOff + srcLen;
-    final int destEnd = destOff + maxDestLen;
 
     int sOff = srcOff;
     int dOff = destOff;
@@ -405,11 +418,11 @@ public enum LZ4JavaUnsafe implements LZ4 {
       }
 
       final int literalCopyEnd = dOff + literalLen;
-      if (literalCopyEnd > destEnd - COPY_LENGTH || sOff + literalLen > srcEnd - COPY_LENGTH) {
-        if (literalCopyEnd > destEnd || sOff + literalLen > srcEnd) {
+      if (literalCopyEnd > dest.length - COPY_LENGTH || sOff + literalLen > srcEnd - COPY_LENGTH) {
+        if (literalCopyEnd > dest.length || sOff + literalLen > srcEnd) {
           throw new LZ4Exception("Malformed input at " + sOff);
         } else {
-          arraycopy(src, sOff, dest, dOff, literalLen);
+          safeArraycopy(src, sOff, dest, dOff, literalLen);
           sOff += literalLen;
           dOff += literalLen;
           if (sOff < srcEnd) {
@@ -419,12 +432,13 @@ public enum LZ4JavaUnsafe implements LZ4 {
         }
       }
 
-      arraycopy(src, sOff, dest, dOff, literalLen);
+      wildArraycopy(src, sOff, dest, dOff, literalLen);
       sOff += literalLen;
       dOff = literalCopyEnd;
 
       // matchs
-      final int matchDec = (src[sOff++] & 0xFF) | ((src[sOff++] & 0xFF) << 8);
+      final int matchDec = readShortLittleEndian(src, sOff);
+      sOff += 2;
       int matchOff = dOff - matchDec;
 
       if (matchOff < destOff) {
@@ -442,41 +456,19 @@ public enum LZ4JavaUnsafe implements LZ4 {
       matchLen += MIN_MATCH;
 
       final int matchCopyEnd = dOff + matchLen;
-      if (matchCopyEnd > destEnd) {
-        throw new LZ4Exception("Malformed input at " + sOff);
-      }
 
-      incrementalCopy(dest, matchOff, dOff, matchCopyEnd);
+      if (matchCopyEnd > dest.length - COPY_LENGTH) {
+        if (matchCopyEnd > dest.length) {
+          throw new LZ4Exception("Malformed input at " + sOff);
+        }
+        safeIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
+      } else {
+        wildIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
+      }
       dOff = matchCopyEnd;
     }
 
     return dOff - destOff;
-  }
-
-  public static void main(String[] args) {
-    LZ4 lz4 = LZ4JavaUnsafe.FAST;
-    byte[] data = new byte[1024 * 32];
-    Random r = new Random();
-    for (int i = 0; i < data.length; ++i) {
-      data[i] = (byte) r.nextInt(5);
-    }
-    byte[] buf = new byte[LZ4JavaUnsafe.FAST.maxCompressedLength(data.length)];
-    int h = 0;
-    long start = System.currentTimeMillis();
-    for (int i = 0; i < 50000; ++i) {
-      lz4.compress(data, 0, data.length, buf, 0);
-      h = h ^ Arrays.hashCode(buf);
-    }
-    System.out.println(h);
-    System.out.println(System.currentTimeMillis() - start);
-    byte[] buf2 = new byte[data.length];
-    start = System.currentTimeMillis();
-    for (int i = 0; i < 50000; ++i) {
-      lz4.uncompress(buf, 0, buf2, 0, buf2.length);
-      h = h ^ Arrays.hashCode(buf);
-    }
-    System.out.println(h);
-    System.out.println(System.currentTimeMillis() - start);
   }
 
 }

@@ -34,7 +34,7 @@ public enum LZ4JNI implements LZ4 {
   FAST {
     public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
       checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff);
+      checkRange(dest, destOff, maxCompressedLength(srcLen));
       final int result = LZ4_compress(src, srcOff, srcLen, dest, destOff);
       if (result <= 0) {
         throw new LZ4Exception();
@@ -46,7 +46,7 @@ public enum LZ4JNI implements LZ4 {
   HIGH_COMPRESSION {
     public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
       checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff);
+      checkRange(dest, destOff, maxCompressedLength(srcLen));
       final int result = LZ4_compressHC(src, srcOff, srcLen, dest, destOff);
       if (result <= 0) {
         throw new LZ4Exception();
@@ -72,10 +72,10 @@ public enum LZ4JNI implements LZ4 {
     return result;
   }
 
-  public final int uncompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
+  public final int uncompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
     checkRange(src, srcOff, srcLen);
-    checkRange(dest, destOff, maxDestLen);
-    final int result = LZ4_uncompress_unknownOutputSize(src, srcOff, srcLen, dest, destOff, maxDestLen);
+    checkRange(dest, destOff);
+    final int result = LZ4_uncompress_unknownOutputSize(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
     if (result < 0) {
       throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
     }

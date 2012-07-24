@@ -49,16 +49,7 @@ enum LZ4Utils {
   }
 
   static int readInt(byte[] buf, int i) {
-    return (buf[i] & 0xFF) | ((buf[i+1] & 0xFF) << 8) | ((buf[i+2] & 0xFF) << 16) | ((buf[i+3] & 0xFF) << 24);
-  }
-
-  static final int commonBytes(byte[] src, int sOff, int ref, int srcLimit) {
-    final int anchor = sOff;
-    while (sOff < srcLimit && src[sOff] == src[ref]) {
-      ++sOff;
-      ++ref;
-    }
-    return sOff - anchor;
+    return ((buf[i] & 0xFF) << 24) | ((buf[i+1] & 0xFF) << 16) | ((buf[i+2] & 0xFF) << 8) | (buf[i+3] & 0xFF);
   }
 
   static void incrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {

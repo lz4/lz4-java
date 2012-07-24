@@ -194,13 +194,7 @@ public class LZ4Test {
     final byte[] compressed = new byte[maxCompressedLength];
     final int compressedLength = LZ4JNI.FAST.compress(data, 0, data.length, compressed, 0);
     try {
-      LZ4JNI.FAST.uncompressUnknownSize(compressed, 0, compressedLength, new byte[data.length + 100], 0, data.length - 1);
-      assertFalse(true);
-    } catch (LZ4Exception e) {
-      // ok
-    }
-    try {
-      LZ4JNI.FAST.uncompressUnknownSize(compressed, 0, compressedLength, new byte[data.length - 1], 0, data.length - 1);
+      LZ4JNI.FAST.uncompressUnknownSize(compressed, 0, compressedLength, new byte[data.length - 1], 0);
       assertFalse(true);
     } catch (LZ4Exception e) {
       // ok
