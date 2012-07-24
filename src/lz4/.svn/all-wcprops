@@ -1,25 +1,7 @@
 K 25
 svn:wc:ra_dav:version-url
 V 22
-/svn/!svn/ver/68/trunk
-END
-lz4_format_description.txt
-K 25
-svn:wc:ra_dav:version-url
-V 49
-/svn/!svn/ver/58/trunk/lz4_format_description.txt
-END
-bench.h
-K 25
-svn:wc:ra_dav:version-url
-V 30
-/svn/!svn/ver/59/trunk/bench.h
-END
-lz4hc.c
-K 25
-svn:wc:ra_dav:version-url
-V 30
-/svn/!svn/ver/66/trunk/lz4hc.c
+/svn/!svn/ver/69/trunk
 END
 lz4.c
 K 25
@@ -37,7 +19,7 @@ Makefile
 K 25
 svn:wc:ra_dav:version-url
 V 31
-/svn/!svn/ver/66/trunk/Makefile
+/svn/!svn/ver/69/trunk/Makefile
 END
 lz4.h
 K 25
@@ -56,4 +38,22 @@ K 25
 svn:wc:ra_dav:version-url
 V 30
 /svn/!svn/ver/66/trunk/bench.c
+END
+lz4_format_description.txt
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/58/trunk/lz4_format_description.txt
+END
+bench.h
+K 25
+svn:wc:ra_dav:version-url
+V 30
+/svn/!svn/ver/59/trunk/bench.h
+END
+lz4hc.c
+K 25
+svn:wc:ra_dav:version-url
+V 30
+/svn/!svn/ver/66/trunk/lz4hc.c
 END

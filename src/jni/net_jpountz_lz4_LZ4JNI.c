@@ -16,7 +16,7 @@
  */
 
 #include "lz4.h"
-#include "net_jpountz_lz4_LZ4.h"
+#include "net_jpountz_lz4_LZ4JNI.h"
 
 static jclass OutOfMemoryError;
 
@@ -25,7 +25,7 @@ static jclass OutOfMemoryError;
  * Method:    init
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_net_jpountz_lz4_LZ4_init
+JNIEXPORT void JNICALL Java_net_jpountz_lz4_LZ4JNI_init
   (JNIEnv *env, jclass cls) {
   OutOfMemoryError = (*env)->FindClass(env, "java/lang/OutOfMemoryError");
 }
@@ -39,7 +39,7 @@ static void throw_OOM(JNIEnv *env) {
  * Method:    LZ4_compress
  * Signature: ([BII[BI)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4_LZ4_1compress
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress
   (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff) {
 
   char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
@@ -67,7 +67,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4_LZ4_1compress
  * Method:    LZ4_compressHC
  * Signature: ([BII[BI)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4_LZ4_1compressHC
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
   (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff) {
 
   char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
@@ -95,7 +95,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4_LZ4_1compressHC
  * Method:    LZ4_uncompress
  * Signature: ([BI[BII)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4_LZ4_1uncompress
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1uncompress
   (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jbyteArray dest, jint destOff, jint destLen) {
 
   char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
@@ -123,7 +123,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4_LZ4_1uncompress
  * Method:    LZ4_uncompress_unknownOutputSize
  * Signature: ([BII[BI)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4_LZ4_1uncompress_1unknownOutputSize
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1uncompress_1unknownOutputSize
   (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff, jint maxDestLen) {
 
   char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
@@ -151,7 +151,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4_LZ4_1uncompress_1unknownOutputSi
  * Method:    LZ4_compressBound
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4_LZ4_1compressBound
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressBound
   (JNIEnv *env, jclass cls, jint length) {
 
   return LZ4_compressBound(length);

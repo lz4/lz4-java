@@ -40,7 +40,7 @@
       <classpath>
         <pathelement location="${build}/classes/" />
       </classpath>
-      <class name="net.jpountz.lz4.LZ4" />
+      <class name="net.jpountz.lz4.LZ4JNI" />
     </javah>
   </target>
 
