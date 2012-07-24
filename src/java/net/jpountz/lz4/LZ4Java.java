@@ -165,7 +165,7 @@ public enum LZ4Java implements LZ4 {
 
             tokenOff = dOff++;
             dest[tokenOff] = 0;
-          };
+          }
 
           // prepare next loop
           anchor = sOff++;

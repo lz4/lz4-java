@@ -181,7 +181,7 @@ public enum LZ4JavaUnsafe implements LZ4 {
 
             tokenOff = dOff++;
             dest[tokenOff] = 0;
-          };
+          }
 
           // prepare next loop
           anchor = sOff++;
