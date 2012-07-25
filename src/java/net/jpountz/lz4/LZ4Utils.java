@@ -52,9 +52,38 @@ enum LZ4Utils {
     return ((buf[i] & 0xFF) << 24) | ((buf[i+1] & 0xFF) << 16) | ((buf[i+2] & 0xFF) << 8) | (buf[i+3] & 0xFF);
   }
 
+  static int readShortLittleEndian(byte[] buf, int i) {
+    return (buf[i] & 0xFF) | ((buf[i+1] & 0xFF) << 8);
+  }
+
+  static int hash(byte[] buf, int i) {
+    return hash(readInt(buf, i));
+  }
+
+  static boolean readIntEquals(byte[] buf, int i, int j) {
+    return buf[i] == buf[j] && buf[i+1] == buf[j+1] && buf[i+2] == buf[j+2] && buf[i+3] == buf[j+3];
+  }
+
   static void incrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
     for (int i = 0; i < matchLen; ++i) {
       dest[dOff++] = dest[matchOff++];
     }
   }
+
+  static int commonBytes(byte[] b, int o1, int o2, int limit) {
+    int count = 0;
+    while (o2 < limit && b[o1++] == b[o2++]) {
+      ++count;
+    }
+    return count;
+  }
+
+  static int commonBytesBackward(byte[] b, int o1, int o2, int l1, int l2) {
+    int count = 0;
+    while (o1 > l1 && o2 > l2 && b[--o1] == b[--o2]) {
+      ++count;
+    }
+    return count;
+  }
+
 }

@@ -12,9 +12,10 @@ import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
 import static net.jpountz.lz4.LZ4Utils.SKIP_STRENGTH;
 import static net.jpountz.lz4.LZ4Utils.checkRange;
+import static net.jpountz.lz4.LZ4Utils.commonBytes;
+import static net.jpountz.lz4.LZ4Utils.commonBytesBackward;
 import static net.jpountz.lz4.LZ4Utils.hash;
-import static net.jpountz.lz4.LZ4Utils.incrementalCopy;
-import static net.jpountz.lz4.LZ4Utils.readInt;
+import static net.jpountz.lz4.LZ4Utils.readIntEquals;
 
 import java.util.Arrays;
 
@@ -50,9 +51,6 @@ public enum LZ4Java implements LZ4 {
 
         ++sOff;
 
-        int forwardSequence = readInt(src, sOff);
-        int forwardH = hash(forwardSequence);
-
         main:
         while (sOff < srcLimit) {
 
@@ -60,13 +58,11 @@ public enum LZ4Java implements LZ4 {
           int forwardOff = sOff;
 
           int ref;
-          int sequence, refSequence;
           int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
           int back;
           while (true) {
             sOff = forwardOff;
-            sequence = forwardSequence;
-            final int h = forwardH;
+            final int h = hash(src, sOff);
             final int step = findMatchAttempts++ >> SKIP_STRENGTH;
             forwardOff += step;
 
@@ -74,25 +70,21 @@ public enum LZ4Java implements LZ4 {
               break main;
             }
 
-            forwardSequence = readInt(src, forwardOff);
-            forwardH = hash(forwardSequence);
             ref = hashTable[h];
             back = sOff - ref;
             if (back > MAX_DISTANCE) {
               continue;
             }
-            refSequence = readInt(src, ref);
             hashTable[h] = sOff;
-            if (refSequence == sequence) {
+            if (readIntEquals(src, ref, sOff)) {
               break;
             }
           }
 
           // catch up
-          while (sOff > anchor && ref > srcOff && src[sOff - 1] == src[ref - 1]) {
-            --sOff;
-            --ref;
-          }
+          final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
+          sOff -= excess;
+          ref -= excess;
 
           // sequence == refsequence
           final int runLen = sOff - anchor;
@@ -122,15 +114,10 @@ public enum LZ4Java implements LZ4 {
 
             // count nb matches
             sOff += MIN_MATCH;
-            ref += MIN_MATCH;
-            anchor = sOff;
-            while (sOff < srcLimit && src[sOff] == src[ref]) {
-              ++sOff;
-              ++ref;
-            }
+            final int matchLen = commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
+            sOff += matchLen;
 
             // encode match len
-            final int matchLen = sOff - anchor;
             if (matchLen >= ML_MASK) {
               dest[tokenOff] |= ML_MASK;
               int len = matchLen - ML_MASK;
@@ -150,16 +137,16 @@ public enum LZ4Java implements LZ4 {
             }
 
             // fill table
-            hashTable[hash(readInt(src, sOff - 2))] = sOff - 2;
+            hashTable[hash(src, sOff - 2)] = sOff - 2;
 
             // test next position
-            sequence = readInt(src, sOff);
-            final int h = hash(sequence);
+            final int h = hash(src, sOff);
             ref = hashTable[h];
             hashTable[h] = sOff;
             back = sOff - ref;
 
-            if (back > MAX_DISTANCE || refSequence != sequence) {
+            //if (back > MAX_DISTANCE || refSequence != sequence) {
+            if (back > MAX_DISTANCE || !readIntEquals(src, sOff, ref)) {
               break;
             }
 
@@ -169,8 +156,6 @@ public enum LZ4Java implements LZ4 {
 
           // prepare next loop
           anchor = sOff++;
-          forwardSequence = readInt(src, sOff);
-          forwardH = hash(forwardSequence);
         }
       }
 
@@ -200,6 +185,14 @@ public enum LZ4Java implements LZ4 {
   private static void arraycopy(byte[] src, int srcOff, byte[] dest, int destOff, int len) {
     for (int i = 0; i < len; ++i) {
       dest[destOff + i] = src[srcOff + i];
+    }
+  }
+
+  private static void incrementalCopy(byte[] dest, int matchOff, int dOff, int matchDec, int matchLen) {
+    if (matchDec >= matchLen) {
+      System.arraycopy(dest, matchOff, dest, dOff, matchLen);
+    } else {
+      LZ4Utils.incrementalCopy(dest, matchOff, dOff, matchLen);
     }
   }
 
@@ -263,7 +256,7 @@ public enum LZ4Java implements LZ4 {
         throw new LZ4Exception("Malformed input at " + sOff);
       }
 
-      incrementalCopy(dest, matchOff, dOff, matchLen);
+      incrementalCopy(dest, matchOff, dOff, matchDec, matchLen);
       dOff += matchLen;
     }
 
@@ -336,7 +329,7 @@ public enum LZ4Java implements LZ4 {
         throw new LZ4Exception("Malformed input at " + sOff);
       }
 
-      incrementalCopy(dest, matchOff, dOff, matchLen);
+      incrementalCopy(dest, matchOff, dOff, matchDec, matchLen);
       dOff += matchLen;
     }
 

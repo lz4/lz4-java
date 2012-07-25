@@ -12,7 +12,6 @@ import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
 import static net.jpountz.lz4.LZ4Utils.SKIP_STRENGTH;
 import static net.jpountz.lz4.LZ4Utils.checkRange;
-import static net.jpountz.lz4.LZ4Utils.hash;
 
 import java.lang.reflect.Field;
 import java.nio.ByteOrder;
@@ -52,9 +51,6 @@ public enum LZ4JavaUnsafe implements LZ4 {
 
         ++sOff;
 
-        int forwardSequence = readInt(src, sOff);
-        int forwardH = hash(forwardSequence);
-
         main:
         while (sOff < srcLimit) {
 
@@ -62,13 +58,11 @@ public enum LZ4JavaUnsafe implements LZ4 {
           int forwardOff = sOff;
 
           int ref;
-          int sequence, refSequence;
           int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
           int back;
           while (true) {
             sOff = forwardOff;
-            sequence = forwardSequence;
-            final int h = forwardH;
+            final int h = hash(src, sOff);
             final int step = findMatchAttempts++ >> SKIP_STRENGTH;
             forwardOff += step;
 
@@ -76,16 +70,13 @@ public enum LZ4JavaUnsafe implements LZ4 {
               break main;
             }
 
-            forwardSequence = readInt(src, forwardOff);
-            forwardH = hash(forwardSequence);
             ref = readInt(hashTable, h);
             back = sOff - ref;
             if (back > MAX_DISTANCE) {
               continue;
             }
-            refSequence = readInt(src, ref);
             writeInt(hashTable, h, sOff);
-            if (refSequence == sequence) {
+            if (readIntEquals(src, ref, sOff)) {
               break;
             }
           }
@@ -166,16 +157,15 @@ public enum LZ4JavaUnsafe implements LZ4 {
             }
 
             // fill table
-            writeInt(hashTable, hash(readInt(src, sOff - 2)), sOff - 2);
+            writeInt(hashTable, hash(src, sOff - 2), sOff - 2);
 
             // test next position
-            sequence = readInt(src, sOff);
-            final int h = hash(sequence);
+            final int h = hash(src, sOff);
             ref = readInt(hashTable, h);
             writeInt(hashTable, h, sOff);
             back = sOff - ref;
 
-            if (back > MAX_DISTANCE || refSequence != sequence) {
+            if (back > MAX_DISTANCE || !readIntEquals(src, ref, sOff)) {
               break;
             }
 
@@ -185,8 +175,6 @@ public enum LZ4JavaUnsafe implements LZ4 {
 
           // prepare next loop
           anchor = sOff++;
-          forwardSequence = readInt(src, sOff);
-          forwardH = hash(forwardSequence);
         }
       }
 
@@ -319,6 +307,14 @@ public enum LZ4JavaUnsafe implements LZ4 {
       s = Short.reverseBytes(s);
     }
     writeShort(dest, destOff, s);
+  }
+
+  static int hash(byte[] buf, int off) {
+    return LZ4Utils.hash(readInt(buf, off));
+  }
+
+  static boolean readIntEquals(byte[] src, int ref, int sOff) {
+    return readInt(src, ref) == readInt(src, sOff);
   }
 
   public int uncompress(byte[] src, final int srcOff, byte[] dest, final int destOff, int destLen) {
