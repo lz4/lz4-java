@@ -51,7 +51,7 @@ public class LZ4StreamsTest {
     restored = new byte[len + 100];
     off = 0;
     while (off < len) {
-      final int toRead = Math.min(r.nextInt(5), restored.length - off);
+      final int toRead = Math.min(r.nextInt(64), restored.length - off);
       final int read = lz4Is.read(restored, off, toRead);
       assertTrue(read >= 0);
       off+= read;
@@ -62,9 +62,9 @@ public class LZ4StreamsTest {
   }
 
   public void testStream(LZ4 lz4) throws IOException {
-    for (int len : new int[] {/*0,*/ 1, 10, 1024, 65 * 1024}) {
-      for (int bufSize : new int[] {/*1,*/ 100, 4096}) {
-        for (int max : new int[] {5, 256}) {
+    for (int len : new int[] {0, 1, 10, 1024, 65 * 128}) {
+      for (int bufSize : new int[] {1, 100, 2048, 32 * 1024}) {
+        for (int max : new int[] {5, 10, 50, 256}) {
           testStream(lz4, len, bufSize, max);
         }
       }
