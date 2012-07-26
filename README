@@ -1,7 +1,9 @@
 LZ4 compression for Java.
 http://code.google.com/p/lz4/
 
-This repository contains three LZ4 implementations:
+This repository contains three LZ4 compressor/uncompressor implementations:
  - a JNI binding,
  - a pure Java implementation,
  - a Java implementation that uses sun.misc.Unsafe to speedup compression/uncompression.
+
+This repository is still experimental, don't use it!

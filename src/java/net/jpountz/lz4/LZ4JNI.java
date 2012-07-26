@@ -65,7 +65,6 @@ enum LZ4JNI {
     String resourceName = resourceName();
     InputStream is = LZ4JNI.class.getResourceAsStream(resourceName);
     if (is == null) {
-      System.out.println(resourceName);
       throw new UnsupportedOperationException("Unsupported OS/arch, cannot find " + resourceName);
     }
     File tempLib;
