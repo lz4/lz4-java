@@ -13,7 +13,7 @@ import org.junit.Test;
 
 public class LZ4StreamsTest {
 
-  public void testStream(LZ4 lz4, int len, int bufSize, int max) throws IOException {
+  public void testStream(CompressionCodec compressionCodec, int len, int bufSize, int max) throws IOException {
     byte[] buf = new byte[len];
     Random r = new Random(0);
     for (int i = 0; i < len; ++i) {
@@ -21,7 +21,7 @@ public class LZ4StreamsTest {
     }
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    LZ4OutputStream lz4Os = new LZ4OutputStream(out, lz4, bufSize);
+    LZ4ChunksOutputStream lz4Os = new LZ4ChunksOutputStream(out, compressionCodec, bufSize);
 
     int off = 0;
     while (off < len) {
@@ -33,7 +33,7 @@ public class LZ4StreamsTest {
 
     // test full read
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-    LZ4InputStream lz4Is = new LZ4InputStream(in, lz4);
+    LZ4ChunksInputStream lz4Is = new LZ4ChunksInputStream(in, compressionCodec);
     byte[] restored = new byte[len + 100];
     off = 0;
     while (off < len) {
@@ -47,7 +47,7 @@ public class LZ4StreamsTest {
 
     // test partial reads
     in = new ByteArrayInputStream(out.toByteArray());
-    lz4Is = new LZ4InputStream(in, lz4);
+    lz4Is = new LZ4ChunksInputStream(in, compressionCodec);
     restored = new byte[len + 100];
     off = 0;
     while (off < len) {
@@ -61,31 +61,20 @@ public class LZ4StreamsTest {
     assertArrayEquals(buf, Arrays.copyOf(restored, len));
   }
 
-  public void testStream(LZ4 lz4) throws IOException {
-    for (int len : new int[] {0, 1, 10, 1024, 65 * 128}) {
+  public void testStream(CompressionCodec compressionCodec) throws IOException {
+    for (int len : new int[] {0, 1, 10, 1024, 512 * 1024}) {
       for (int bufSize : new int[] {1, 100, 2048, 32 * 1024}) {
         for (int max : new int[] {5, 10, 50, 256}) {
-          testStream(lz4, len, bufSize, max);
+          testStream(compressionCodec, len, bufSize, max);
         }
       }
     }
   }
 
   @Test
-  public void testLZ4JNIFast() throws IOException {
-    testStream(LZ4JNI.FAST);
+  public void testStream() throws IOException {
+    testStream(new LengthLZ4(LZ4Test.COMPRESSORS[0], LZ4Test.UNCOMPRESSORS[0]));
+    testStream(new LengthBitsLZ4(LZ4Test.COMPRESSORS[0], LZ4Test.UNCOMPRESSORS2[0]));
   }
 
-  @Test
-  public void testLZ4JNIHC() throws IOException {
-    testStream(LZ4JNI.HIGH_COMPRESSION);
-  }
-  @Test
-  public void testLZ4JavaFast() throws IOException {
-    testStream(LZ4Java.FAST);
-  }
-  @Test
-  public void testLZ4JavaUnsafeFast() throws IOException {
-    testStream(LZ4JavaUnsafe.FAST);
-  }
 }

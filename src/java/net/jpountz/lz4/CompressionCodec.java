@@ -20,7 +20,7 @@ import java.util.Arrays;
  */
 
 /**
- * A compression codec.
+ * A compression codec built on top of a compressor and an uncompressor.
  */
 public abstract class CompressionCodec {
 

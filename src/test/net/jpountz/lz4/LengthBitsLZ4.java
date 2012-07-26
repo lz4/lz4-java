@@ -2,23 +2,24 @@ package net.jpountz.lz4;
 
 /**
  * Utility class that writes the number of bits of the uncompressed length at
- * the beginning of the stream and uses
- * {@link LZ4#uncompressUnknownSize(byte[], int, int, byte[], int, int)} to
+ * the beginning of the stream and uses a {@link LZ4UnknwonSizeUncompressor} to
  * uncompress data.
  *
  * Only for testing purposes.
  */
 class LengthBitsLZ4 extends CompressionCodec {
 
-  private final LZ4 lz4;
+  private final LZ4Compressor compressor;
+  private final LZ4UnknwonSizeUncompressor uncompressor;
 
-  public LengthBitsLZ4(LZ4 lz4) {
-    this.lz4 = lz4;
+  public LengthBitsLZ4(LZ4Compressor compressor, LZ4UnknwonSizeUncompressor uncompressor) {
+    this.compressor = compressor;
+    this.uncompressor = uncompressor;
   }
 
   @Override
   public int maxCompressedLength(int length) {
-    return lz4.maxCompressedLength(length) + 1;
+    return compressor.maxCompressedLength(length) + 1;
   }
 
   @Override
@@ -35,13 +36,13 @@ class LengthBitsLZ4 extends CompressionCodec {
       int destOff) {
     final int bitsRequired = Math.max(1, 32 - Integer.numberOfLeadingZeros(srcLen));
     dest[destOff++] = (byte) (bitsRequired - 1);
-    return 1 + lz4.compress(src, srcOff, srcLen, dest, destOff);
+    return 1 + compressor.compress(src, srcOff, srcLen, dest, destOff);
   }
 
   @Override
   public int uncompress(byte[] src, int srcOff, int srcLen, byte[] dest,
       int destOff) {
-    return lz4.uncompressUnknownSize(src, srcOff + 1, srcLen - 1, dest, destOff);
+    return uncompressor.uncompressUnknownSize(src, srcOff + 1, srcLen - 1, dest, destOff);
   }
 
 }

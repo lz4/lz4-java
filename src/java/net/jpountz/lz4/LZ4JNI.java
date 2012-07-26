@@ -17,70 +17,16 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.lz4.LZ4Utils.checkRange;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Random;
 
 /**
  * JNI bindings to the original C implementation of LZ4.
  */
-public enum LZ4JNI implements LZ4 {
-
-  FAST {
-    public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
-      checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff, maxCompressedLength(srcLen));
-      final int result = LZ4_compress(src, srcOff, srcLen, dest, destOff);
-      if (result <= 0) {
-        throw new LZ4Exception();
-      }
-      return result;
-    }
-  },
-
-  HIGH_COMPRESSION {
-    public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
-      checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff, maxCompressedLength(srcLen));
-      final int result = LZ4_compressHC(src, srcOff, srcLen, dest, destOff);
-      if (result <= 0) {
-        throw new LZ4Exception();
-      }
-      return result;
-    }
-  };
-
-  public final int maxCompressedLength(int length) {
-    if (length < 0) {
-      throw new IllegalArgumentException("length must be >= 0, got " + length);
-    }
-    return LZ4_compressBound(length);
-  }
-
-  public final int uncompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen) {
-    checkRange(src, srcOff);
-    checkRange(dest, destOff, destLen);
-    final int result = LZ4_uncompress(src, srcOff, dest, destOff, destLen);
-    if (result < 0) {
-      throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
-    }
-    return result;
-  }
-
-  public final int uncompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
-    checkRange(src, srcOff, srcLen);
-    checkRange(dest, destOff);
-    final int result = LZ4_uncompress_unknownOutputSize(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
-    if (result < 0) {
-      throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
-    }
-    return result;
-  }
+enum LZ4JNI {
+  ;
 
   private enum OS {
     WINDOWS("windows", "dll"), LINUX("linux", "so"), MAC("mac", "dylib");
@@ -167,30 +113,5 @@ public enum LZ4JNI implements LZ4 {
   static native int LZ4_uncompress_unknownOutputSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
   static native int LZ4_compressBound(int length);
 
-  public static void main(String[] args) {
-    LZ4 lz4 = LZ4JNI.FAST;
-    byte[] data = new byte[1024 * 32];
-    Random r = new Random();
-    for (int i = 0; i < data.length; ++i) {
-      data[i] = (byte) r.nextInt(5);
-    }
-    byte[] buf = new byte[lz4.maxCompressedLength(data.length)];
-    int h = 0;
-    long start = System.currentTimeMillis();
-    for (int i = 0; i < 50000; ++i) {
-      lz4.compress(data, 0, data.length, buf, 0);
-      h = h ^ Arrays.hashCode(buf);
-    }
-    System.out.println(h);
-    System.out.println(System.currentTimeMillis() - start);
-    byte[] buf2 = new byte[data.length];
-    start = System.currentTimeMillis();
-    for (int i = 0; i < 50000; ++i) {
-      lz4.uncompress(buf, 0, buf2, 0, buf2.length);
-      h = h ^ Arrays.hashCode(buf);
-    }
-    System.out.println(h);
-    System.out.println(System.currentTimeMillis() - start);
-  }
 }
 

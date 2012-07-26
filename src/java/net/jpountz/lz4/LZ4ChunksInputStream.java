@@ -5,9 +5,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import static net.jpountz.lz4.LZ4OutputStream.MAGIC;
+import static net.jpountz.lz4.LZ4ChunksOutputStream.MAGIC;
 
-public class LZ4InputStream extends InputStream {
+/**
+ * Uncompress a stream which has been compressed with
+ * {@link LZ4ChunksOutputStream}. You need to provide the same
+ * {@link CompressionCodec} as the one which has been used for compression.
+ */
+public class LZ4ChunksInputStream extends InputStream {
 
   private final InputStream is;
   private final CompressionCodec codec;
@@ -18,9 +23,9 @@ public class LZ4InputStream extends InputStream {
 
   private final byte[] singleByteBuffer = new byte[1];
 
-  public LZ4InputStream(InputStream is, LZ4 lz4) throws IOException {
+  public LZ4ChunksInputStream(InputStream is, CompressionCodec codec) throws IOException {
     this.is = is;
-    this.codec = new LengthLZ4(lz4);
+    this.codec = codec;
     buffer = new byte[1024];
     encodedBuffer = new byte[codec.maxCompressedLength(buffer.length)];
     offset = length = 0;

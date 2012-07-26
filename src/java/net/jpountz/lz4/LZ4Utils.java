@@ -17,12 +17,19 @@ enum LZ4Utils {
   static final int MF_LIMIT = COPY_LENGTH + MIN_MATCH;
   static final int MIN_LENGTH = MF_LIMIT + 1;
 
-  static final int MAX_DISTANCE = (1 << 16) - 1;
+  static final int MAX_DISTANCE = 1 << 16;
 
   static final int ML_BITS = 4;
   static final int ML_MASK = (1 << ML_BITS) - 1;
   static final int RUN_BITS = 8 - ML_BITS;
   static final int RUN_MASK = (1 << RUN_BITS) - 1;
+
+  static final int maxCompressedLength(int length) {
+    if (length < 0) {
+      throw new IllegalArgumentException("length must be >= 0, got " + length);
+    }
+    return length + length / 255 + 16;
+  }
 
   static void checkRange(byte[] buf, int off) {
     if (off < 0 || off >= buf.length) {
@@ -84,6 +91,13 @@ enum LZ4Utils {
       ++count;
     }
     return count;
+  }
+
+  // for real-world cases, sequences are usually rather short, so memcpy has a lot of overhead...
+  static void shortArraycopy(byte[] src, int srcOff, byte[] dest, int destOff, int len) {
+    for (int i = 0; i < len; ++i) {
+      dest[destOff + i] = src[srcOff + i];
+    }
   }
 
 }

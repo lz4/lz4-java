@@ -1,20 +1,22 @@
 package net.jpountz.lz4;
 
 /**
- * Utility class that writes uncompressed lentgh at the beginning of the stream
+ * Utility class that writes uncompressed length at the beginning of the stream
  * to speed up decompression.
  */
 public class LengthLZ4 extends CompressionCodec {
 
-  private final LZ4 lz4;
+  private final LZ4Compressor compressor;
+  private final LZ4Uncompressor uncompressor;
 
-  public LengthLZ4(LZ4 lz4) {
-    this.lz4 = lz4;
+  public LengthLZ4(LZ4Compressor compressor, LZ4Uncompressor uncompressor) {
+    this.compressor = compressor;
+    this.uncompressor = uncompressor;
   }
 
   @Override
   public int maxCompressedLength(int length) {
-    return lz4.maxCompressedLength(length) + 4;
+    return compressor.maxCompressedLength(length) + 4;
   }
 
   @Override
@@ -36,13 +38,13 @@ public class LengthLZ4 extends CompressionCodec {
     dest[destOff++] = (byte) (srcLen >>> 16);
     dest[destOff++] = (byte) (srcLen >>> 8);
     dest[destOff++] = (byte) srcLen;
-    return 4 + lz4.compress(src, srcOff, srcLen, dest, destOff);
+    return 4 + compressor.compress(src, srcOff, srcLen, dest, destOff);
   }
 
   @Override
   public int uncompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
     final int uncompressedLen = maxUncompressedLength(src, srcOff, srcLen);
-    final int compressedLen = 4 + lz4.uncompress(src, srcOff + 4, dest, destOff, uncompressedLen);
+    final int compressedLen = 4 + uncompressor.uncompress(src, srcOff + 4, dest, destOff, uncompressedLen);
     if (compressedLen != srcLen) {
       throw new LZ4Exception("Uncompressed length mismatch " + srcLen + " != " + compressedLen);
     }

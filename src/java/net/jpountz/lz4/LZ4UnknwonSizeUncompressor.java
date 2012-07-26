@@ -18,22 +18,16 @@ package net.jpountz.lz4;
  */
 
 /**
- * LZ4 compression/uncompression error.
+ * LZ4 uncompressor. Implementations of this class are usually slower than those
+ * of {@link LZ4Uncompressor} but do not require to know the size of the
+ * uncompressed data.
  */
-public class LZ4Exception extends RuntimeException {
+public interface LZ4UnknwonSizeUncompressor {
 
-  private static final long serialVersionUID = 1L;
-
-  public LZ4Exception(String msg, Throwable t) {
-    super(msg, t);
-  }
-
-  public LZ4Exception(String msg) {
-    super(msg);
-  }
-
-  public LZ4Exception() {
-    super();
-  }
+  /**
+   * Uncompress <code>src[srcOff:srcLen]</code> into <code>dest[destOff:]</code>.
+   * Returns the number of uncompressed bytes written into <code>dest</code>.
+   */
+  int uncompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
 
 }
