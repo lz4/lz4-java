@@ -34,7 +34,7 @@ public class LZ4ChunksOutputStream extends OutputStream {
   }
 
   public LZ4ChunksOutputStream(OutputStream os, CompressionCodec codec) throws IOException {
-    this(os, codec, 1 << 15);
+    this(os, codec, 1 << 16);
   }
 
   @Override
