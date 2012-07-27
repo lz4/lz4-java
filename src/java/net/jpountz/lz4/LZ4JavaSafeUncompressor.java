@@ -22,8 +22,9 @@ import static net.jpountz.lz4.LZ4Utils.MIN_MATCH;
 import static net.jpountz.lz4.LZ4Utils.ML_BITS;
 import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
-import static net.jpountz.lz4.LZ4Utils.shortArraycopy;
 import static net.jpountz.lz4.LZ4Utils.checkRange;
+import static net.jpountz.lz4.LZ4Utils.safeArraycopy;
+import static net.jpountz.lz4.LZ4Utils.wildArraycopy;
 
 /**
  * Uncompressor written in pure Java without using the unofficial
@@ -60,13 +61,13 @@ public enum LZ4JavaSafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUn
           if (literalCopyEnd > destEnd) {
             throw new LZ4Exception("Malformed input at " + sOff);
           } else {
-            shortArraycopy(src, sOff, dest, dOff, literalLen);
+            safeArraycopy(src, sOff, dest, dOff, literalLen);
             sOff += literalLen;
             break; // EOF
           }
         }
 
-        shortArraycopy(src, sOff, dest, dOff, literalLen);
+        wildArraycopy(src, sOff, dest, dOff, literalLen);
         sOff += literalLen;
         dOff = literalCopyEnd;
 
@@ -129,7 +130,7 @@ public enum LZ4JavaSafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUn
           if (literalCopyEnd > dest.length || sOff + literalLen > srcEnd) {
             throw new LZ4Exception("Malformed input at " + sOff);
           } else {
-            shortArraycopy(src, sOff, dest, dOff, literalLen);
+            safeArraycopy(src, sOff, dest, dOff, literalLen);
             sOff += literalLen;
             dOff = literalCopyEnd;
             if (sOff < srcEnd) {
@@ -139,7 +140,7 @@ public enum LZ4JavaSafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUn
           }
         }
 
-        shortArraycopy(src, sOff, dest, dOff, literalLen);
+        wildArraycopy(src, sOff, dest, dOff, literalLen);
         sOff += literalLen;
         dOff = literalCopyEnd;
 
@@ -181,4 +182,5 @@ public enum LZ4JavaSafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUn
       LZ4Utils.incrementalCopy(dest, matchOff, dOff, matchLen);
     }
   }
+
 }

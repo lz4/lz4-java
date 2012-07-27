@@ -32,7 +32,8 @@ import static net.jpountz.lz4.LZ4Utils.commonBytes;
 import static net.jpountz.lz4.LZ4Utils.commonBytesBackward;
 import static net.jpountz.lz4.LZ4Utils.hash;
 import static net.jpountz.lz4.LZ4Utils.readIntEquals;
-import static net.jpountz.lz4.LZ4Utils.shortArraycopy;
+import static net.jpountz.lz4.LZ4Utils.safeArraycopy;
+import static net.jpountz.lz4.LZ4Utils.wildArraycopy;
 
 import java.util.Arrays;
 
@@ -120,7 +121,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
           }
 
           // copy literals
-          shortArraycopy(src, anchor, dest, dOff, runLen);
+          wildArraycopy(src, anchor, dest, dOff, runLen);
           dOff += runLen;
 
           while (true) {
@@ -193,7 +194,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
         dest[dOff++] = (byte) (runLen << ML_BITS);
       }
       // copy literals
-      shortArraycopy(src, sOff, dest, dOff, runLen);
+      safeArraycopy(src, sOff, dest, dOff, runLen);
       dOff += runLen;
 
       return dOff;

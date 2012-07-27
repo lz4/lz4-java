@@ -110,10 +110,16 @@ enum LZ4Utils {
     return count;
   }
 
-  // for real-world cases, sequences are usually rather short, so memcpy has a lot of overhead...
-  static void shortArraycopy(byte[] src, int srcOff, byte[] dest, int destOff, int len) {
-    for (int i = 0; i < len; ++i) {
-      dest[destOff + i] = src[srcOff + i];
+  static void safeArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
+    for (int i = 0; i <len; ++i) {
+      dest[dOff + i] = src[sOff + i];
+    }
+  }
+
+  static void wildArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
+    if (len != 0) {
+      final int fastLen = ((len - 1) & 0xFFFFFFF8) + 8;
+      System.arraycopy(src, sOff, dest, dOff, fastLen);
     }
   }
 
