@@ -1,1 +1,2 @@
 - LZ4InputStream
+- use Dawid Weiss' randomized testing
