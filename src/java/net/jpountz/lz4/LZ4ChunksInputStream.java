@@ -89,14 +89,83 @@ public class LZ4ChunksInputStream extends InputStream {
   @Override
   public int read(byte[] b, int off, int len) throws IOException {
     ensureOpen();
-    if (!refill()) {
-      return -1;
+
+    LZ4Utils.checkRange(b, off, len);
+
+    if (len == 0) {
+      return 0;
     }
-    final int copied = Math.min(len, length);
-    System.arraycopy(buffer, offset, b, off, copied);
-    offset += copied;
-    length -= copied;
-    return copied;
+
+    int count = 0;
+
+    if (length > 0) {
+      final int copied = Math.min(len, length);
+      System.arraycopy(buffer, offset, b, off, copied);
+      offset += copied;
+      length -= copied;
+      off += copied;
+      len -= copied;
+      count += copied;
+      if (len == 0) {
+        return count;
+      }
+    }
+
+    while (true) {
+      assert length == 0;
+
+      // read the compressed length
+      if (!readAtLeast(4)) {
+        return count == 0 ? -1 : count;
+      }
+
+      final int compressedLength = ((encodedBuffer[0] & 0xFF) << 24) | ((encodedBuffer[1] & 0xFF) << 16) | ((encodedBuffer[2] & 0xFF) << 8) | (encodedBuffer[3] & 0xFF);
+      if (encodedBuffer.length < 4 + compressedLength) {
+        encodedBuffer = Arrays.copyOf(encodedBuffer, Math.max(compressedLength + 4, encodedBuffer.length * 2));
+      }
+
+      // read the data
+      boolean success = readAtLeast(4 + compressedLength);
+      assert success;
+
+      // uncompress
+      final int maxUncompressedLength = codec.maxUncompressedLength(encodedBuffer, 4, compressedLength);
+
+      if (maxUncompressedLength <= len) {
+        // uncompress directly into the user buffer
+        final int uncompressedLength = codec.uncompress(encodedBuffer, 4, compressedLength, b, off);
+
+        rewindEncodedBuffer(4 + compressedLength);
+
+        off += uncompressedLength;
+        len -= uncompressedLength;
+        count += uncompressedLength;
+
+      } else if (count > 0) {
+        break;
+
+      } else {
+        if (buffer.length < maxUncompressedLength) {
+          buffer = Arrays.copyOf(buffer, Math.max(maxUncompressedLength, buffer.length * 2));
+        }
+
+        offset = 0;
+        length = codec.uncompress(encodedBuffer, 4, compressedLength, buffer, 0);
+
+        rewindEncodedBuffer(4 + compressedLength);
+
+        final int copied = Math.min(len, length);
+        System.arraycopy(buffer, offset, b, off, copied);
+        offset += copied;
+        length -= copied;
+        off += copied;
+        len -= copied;
+        count += copied;
+        break;
+      }
+    }
+
+    return count;
   }
 
   private boolean readAtLeast(int length) throws IOException {
@@ -114,51 +183,9 @@ public class LZ4ChunksInputStream extends InputStream {
     return true;
   }
 
-  private boolean refill() throws IOException {
-    if (length > 0) {
-      return true;
-    }
-
-    // read the compressed length
-    if (!readAtLeast(4)) {
-      return false;
-    }
-
-    final int compressedLength = ((encodedBuffer[0] & 0xFF) << 24) | ((encodedBuffer[1] & 0xFF) << 16) | ((encodedBuffer[2] & 0xFF) << 8) | (encodedBuffer[3] & 0xFF);
-    if (encodedBuffer.length < 4 + compressedLength) {
-      encodedBuffer = Arrays.copyOf(encodedBuffer, Math.max(compressedLength + 4, encodedBuffer.length * 2));
-    }
-
-    // read the data
-    boolean success = readAtLeast(4 + compressedLength);
-    assert success;
-
-    // uncompress
-    final int maxUncompressedLength = codec.maxUncompressedLength(encodedBuffer, 4, compressedLength);
-    if (buffer.length < maxUncompressedLength) {
-      buffer = Arrays.copyOf(buffer, Math.max(maxUncompressedLength, buffer.length * 2));
-    }
-
-    offset = 0;
-    length = codec.uncompress(encodedBuffer, 4, compressedLength, buffer, 0);
-
+  private void rewindEncodedBuffer(int l) {
     // move encoded data to the beginning of the buffer
-    encodedLength -= 4 + compressedLength;
-    System.arraycopy(encodedBuffer, 4 + compressedLength, encodedBuffer, 0, encodedLength);
-
-    return true;
-  }
-
-  @Override
-  public long skip(long n) throws IOException {
-    ensureOpen();
-    if (n <= 0 || !refill()) {
-      return 0;
-    }
-
-    final int skipped = (int) Math.min(length, n);
-    offset += skipped;
-    length -= skipped;
-    return skipped;
+    encodedLength -= l;
+    System.arraycopy(encodedBuffer, l, encodedBuffer, 0, encodedLength);
   }
 }

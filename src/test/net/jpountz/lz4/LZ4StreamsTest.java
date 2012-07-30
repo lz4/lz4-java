@@ -1,6 +1,7 @@
 package net.jpountz.lz4;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -39,10 +40,10 @@ public class LZ4StreamsTest {
     while (off < len) {
       final int read = lz4Is.read(restored, off, restored.length - off);
       assertTrue(read >= 0);
-      off+= read;
+      off += read;
     }
     lz4Is.close();
-    assertTrue(off == len);
+    assertEquals(len, off);
     assertArrayEquals(buf, Arrays.copyOf(restored, len));
 
     // test partial reads
@@ -57,7 +58,7 @@ public class LZ4StreamsTest {
       off+= read;
     }
     lz4Is.close();
-    assertTrue(off == len);
+    assertEquals(len, off);
     assertArrayEquals(buf, Arrays.copyOf(restored, len));
   }
 
