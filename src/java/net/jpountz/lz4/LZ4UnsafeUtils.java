@@ -32,6 +32,8 @@ enum LZ4UnsafeUtils {
   private static final long BYTE_ARRAY_OFFSET;
   private static final long INT_ARRAY_OFFSET;
   private static final int INT_ARRAY_SCALE;
+  private static final long SHORT_ARRAY_OFFSET;
+  private static final int SHORT_ARRAY_SCALE;
   
   static {
     try {
@@ -41,6 +43,8 @@ enum LZ4UnsafeUtils {
       BYTE_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
       INT_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(int[].class);
       INT_ARRAY_SCALE = UNSAFE.arrayIndexScale(int[].class);
+      SHORT_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(short[].class);
+      SHORT_ARRAY_SCALE = UNSAFE.arrayIndexScale(short[].class);
     } catch (IllegalAccessException e) {
       throw new ExceptionInInitializerError("Cannot access Unsafe");
     } catch (NoSuchFieldException e) {
@@ -120,6 +124,14 @@ enum LZ4UnsafeUtils {
     UNSAFE.putInt(dest, INT_ARRAY_OFFSET + INT_ARRAY_SCALE * destOff, value);
   }
 
+  static int readShort(short[] src, int srcOff) {
+    return UNSAFE.getShort(src, SHORT_ARRAY_OFFSET + SHORT_ARRAY_SCALE * srcOff) & 0xFFFF;
+  }
+
+  static void writeShort(short[] dest, int destOff, int value) {
+    UNSAFE.putShort(dest, SHORT_ARRAY_OFFSET + SHORT_ARRAY_SCALE * destOff, (short) value);
+  }
+
   static int readShortLittleEndian(byte[] src, int srcOff) {
     short s = readShort(src, srcOff);
     if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
@@ -138,6 +150,10 @@ enum LZ4UnsafeUtils {
 
   static int hash(byte[] buf, int off) {
     return LZ4Utils.hash(readInt(buf, off));
+  }
+
+  static int hash64k(byte[] buf, int off) {
+    return LZ4Utils.hash64k(readInt(buf, off));
   }
 
   static boolean readIntEquals(byte[] src, int ref, int sOff) {

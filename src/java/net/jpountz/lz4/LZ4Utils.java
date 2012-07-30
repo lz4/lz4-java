@@ -1,5 +1,6 @@
 package net.jpountz.lz4;
 
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -20,12 +21,12 @@ package net.jpountz.lz4;
 enum LZ4Utils {
   ;
 
-  static final int COMPRESSION_LEVEL = 12;
+  static final int MEMORY_USAGE = 14;
   static final int NOT_COMPRESSIBLE_CONFIRMATION = 6;
 
   static final int MIN_MATCH = 4;
 
-  static final int HASH_LOG = COMPRESSION_LEVEL;
+  static final int HASH_LOG = MEMORY_USAGE - 2;
   static final int HASH_TABLE_SIZE = 1 << HASH_LOG;
 
   static final int SKIP_STRENGTH = Math.max(NOT_COMPRESSIBLE_CONFIRMATION, 2);
@@ -40,6 +41,10 @@ enum LZ4Utils {
   static final int ML_MASK = (1 << ML_BITS) - 1;
   static final int RUN_BITS = 8 - ML_BITS;
   static final int RUN_MASK = (1 << RUN_BITS) - 1;
+
+  static final int LZ4_64K_LIMIT = (1 << 16) + (MF_LIMIT - 1);
+  static final int HASH_LOG_64K = HASH_LOG + 1;
+  static final int HASH_TABLE_SIZE_64K = 1 << HASH_LOG_64K;
 
   static final int maxCompressedLength(int length) {
     if (length < 0) {
@@ -72,6 +77,10 @@ enum LZ4Utils {
     return (i * -1640531535) >>> ((MIN_MATCH * 8) - HASH_LOG);
   }
 
+  static int hash64k(int i) {
+    return (i * -1640531535) >>> ((MIN_MATCH * 8) - HASH_LOG_64K);
+  }
+
   static int readInt(byte[] buf, int i) {
     return ((buf[i] & 0xFF) << 24) | ((buf[i+1] & 0xFF) << 16) | ((buf[i+2] & 0xFF) << 8) | (buf[i+3] & 0xFF);
   }
@@ -82,6 +91,10 @@ enum LZ4Utils {
 
   static int hash(byte[] buf, int i) {
     return hash(readInt(buf, i));
+  }
+
+  static int hash64k(byte[] buf, int i) {
+    return hash64k(readInt(buf, i));
   }
 
   static boolean readIntEquals(byte[] buf, int i, int j) {
@@ -123,4 +136,23 @@ enum LZ4Utils {
     }
   }
 
+  public static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff) {
+    final int runLen = srcLen;
+    if (runLen >= RUN_MASK) {
+      dest[dOff++] = (byte) (RUN_MASK << ML_BITS);
+      int len = runLen - RUN_MASK;
+      while (len >= 255) {
+        dest[dOff++] = (byte) 255;
+        len -= 255;
+      }
+      dest[dOff++] = (byte) len;
+    } else {
+      dest[dOff++] = (byte) (runLen << ML_BITS);
+    }
+    // copy literals
+    System.arraycopy(src, sOff, dest, dOff, runLen);
+    dOff += runLen;
+
+    return dOff;
+  }
 }
