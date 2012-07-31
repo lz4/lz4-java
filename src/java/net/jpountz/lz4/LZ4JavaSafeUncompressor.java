@@ -50,11 +50,11 @@ public enum LZ4JavaSafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUn
         // literals
         int literalLen = token >>> ML_BITS;
         if (literalLen == RUN_MASK) {
-            int len;
-            while ((len = src[sOff++] & 0xFF) == 255) {
-              literalLen += len;
-            }
-            literalLen += len;
+          int len;
+          while ((len = src[sOff++] & 0xFF) == 255) {
+            literalLen += 255;
+          }
+          literalLen += len;
         }
 
         final int literalCopyEnd = dOff + literalLen;
@@ -84,7 +84,7 @@ public enum LZ4JavaSafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUn
         if (matchLen == ML_MASK) {
           int len;
           while ((len = src[sOff++] & 0xFF) == 255) {
-            matchLen += len;
+            matchLen += 255;
           }
           matchLen += len;
         }
@@ -121,7 +121,7 @@ public enum LZ4JavaSafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUn
         if (literalLen == RUN_MASK) {
             int len;
             while ((len = src[sOff++] & 0xFF) == 255) {
-              literalLen += len;
+              literalLen += 255;
             }
             literalLen += len;
         }
@@ -157,7 +157,7 @@ public enum LZ4JavaSafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUn
         if (matchLen == ML_MASK) {
           int len;
           while ((len = src[sOff++] & 0xFF) == 255) {
-            matchLen += len;
+            matchLen += 255;
           }
           matchLen += len;
         }

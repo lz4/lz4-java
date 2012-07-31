@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -30,6 +31,33 @@ import java.util.Random;
 import org.junit.Test;
 
 public class LZ4Test {
+
+  static final byte[] UNCOMPRESSED_WORST_CASE = new byte[200000];
+  static final byte[] COMPRESSED_WORST_CASE;
+  static {
+    Random random = new Random(0);
+    for (int i = 0; i < UNCOMPRESSED_WORST_CASE.length; ++i) {
+      UNCOMPRESSED_WORST_CASE[i] = (byte) random.nextInt(256);
+    }
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    int len = UNCOMPRESSED_WORST_CASE.length;
+    if (len >= LZ4Utils.RUN_MASK) {
+      baos.write(15 << LZ4Utils.ML_BITS);
+      len -= LZ4Utils.RUN_MASK;
+    }
+    while (len >= 255) {
+      baos.write(255);
+      len -= 255;
+    }
+    System.out.println(len);
+    baos.write(len);
+    try {
+      baos.write(UNCOMPRESSED_WORST_CASE);
+    } catch (IOException e) {
+      throw new AssertionError();
+    }
+    COMPRESSED_WORST_CASE = baos.toByteArray();
+  }
 
   static LZ4Compressor[] COMPRESSORS = new LZ4Compressor[] {
     LZ4JNICompressor.FAST,
@@ -122,6 +150,24 @@ public class LZ4Test {
     }
   }
 
+  public void testUncompressWorstCase(LZ4Uncompressor uncompressor) {
+    byte[] restored = new byte[UNCOMPRESSED_WORST_CASE.length];
+    int cpLen = uncompressor.uncompress(COMPRESSED_WORST_CASE, 0, restored, 0, UNCOMPRESSED_WORST_CASE.length);
+    assertEquals(COMPRESSED_WORST_CASE.length, cpLen);
+    assertArrayEquals(UNCOMPRESSED_WORST_CASE, restored);
+  }
+
+  public void testUncompressWorstCase(LZ4UnknwonSizeUncompressor uncompressor) {
+    byte[] restored = new byte[UNCOMPRESSED_WORST_CASE.length];
+    int uncpLen = uncompressor.uncompressUnknownSize(COMPRESSED_WORST_CASE, 0, COMPRESSED_WORST_CASE.length, restored, 0);
+    assertEquals(UNCOMPRESSED_WORST_CASE.length, uncpLen);
+    assertArrayEquals(UNCOMPRESSED_WORST_CASE, restored);
+  }
+
+  public void testUncompressWorstCase(CompressionCodec compressionCodec) {
+    assertArrayEquals(UNCOMPRESSED_WORST_CASE, compressionCodec.uncompress(COMPRESSED_WORST_CASE));
+  }
+
   @Test
   public void testCompress() {
     for (LZ4Compressor compressor : COMPRESSORS) {
@@ -140,6 +186,20 @@ public class LZ4Test {
   public void testUncompressUnknownSize() {
     for (LZ4UnknwonSizeUncompressor uncompressor : UNCOMPRESSORS2) {
       testCompress(LZ4JNICompressor.HIGH_COMPRESSION, uncompressor);
+    }
+  }
+
+  @Test
+  public void testUncompressWorstCase() {
+    for (LZ4Uncompressor uncompressor : UNCOMPRESSORS) {
+      testUncompressWorstCase(uncompressor);
+    }
+  }
+
+  @Test
+  public void testUncompressUnknownSizeWorstCase() {
+    for (LZ4UnknwonSizeUncompressor uncompressor : UNCOMPRESSORS2) {
+      testUncompressWorstCase(uncompressor);
     }
   }
 

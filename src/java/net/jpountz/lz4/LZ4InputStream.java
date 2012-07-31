@@ -94,6 +94,11 @@ abstract class LZ4InputStream extends InputStream {
     // uncompress
     uncompress();
 
+    // we were unable to produce anything from the compressed bytes
+    if (uncompressedLen == 0 && compressedLen > 0) {
+      throw new LZ4Exception("Malformed stream");
+    }
+
     final int toCopy = Math.min(uncompressedLen, len);
     System.arraycopy(uncompressed, uncompressedOff, b, off, toCopy);
     uncompressedOff += toCopy;
@@ -103,9 +108,9 @@ abstract class LZ4InputStream extends InputStream {
     return count;
   }
 
-  protected abstract void uncompress();
+  protected abstract void uncompress() throws IOException;
 
-  private void fill() throws IOException {
+  protected void fill() throws IOException {
     while (compressedLen < compressed.length) {
       final int read = is.read(compressed, compressedLen, compressed.length - compressedLen);
       if (read == -1) {

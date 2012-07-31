@@ -39,10 +39,11 @@ public class LZ4JavaSafeInputStream extends LZ4InputStream {
     super(is);
   }
 
-  protected void uncompress() {
-    final int srcEnd = compressedOff + compressedLen;
+  protected void uncompress() throws IOException {
+    int srcEnd = compressedOff + compressedLen;
     int sOff = compressedOff, dOff = uncompressedOff + uncompressedLen;
 
+    main:
     while (sOff < srcEnd) {
       final int sAnchor = sOff;
       final int dAnchor = dOff;
@@ -52,11 +53,17 @@ public class LZ4JavaSafeInputStream extends LZ4InputStream {
       // literals
       int literalLen = token >>> ML_BITS;
       if (literalLen == RUN_MASK) {
-          int l;
-          while ((l = compressed[sOff++] & 0xFF) == 255) {
-            literalLen += l;
+        if (sOff == srcEnd) {
+          break main;
+        }
+        int l;
+        while ((l = compressed[sOff++] & 0xFF) == 255) {
+          literalLen += 255;
+          if (sOff == srcEnd) {
+            break main;
           }
-          literalLen += l;
+        }
+        literalLen += l;
       }
 
       final int literalCopyEnd = dOff + literalLen;
@@ -71,11 +78,12 @@ public class LZ4JavaSafeInputStream extends LZ4InputStream {
         }
 
         if (sOff + literalLen > srcEnd) {
-          if (srcEnd != compressed.length) {
+          compressed = Arrays.copyOf(compressed, Math.max(compressed.length << 1, sOff + literalLen + COPY_LENGTH));
+          fill();
+          srcEnd = compressedOff + compressedLen;
+          if (sOff + literalLen > srcEnd) {
             throw new LZ4Exception("Malformed stream");
           }
-          compressed = Arrays.copyOf(compressed, Math.max(compressed.length << 1, sOff + literalLen + COPY_LENGTH));
-          break;
         }
 
         safeArraycopy(compressed, sOff, uncompressed, dOff, literalLen);
@@ -95,6 +103,9 @@ public class LZ4JavaSafeInputStream extends LZ4InputStream {
       dOff = literalCopyEnd;
 
       // matchs
+      if (srcEnd - sOff < 2) {
+        break main;
+      }
       final int matchDec = (compressed[sOff++] & 0xFF) | ((compressed[sOff++] & 0xFF) << 8);
       final int matchOff = dOff - matchDec;
 
@@ -104,9 +115,15 @@ public class LZ4JavaSafeInputStream extends LZ4InputStream {
 
       int matchLen = token & ML_MASK;
       if (matchLen == ML_MASK) {
+        if (sOff == srcEnd) {
+          break main;
+        }
         int l;
         while ((l = compressed[sOff++] & 0xFF) == 255) {
-          matchLen += l;
+          matchLen += 255;
+          if (sOff == srcEnd) {
+            break main;
+          }
         }
         matchLen += l;
       }

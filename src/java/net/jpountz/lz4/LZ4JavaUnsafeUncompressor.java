@@ -54,7 +54,7 @@ public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSize
         if (literalLen == RUN_MASK) {
             int len;
             while ((len = src[sOff++] & 0xFF) == 255) {
-              literalLen += len;
+              literalLen += 255;
             }
             literalLen += len;
         }
@@ -87,7 +87,7 @@ public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSize
         if (matchLen == ML_MASK) {
           int len;
           while ((len = src[sOff++] & 0xFF) == 255) {
-            matchLen += len;
+            matchLen += 255;
           }
           matchLen += len;
         }
@@ -108,7 +108,7 @@ public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSize
 
       return sOff - srcOff;
     }
-    
+
     @Override
     public int uncompressUnknownSize(byte[] src, int srcOff, int srcLen,
         byte[] dest, int destOff) {
@@ -128,7 +128,7 @@ public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSize
         if (literalLen == RUN_MASK) {
             int len;
             while ((len = src[sOff++] & 0xFF) == 255) {
-              literalLen += len;
+              literalLen += 255;
             }
             literalLen += len;
         }
@@ -165,7 +165,7 @@ public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSize
         if (matchLen == ML_MASK) {
           int len;
           while ((len = src[sOff++] & 0xFF) == 255) {
-            matchLen += len;
+            matchLen += 255;
           }
           matchLen += len;
         }
