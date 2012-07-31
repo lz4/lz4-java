@@ -30,6 +30,7 @@ enum LZ4UnsafeUtils {
   static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
   private static final Unsafe UNSAFE;
   private static final long BYTE_ARRAY_OFFSET;
+  private static final int BYTE_ARRAY_SCALE;
   private static final long INT_ARRAY_OFFSET;
   private static final int INT_ARRAY_SCALE;
   private static final long SHORT_ARRAY_OFFSET;
@@ -41,6 +42,7 @@ enum LZ4UnsafeUtils {
       theUnsafe.setAccessible(true);
       UNSAFE = (Unsafe) theUnsafe.get(null);
       BYTE_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
+      BYTE_ARRAY_SCALE = UNSAFE.arrayIndexScale(byte[].class);
       INT_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(int[].class);
       INT_ARRAY_SCALE = UNSAFE.arrayIndexScale(int[].class);
       SHORT_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(short[].class);
@@ -84,12 +86,12 @@ enum LZ4UnsafeUtils {
     }
   }
 
-  static byte readByte(byte[] src, int srcOff) {
-    return UNSAFE.getByte(src, BYTE_ARRAY_OFFSET + srcOff);
+  static int readByte(byte[] src, int srcOff) {
+    return UNSAFE.getByte(src, BYTE_ARRAY_OFFSET + BYTE_ARRAY_SCALE * srcOff) & 0xFF;
   }
 
-  static void writeByte(byte[] dest, int destOff, byte value) {
-    UNSAFE.putByte(dest, BYTE_ARRAY_OFFSET + destOff, value);
+  static void writeByte(byte[] src, int srcOff, int value) {
+    UNSAFE.putByte(src, BYTE_ARRAY_OFFSET + BYTE_ARRAY_SCALE * srcOff, (byte) value);
   }
 
   static long readLong(byte[] src, int srcOff) {

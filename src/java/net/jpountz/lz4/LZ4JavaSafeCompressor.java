@@ -111,8 +111,9 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
 
           // encode literal length
           int tokenOff = dOff++;
+          int token;
           if (runLen >= RUN_MASK) {
-            dest[tokenOff] = (byte) (RUN_MASK << ML_BITS);
+            token = RUN_MASK << ML_BITS;
             int len = runLen - RUN_MASK;
             while (len >= 255) {
               dest[dOff++] = (byte) 255;
@@ -120,7 +121,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
             }
             dest[dOff++] = (byte) len;
           } else {
-            dest[tokenOff] = (byte) (runLen << ML_BITS);
+            token = runLen << ML_BITS;
           }
 
           // copy literals
@@ -139,7 +140,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
 
             // encode match len
             if (matchLen >= ML_MASK) {
-              dest[tokenOff] |= ML_MASK;
+              token |= ML_MASK;
               int len = matchLen - ML_MASK;
               while (len >= 255) {
                 dest[dOff++] = (byte) 255;
@@ -147,8 +148,9 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
               }
               dest[dOff++] = (byte) len;
             } else {
-              dest[tokenOff] |= matchLen;
+              token |= matchLen;
             }
+            dest[tokenOff] = (byte) token;
 
             // test end of chunk
             if (sOff > mflimit) {
@@ -171,7 +173,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
             }
 
             tokenOff = dOff++;
-            dest[tokenOff] = 0;
+            token = 0;
           }
 
           // prepare next loop
@@ -238,8 +240,9 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
 
           // encode literal length
           int tokenOff = dOff++;
+          int token;
           if (runLen >= RUN_MASK) {
-            dest[tokenOff] = (byte) (RUN_MASK << ML_BITS);
+            token = RUN_MASK << ML_BITS;
             int len = runLen - RUN_MASK;
             while (len >= 255) {
               dest[dOff++] = (byte) 255;
@@ -247,7 +250,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
             }
             dest[dOff++] = (byte) len;
           } else {
-            dest[tokenOff] = (byte) (runLen << ML_BITS);
+            token = runLen << ML_BITS;
           }
 
           // copy literals
@@ -267,7 +270,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
 
             // encode match len
             if (matchLen >= ML_MASK) {
-              dest[tokenOff] |= ML_MASK;
+              token |= ML_MASK;
               int len = matchLen - ML_MASK;
               while (len >= 255) {
                 dest[dOff++] = (byte) 255;
@@ -275,8 +278,9 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
               }
               dest[dOff++] = (byte) len;
             } else {
-              dest[tokenOff] |= matchLen;
+              token |= matchLen;
             }
+            dest[tokenOff] = (byte) token;
 
             // test end of chunk
             if (sOff > mflimit) {
@@ -297,7 +301,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
             }
 
             tokenOff = dOff++;
-            dest[tokenOff] = 0;
+            token = 0;
           }
 
           // prepare next loop

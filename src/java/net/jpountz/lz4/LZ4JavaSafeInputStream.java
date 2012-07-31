@@ -22,9 +22,9 @@ import static net.jpountz.lz4.LZ4Utils.MIN_MATCH;
 import static net.jpountz.lz4.LZ4Utils.ML_BITS;
 import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
-import static net.jpountz.lz4.LZ4Utils.incrementalCopy;
 import static net.jpountz.lz4.LZ4Utils.safeArraycopy;
 import static net.jpountz.lz4.LZ4Utils.wildArraycopy;
+import static net.jpountz.lz4.LZ4Utils.wildIncrementalCopy;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -134,7 +134,7 @@ public class LZ4JavaSafeInputStream extends LZ4InputStream {
         uncompressed = Arrays.copyOf(uncompressed, Math.max(uncompressed.length << 1, matchCopyEnd + COPY_LENGTH));
       }
 
-      incrementalCopy(uncompressed, matchOff, dOff, matchDec, matchLen);
+      wildIncrementalCopy(uncompressed, matchOff, dOff, matchLen);
       dOff = matchCopyEnd;
 
       // checkpoint

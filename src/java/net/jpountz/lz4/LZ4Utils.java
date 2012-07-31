@@ -107,9 +107,17 @@ enum LZ4Utils {
     }
   }
 
-  static void incrementalCopy(byte[] dest, int matchOff, int dOff, int matchDec, int matchLen) {
-    if (matchDec >= matchLen) {
-      System.arraycopy(dest, matchOff, dest, dOff, matchLen);
+  static void safeIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
+    if (dOff - matchOff >= matchLen) {
+      safeArraycopy(dest, matchOff, dest, dOff, matchLen);
+    } else {
+      naiveIncrementalCopy(dest, matchOff, dOff, matchLen);
+    }
+  }
+
+  static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
+    if (dOff - matchOff >= matchLen) {
+      wildArraycopy(dest, matchOff, dest, dOff, matchLen);
     } else {
       naiveIncrementalCopy(dest, matchOff, dOff, matchLen);
     }
@@ -132,19 +140,18 @@ enum LZ4Utils {
   }
 
   static void safeArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
-    for (int i = 0; i <len; ++i) {
-      dest[dOff + i] = src[sOff + i];
-    }
+    System.arraycopy(src, sOff, dest, dOff, len);
   }
 
   static void wildArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
     if (len != 0) {
+      // can make uncompression 10% faster
       final int fastLen = ((len - 1) & 0xFFFFFFF8) + COPY_LENGTH;
       System.arraycopy(src, sOff, dest, dOff, fastLen);
     }
   }
 
-  public static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff) {
+  static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff) {
     final int runLen = srcLen;
     if (runLen >= RUN_MASK) {
       dest[dOff++] = (byte) (RUN_MASK << ML_BITS);

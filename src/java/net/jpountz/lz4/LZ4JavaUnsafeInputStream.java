@@ -17,6 +17,7 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import static net.jpountz.lz4.LZ4UnsafeUtils.readByte;
 import static net.jpountz.lz4.LZ4UnsafeUtils.readShortLittleEndian;
 import static net.jpountz.lz4.LZ4UnsafeUtils.safeArraycopy;
 import static net.jpountz.lz4.LZ4UnsafeUtils.wildArraycopy;
@@ -49,7 +50,7 @@ public class LZ4JavaUnsafeInputStream extends LZ4InputStream {
       final int sAnchor = sOff;
       final int dAnchor = dOff;
 
-      final int token = compressed[sOff++] & 0xFF;
+      final int token = readByte(compressed, sOff++);
 
       // literals
       int literalLen = token >>> ML_BITS;
@@ -58,7 +59,7 @@ public class LZ4JavaUnsafeInputStream extends LZ4InputStream {
           break main;
         }
         int l;
-        while ((l = compressed[sOff++] & 0xFF) == 255) {
+        while ((l = readByte(compressed, sOff++)) == 255) {
           literalLen += 255;
           if (sOff == srcEnd) {
             break main;
@@ -121,7 +122,7 @@ public class LZ4JavaUnsafeInputStream extends LZ4InputStream {
           break main;
         }
         int l;
-        while ((l = compressed[sOff++] & 0xFF) == 255) {
+        while ((l = readByte(compressed, sOff++)) == 255) {
           matchLen += 255;
           if (sOff == srcEnd) {
             break main;

@@ -21,7 +21,7 @@ import static net.jpountz.lz4.LZ4UnsafeUtils.readShortLittleEndian;
 import static net.jpountz.lz4.LZ4UnsafeUtils.safeArraycopy;
 import static net.jpountz.lz4.LZ4UnsafeUtils.safeIncrementalCopy;
 import static net.jpountz.lz4.LZ4UnsafeUtils.wildArraycopy;
-import static net.jpountz.lz4.LZ4UnsafeUtils.wildIncrementalCopy;
+import static net.jpountz.lz4.LZ4UnsafeUtils.*;
 import static net.jpountz.lz4.LZ4Utils.COPY_LENGTH;
 import static net.jpountz.lz4.LZ4Utils.MIN_MATCH;
 import static net.jpountz.lz4.LZ4Utils.ML_BITS;
@@ -47,13 +47,13 @@ public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSize
       int dOff = destOff;
 
       while (true) {
-        final int token = src[sOff++] & 0xFF;
+        final int token = readByte(src, sOff++);
 
         // literals
         int literalLen = token >>> ML_BITS;
         if (literalLen == RUN_MASK) {
             int len;
-            while ((len = src[sOff++] & 0xFF) == 255) {
+            while ((len = readByte(src, sOff++)) == 255) {
               literalLen += 255;
             }
             literalLen += len;
@@ -86,7 +86,7 @@ public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSize
         int matchLen = token & ML_MASK;
         if (matchLen == ML_MASK) {
           int len;
-          while ((len = src[sOff++] & 0xFF) == 255) {
+          while ((len = readByte(src, sOff++)) == 255) {
             matchLen += 255;
           }
           matchLen += len;
@@ -121,13 +121,13 @@ public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSize
       int dOff = destOff;
 
       while (sOff < srcEnd) {
-        final int token = src[sOff++] & 0xFF;
+        final int token = readByte(src, sOff++);
 
         // literals
         int literalLen = token >>> ML_BITS;
         if (literalLen == RUN_MASK) {
             int len;
-            while ((len = src[sOff++] & 0xFF) == 255) {
+            while ((len = readByte(src, sOff++)) == 255) {
               literalLen += 255;
             }
             literalLen += len;
@@ -164,7 +164,7 @@ public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSize
         int matchLen = token & ML_MASK;
         if (matchLen == ML_MASK) {
           int len;
-          while ((len = src[sOff++] & 0xFF) == 255) {
+          while ((len = readByte(src, sOff++)) == 255) {
             matchLen += 255;
           }
           matchLen += len;
