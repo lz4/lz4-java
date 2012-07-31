@@ -23,6 +23,7 @@ import static net.jpountz.lz4.LZ4Utils.ML_BITS;
 import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
 import static net.jpountz.lz4.LZ4Utils.checkRange;
+import static net.jpountz.lz4.LZ4Utils.incrementalCopy;
 import static net.jpountz.lz4.LZ4Utils.safeArraycopy;
 import static net.jpountz.lz4.LZ4Utils.wildArraycopy;
 
@@ -95,7 +96,7 @@ public enum LZ4JavaSafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUn
         }
 
         incrementalCopy(dest, matchOff, dOff, matchDec, matchLen);
-        dOff += matchLen;
+        dOff = matchCopyEnd;
       }
 
       return sOff - srcOff;
@@ -168,19 +169,11 @@ public enum LZ4JavaSafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUn
         }
 
         incrementalCopy(dest, matchOff, dOff, matchDec, matchLen);
-        dOff += matchLen;
+        dOff = matchCopyEnd;
       }
 
       return dOff - destOff;
     }
   };
-
-  private static void incrementalCopy(byte[] dest, int matchOff, int dOff, int matchDec, int matchLen) {
-    if (matchDec >= matchLen) {
-      System.arraycopy(dest, matchOff, dest, dOff, matchLen);
-    } else {
-      LZ4Utils.incrementalCopy(dest, matchOff, dOff, matchLen);
-    }
-  }
 
 }

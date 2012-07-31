@@ -69,7 +69,7 @@ enum LZ4UnsafeUtils {
   }
 
   static void safeIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
-    LZ4Utils.incrementalCopy(dest, matchOff, dOff, matchCopyEnd - dOff);
+    LZ4Utils.naiveIncrementalCopy(dest, matchOff, dOff, matchCopyEnd - dOff);
   }
 
   static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {

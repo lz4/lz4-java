@@ -22,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -47,7 +49,19 @@ public class LZ4Test {
   static LZ4UnknwonSizeUncompressor[] UNCOMPRESSORS2 = new LZ4UnknwonSizeUncompressor[] {
     LZ4JNIUncompressor.INSTANCE,
     LZ4JavaUnsafeUncompressor.INSTANCE,
-    LZ4JavaSafeUncompressor.INSTANCE
+    LZ4JavaSafeUncompressor.INSTANCE,
+    new LZ4StreamUncompressor() {
+      @Override
+      protected InputStream lz4InputStream(InputStream is) throws IOException {
+        return new LZ4JavaSafeInputStream(is);
+      }
+    },
+    new LZ4StreamUncompressor() {
+      @Override
+      protected InputStream lz4InputStream(InputStream is) throws IOException {
+        return new LZ4JavaUnsafeInputStream(is);
+      }
+    }
   };
 
   public void testEmpty(CompressionCodec compressionCodec) {
@@ -131,7 +145,7 @@ public class LZ4Test {
 
   public void testUncompressUnknownSizeUnderflow(LZ4UnknwonSizeUncompressor uncompressor) {
     final byte[] data = new byte[100];
-    Random r = new Random();
+    Random r = new Random(0);
     for (int i = 0; i < data.length; ++i) {
       data[i] = (byte) r.nextInt(5);
     }

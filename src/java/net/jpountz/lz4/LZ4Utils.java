@@ -101,9 +101,17 @@ enum LZ4Utils {
     return buf[i] == buf[j] && buf[i+1] == buf[j+1] && buf[i+2] == buf[j+2] && buf[i+3] == buf[j+3];
   }
 
-  static void incrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
+  static void naiveIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
     for (int i = 0; i < matchLen; ++i) {
       dest[dOff++] = dest[matchOff++];
+    }
+  }
+
+  static void incrementalCopy(byte[] dest, int matchOff, int dOff, int matchDec, int matchLen) {
+    if (matchDec >= matchLen) {
+      System.arraycopy(dest, matchOff, dest, dOff, matchLen);
+    } else {
+      naiveIncrementalCopy(dest, matchOff, dOff, matchLen);
     }
   }
 
@@ -131,7 +139,7 @@ enum LZ4Utils {
 
   static void wildArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
     if (len != 0) {
-      final int fastLen = ((len - 1) & 0xFFFFFFF8) + 8;
+      final int fastLen = ((len - 1) & 0xFFFFFFF8) + COPY_LENGTH;
       System.arraycopy(src, sOff, dest, dOff, fastLen);
     }
   }
