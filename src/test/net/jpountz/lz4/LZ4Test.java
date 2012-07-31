@@ -49,7 +49,6 @@ public class LZ4Test {
       baos.write(255);
       len -= 255;
     }
-    System.out.println(len);
     baos.write(len);
     try {
       baos.write(UNCOMPRESSED_WORST_CASE);
