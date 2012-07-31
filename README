@@ -1,7 +1,8 @@
 LZ4 Java
 ========
 
-LZ4 compression for Java. Based on http://code.google.com/p/lz4/
+LZ4 compression for Java, based on Yann Collet's work available at
+http://code.google.com/p/lz4/.
 
 This repository contains three LZ4 compressor/uncompressor implementations:
  - a JNI binding,
