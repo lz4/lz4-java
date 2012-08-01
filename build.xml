@@ -1,8 +1,12 @@
-<project name="lz4-java" default="dist" basedir="." xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks">
+<project name="lz4-java" default="dist" basedir="."
+    xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks"
+    xmlns:ivy="antlib:org.apache.ivy.ant"
+    xmlns:junit4="antlib:com.carrotsearch.junit4">
 
   <property name="src" location="src"/>
   <property name="build" location="build"/>
   <property name="dist"  location="dist"/>
+  <property name="lib" location="lib" />
 
   <condition property="platform" value="linux">
    <os name="Linux"/>
@@ -17,10 +21,13 @@
   <target name="clean">
     <delete dir="${build}" />
     <delete dir="${dist}" />
+    <delete dir="${lib}" />
   </target>
 
   <target name="init">
     <tstamp />
+    <ivy:resolve conf="default" />
+    <ivy:retrieve />
   </target>
 
   <target name="compile-java" depends="init">
@@ -63,6 +70,65 @@
   </target>
 
   <target name="compile" depends="compile-java, compile-jni" />
+
+  <target name="compile-tests" depends="compile">
+    <mkdir dir="${build}/test-classes" />
+    <javac
+      includeAntRuntime="false"
+      srcdir="${src}/test"
+      encoding="UTF-8"
+      debug="true"
+      destdir="${build}/test-classes">
+      <classpath>
+        <path location="${build}/classes" />
+        <fileset dir="lib" includes="*.jar" />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="install-junit4-taskdef" depends="init">
+    <taskdef uri="antlib:com.carrotsearch.junit4">
+      <classpath>
+        <fileset dir="${lib}" includes="*.jar" />
+      </classpath>
+    </taskdef>
+  </target>
+
+  <target name="test" depends="compile-tests,install-junit4-taskdef">
+    <junit4:junit4
+      dir="${java.io.tmpdir}"
+      maxmemory="100m"
+      parallelism="auto">
+      <assertions>
+        <enable package="net.jpountz.lz4"/>
+      </assertions>
+      <classpath>
+        <path location="${build}/classes" />
+        <path location="${build}/test-classes" />
+        <path location="${build}/jni" />
+        <fileset dir="${lib}" includes="*.jar" />
+      </classpath>
+      <fileset dir="${build}/test-classes/">
+        <include name="**/*Test.class" />
+        <exclude name="**/*$*" />
+      </fileset>
+      <listeners>
+        <junit4:report-text
+          showThrowable="true"
+          showStackTraces="true"
+          showOutputStream="true"
+          showErrorStream="true"
+          showStatusOk="true"
+          showStatusError="true"
+          showStatusFailure="true"
+          showStatusIgnored="true"
+          showSuiteSummary="true"
+          useSimpleNames="true"
+          maxClassNameColumns="80"
+          timestamps="true" />
+      </listeners>
+    </junit4:junit4>
+  </target>
 
   <target name="dist" depends="compile">
     <mkdir dir="${dist}" />
