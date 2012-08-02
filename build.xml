@@ -94,7 +94,7 @@
     </taskdef>
   </target>
 
-  <target name="test" depends="compile-tests,install-junit4-taskdef">
+  <target name="test" depends="compile-tests, install-junit4-taskdef">
     <junit4:junit4
       dir="${java.io.tmpdir}"
       maxmemory="100m"
