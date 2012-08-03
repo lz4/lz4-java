@@ -170,4 +170,59 @@ enum LZ4Utils {
 
     return dOff;
   }
+
+  static int vIntLength(int n) {
+    if (n < 0) {
+      throw new IllegalArgumentException("Cannot encode negative integers");
+    }
+    int len = 0;
+    do {
+      ++len;
+      n >>>= 7;
+    } while (n > 0);
+    return len;
+  }
+
+  static int readVInt(byte[] buf, int off, int len) {
+    LZ4Utils.checkRange(buf, off, len);
+    int n = 0;
+    for (int i = 0; i < 4; ++i) {
+      if (i >= len) {
+        throw new LZ4Exception("Malformed stream");
+      }
+      final byte next = buf[off + i];
+      n |= (next & 0x7F) << (7 * i);
+      if (next >= 0) {
+        return n;
+      }
+    }
+    if (4 >= len) {
+      throw new LZ4Exception("Malformed stream");
+    }
+    final byte next = buf[off + 4];
+    if (next < 0 || next >= 1 << 5) {
+      throw new LZ4Exception("Malformed stream");
+    }
+    n |= next << (7 * 4);
+    return n;
+  }
+
+  static int writeVInt(int n, byte[] buf, int off, int len) {
+    if (n < 0) {
+      throw new IllegalArgumentException("Cannot encode negative integers");
+    }
+    int i;
+    for (i = 0; (n & ~0x7F) != 0; n >>>= 7, ++i) {
+      if (i >= len) {
+        throw new LZ4Exception("Destination buffer is too small");
+      }
+      buf[off + i] = (byte) ((n & 0x7F) | 0x80);
+    }
+    if (i >= len) {
+      throw new LZ4Exception("Destination buffer is too small");
+    }
+    buf[off + i] = (byte) n;
+    return i + 1;
+  }
+
 }

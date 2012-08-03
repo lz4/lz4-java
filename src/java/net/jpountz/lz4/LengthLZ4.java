@@ -17,9 +17,11 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import static net.jpountz.lz4.LZ4Utils.*;
+
 /**
  * Utility class that writes uncompressed length at the beginning of the stream
- * to speed up decompression.
+ * to speed up uncompression.
  */
 public class LengthLZ4 extends CompressionCodec {
 
@@ -38,30 +40,21 @@ public class LengthLZ4 extends CompressionCodec {
 
   @Override
   public int maxUncompressedLength(byte[] src, int srcOff, int srcLen) {
-    if (srcLen <= 4) {
-      throw new LZ4Exception("Malformed stream");
-    }
-    LZ4Utils.checkRange(src, srcOff, 4);
-    return ((src[srcOff++] & 0xFF) << 24)
-        | ((src[srcOff++] & 0xFF) << 16)
-        | ((src[srcOff++] & 0xFF) << 8)
-        | (src[srcOff] & 0xFF);
+    return readVInt(src, srcOff, srcLen);
   }
 
   @Override
   public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
-    LZ4Utils.checkRange(dest, destOff, 4);
-    dest[destOff++] = (byte) (srcLen >>> 24);
-    dest[destOff++] = (byte) (srcLen >>> 16);
-    dest[destOff++] = (byte) (srcLen >>> 8);
-    dest[destOff++] = (byte) srcLen;
-    return 4 + compressor.compress(src, srcOff, srcLen, dest, destOff);
+    LZ4Utils.checkRange(src, srcOff, srcLen);
+    final int lengthBytes = writeVInt(srcLen, dest, destOff, dest.length - destOff);
+    return lengthBytes + compressor.compress(src, srcOff, srcLen, dest, destOff + lengthBytes);
   }
 
   @Override
   public int uncompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
     final int uncompressedLen = maxUncompressedLength(src, srcOff, srcLen);
-    final int compressedLen = 4 + uncompressor.uncompress(src, srcOff + 4, dest, destOff, uncompressedLen);
+    final int uncompressedLenBytes = vIntLength(uncompressedLen);
+    final int compressedLen = uncompressedLenBytes + uncompressor.uncompress(src, srcOff + uncompressedLenBytes, dest, destOff, uncompressedLen);
     if (compressedLen != srcLen) {
       throw new LZ4Exception("Uncompressed length mismatch " + srcLen + " != " + compressedLen);
     }
