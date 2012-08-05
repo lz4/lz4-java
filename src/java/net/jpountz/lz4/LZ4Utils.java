@@ -144,11 +144,9 @@ enum LZ4Utils {
   }
 
   static void wildArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
-    if (len != 0) {
-      // can make uncompression 10% faster
-      final int fastLen = ((len - 1) & 0xFFFFFFF8) + COPY_LENGTH;
-      System.arraycopy(src, sOff, dest, dOff, fastLen);
-    }
+    // can make uncompression 10% faster
+    final int fastLen = ((len - 1) & 0xFFFFFFF8) + COPY_LENGTH;
+    System.arraycopy(src, sOff, dest, dOff, fastLen);
   }
 
   static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff) {

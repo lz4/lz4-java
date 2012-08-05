@@ -98,9 +98,11 @@ public class LZ4JavaSafeInputStream extends LZ4InputStream {
         break;
       }
 
-      wildArraycopy(compressed, sOff, uncompressed, dOff, literalLen);
-      sOff += literalLen;
-      dOff = literalCopyEnd;
+      if (literalLen != 0) {
+        wildArraycopy(compressed, sOff, uncompressed, dOff, literalLen);
+        sOff += literalLen;
+        dOff = literalCopyEnd;
+      }
 
       // matchs
       if (srcEnd - sOff < 2) {

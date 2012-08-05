@@ -69,9 +69,11 @@ public enum LZ4JavaSafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUn
           }
         }
 
-        wildArraycopy(src, sOff, dest, dOff, literalLen);
-        sOff += literalLen;
-        dOff = literalCopyEnd;
+        if (literalLen != 0) {
+          wildArraycopy(src, sOff, dest, dOff, literalLen);
+          sOff += literalLen;
+          dOff = literalCopyEnd;
+        }
 
         // matchs
         final int matchDec = (src[sOff++] & 0xFF) | ((src[sOff++] & 0xFF) << 8);
@@ -147,9 +149,11 @@ public enum LZ4JavaSafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUn
           }
         }
 
-        wildArraycopy(src, sOff, dest, dOff, literalLen);
-        sOff += literalLen;
-        dOff = literalCopyEnd;
+        if (literalLen != 0) {
+          wildArraycopy(src, sOff, dest, dOff, literalLen);
+          sOff += literalLen;
+          dOff = literalCopyEnd;
+        }
 
         // matchs
         final int matchDec = (src[sOff++] & 0xFF) | ((src[sOff++] & 0xFF) << 8);
