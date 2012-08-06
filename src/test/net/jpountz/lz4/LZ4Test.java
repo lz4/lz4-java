@@ -39,7 +39,7 @@ public class LZ4Test extends RandomizedTest {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     int len = uncompressed.length;
     if (len >= LZ4Utils.RUN_MASK) {
-      baos.write(15 << LZ4Utils.ML_BITS);
+      baos.write(LZ4Utils.RUN_MASK << LZ4Utils.ML_BITS);
       len -= LZ4Utils.RUN_MASK;
     }
     while (len >= 255) {
