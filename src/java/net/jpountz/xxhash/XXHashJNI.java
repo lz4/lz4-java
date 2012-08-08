@@ -1,6 +1,4 @@
-package net.jpountz.lz4;
-
-import net.jpountz.util.Native;
+package net.jpountz.xxhash;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -19,24 +17,38 @@ import net.jpountz.util.Native;
  * limitations under the License.
  */
 
+import static net.jpountz.util.Utils.checkRange;
+import net.jpountz.util.Native;
 
-/**
- * JNI bindings to the original C implementation of LZ4.
- */
-enum LZ4JNI {
-  ;
+public enum XXHashJNI implements XXHash {
+
+  FAST {
+
+    @Override
+    public int hash(byte[] buf, int off, int len, int seed) {
+      checkRange(buf, off, len);
+      return XXH_fast32(buf, off, len, seed);
+    }
+
+  },
+
+  STRONG {
+
+    @Override
+    public int hash(byte[] buf, int off, int len, int seed) {
+      checkRange(buf, off, len);
+      return XXH_strong32(buf, off, len, seed);
+    }
+
+  };
 
   static {
     Native.load();
     init();
   }
 
-  static native void init();
-  static native int LZ4_compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
-  static native int LZ4_compressHC(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
-  static native int LZ4_uncompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
-  static native int LZ4_uncompress_unknownOutputSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
-  static native int LZ4_compressBound(int length);
+  private static native void init();
+  private static native int XXH_fast32(byte[] input, int offset, int len, int seed);
+  private static native int XXH_strong32(byte[] input, int offset, int len, int seed);
 
 }
-

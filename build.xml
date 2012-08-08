@@ -48,6 +48,7 @@
         <pathelement location="${build}/classes/" />
       </classpath>
       <class name="net.jpountz.lz4.LZ4JNI" />
+      <class name="net.jpountz.xxhash.XXHashJNI" />
     </javah>
   </target>
 
@@ -60,10 +61,12 @@
       outfile="${build}/jni/${platform}/${os.arch}/lz4-java"
       outtype="shared">
       <includepath path="${src}/lz4" />
+      <includepath path="${src}/xxhash" />
       <includepath path="${java.home}/../include" />
       <includepath path="${java.home}/../include/${platform}/" />
       <includepath path="${build}/jni-headers" />
       <fileset dir="${src}/lz4" includes="lz4.c, lz4hc.c" />
+      <fileset dir="${src}/xxhash" includes="xxhash.c" />
       <fileset dir="${src}/jni" includes="*.c" />
       <linker />
     </cpptasks:cc>

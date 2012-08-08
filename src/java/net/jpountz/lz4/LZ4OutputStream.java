@@ -17,7 +17,9 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.lz4.LZ4Utils.*;
+import static net.jpountz.lz4.LZ4Utils.HASH_TABLE_SIZE;
+import static net.jpountz.lz4.LZ4Utils.MAX_DISTANCE;
+import static net.jpountz.lz4.LZ4Utils.maxCompressedLength;
 
 import java.io.IOException;
 import java.io.OutputStream;

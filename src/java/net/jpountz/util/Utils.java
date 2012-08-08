@@ -1,6 +1,4 @@
-package net.jpountz.lz4;
-
-import net.jpountz.util.Native;
+package net.jpountz.util;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -19,24 +17,31 @@ import net.jpountz.util.Native;
  * limitations under the License.
  */
 
-
-/**
- * JNI bindings to the original C implementation of LZ4.
- */
-enum LZ4JNI {
+public enum Utils {
   ;
 
-  static {
-    Native.load();
-    init();
+  public static void checkRange(byte[] buf, int off) {
+    if (off < 0 || off >= buf.length) {
+      throw new ArrayIndexOutOfBoundsException(off);
+    }
   }
 
-  static native void init();
-  static native int LZ4_compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
-  static native int LZ4_compressHC(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
-  static native int LZ4_uncompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
-  static native int LZ4_uncompress_unknownOutputSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
-  static native int LZ4_compressBound(int length);
+  public static void checkRange(byte[] buf, int off, int len) {
+    checkLength(len);
+    if (len > 0) {
+      checkRange(buf, off);
+      checkRange(buf, off + len - 1);
+    }
+  }
+
+  public static void checkLength(int len) {
+    if (len < 0) {
+      throw new IllegalArgumentException("lengths must be >= 0");
+    }
+  }
+
+  public static int readInt(byte[] buf, int i) {
+    return ((buf[i] & 0xFF) << 24) | ((buf[i+1] & 0xFF) << 16) | ((buf[i+2] & 0xFF) << 8) | (buf[i+3] & 0xFF);
+  }
 
 }
-

@@ -17,7 +17,10 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.lz4.LZ4Utils.*;
+import static net.jpountz.lz4.LZ4Utils.readVInt;
+import static net.jpountz.lz4.LZ4Utils.vIntLength;
+import static net.jpountz.lz4.LZ4Utils.writeVInt;
+import static net.jpountz.util.Utils.checkRange;
 
 /**
  * Utility class that writes uncompressed length at the beginning of the stream
@@ -45,7 +48,7 @@ public class LengthLZ4 extends CompressionCodec {
 
   @Override
   public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
-    LZ4Utils.checkRange(src, srcOff, srcLen);
+    checkRange(src, srcOff, srcLen);
     final int lengthBytes = writeVInt(srcLen, dest, destOff, dest.length - destOff);
     return lengthBytes + compressor.compress(src, srcOff, srcLen, dest, destOff + lengthBytes);
   }

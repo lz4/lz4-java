@@ -17,18 +17,10 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.lz4.LZ4UnsafeUtils.NATIVE_BYTE_ORDER;
 import static net.jpountz.lz4.LZ4UnsafeUtils.hash;
 import static net.jpountz.lz4.LZ4UnsafeUtils.hash64k;
-import static net.jpountz.lz4.LZ4UnsafeUtils.readByte;
-import static net.jpountz.lz4.LZ4UnsafeUtils.readInt;
 import static net.jpountz.lz4.LZ4UnsafeUtils.readIntEquals;
-import static net.jpountz.lz4.LZ4UnsafeUtils.readLong;
-import static net.jpountz.lz4.LZ4UnsafeUtils.readShort;
 import static net.jpountz.lz4.LZ4UnsafeUtils.wildArraycopy;
-import static net.jpountz.lz4.LZ4UnsafeUtils.writeByte;
-import static net.jpountz.lz4.LZ4UnsafeUtils.writeInt;
-import static net.jpountz.lz4.LZ4UnsafeUtils.writeShort;
 import static net.jpountz.lz4.LZ4UnsafeUtils.writeShortLittleEndian;
 import static net.jpountz.lz4.LZ4Utils.HASH_TABLE_SIZE;
 import static net.jpountz.lz4.LZ4Utils.HASH_TABLE_SIZE_64K;
@@ -42,7 +34,15 @@ import static net.jpountz.lz4.LZ4Utils.ML_BITS;
 import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
 import static net.jpountz.lz4.LZ4Utils.SKIP_STRENGTH;
-import static net.jpountz.lz4.LZ4Utils.checkRange;
+import static net.jpountz.util.UnsafeUtils.NATIVE_BYTE_ORDER;
+import static net.jpountz.util.UnsafeUtils.readByte;
+import static net.jpountz.util.UnsafeUtils.readInt;
+import static net.jpountz.util.UnsafeUtils.readLong;
+import static net.jpountz.util.UnsafeUtils.readShort;
+import static net.jpountz.util.UnsafeUtils.writeByte;
+import static net.jpountz.util.UnsafeUtils.writeInt;
+import static net.jpountz.util.UnsafeUtils.writeShort;
+import static net.jpountz.util.Utils.checkRange;
 
 import java.nio.ByteOrder;
 import java.util.Arrays;

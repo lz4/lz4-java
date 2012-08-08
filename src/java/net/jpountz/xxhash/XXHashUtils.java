@@ -1,6 +1,4 @@
-package net.jpountz.lz4;
-
-import net.jpountz.util.Native;
+package net.jpountz.xxhash;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -19,24 +17,17 @@ import net.jpountz.util.Native;
  * limitations under the License.
  */
 
-
-/**
- * JNI bindings to the original C implementation of LZ4.
- */
-enum LZ4JNI {
+enum XXHashUtils {
   ;
 
-  static {
-    Native.load();
-    init();
+  static final int PRIME1 = -1640531535;
+  static final int PRIME2 = -2048144777;
+  static final int PRIME3 = -1028477379;
+  static final int PRIME4 = 668265263;
+  static final int PRIME5 = 374761393;
+
+  static int rotL(int x, int r) {
+    return (x << r) | (x >>> (32 - r));
   }
 
-  static native void init();
-  static native int LZ4_compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
-  static native int LZ4_compressHC(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
-  static native int LZ4_uncompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
-  static native int LZ4_uncompress_unknownOutputSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
-  static native int LZ4_compressBound(int length);
-
 }
-

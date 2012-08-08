@@ -17,12 +17,13 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import static net.jpountz.lz4.LZ4ChunksOutputStream.MAGIC;
+import static net.jpountz.util.Utils.checkRange;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-
-import static net.jpountz.lz4.LZ4ChunksOutputStream.MAGIC;
 
 /**
  * Uncompress a stream which has been compressed with
@@ -90,7 +91,7 @@ public class LZ4ChunksInputStream extends InputStream {
   public int read(byte[] b, int off, int len) throws IOException {
     ensureOpen();
 
-    LZ4Utils.checkRange(b, off, len);
+    checkRange(b, off, len);
 
     if (len == 0) {
       return 0;

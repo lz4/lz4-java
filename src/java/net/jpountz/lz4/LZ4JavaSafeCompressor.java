@@ -29,13 +29,13 @@ import static net.jpountz.lz4.LZ4Utils.ML_BITS;
 import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
 import static net.jpountz.lz4.LZ4Utils.SKIP_STRENGTH;
-import static net.jpountz.lz4.LZ4Utils.checkRange;
 import static net.jpountz.lz4.LZ4Utils.commonBytes;
 import static net.jpountz.lz4.LZ4Utils.commonBytesBackward;
 import static net.jpountz.lz4.LZ4Utils.hash;
 import static net.jpountz.lz4.LZ4Utils.hash64k;
 import static net.jpountz.lz4.LZ4Utils.readIntEquals;
 import static net.jpountz.lz4.LZ4Utils.wildArraycopy;
+import static net.jpountz.util.Utils.checkRange;
 
 import java.util.Arrays;
 

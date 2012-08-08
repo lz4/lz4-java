@@ -1,6 +1,5 @@
 package net.jpountz.lz4;
 
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,6 +16,8 @@ package net.jpountz.lz4;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import static net.jpountz.util.Utils.checkRange;
 
 enum LZ4Utils {
   ;
@@ -51,26 +52,6 @@ enum LZ4Utils {
       throw new IllegalArgumentException("length must be >= 0, got " + length);
     }
     return length + length / 255 + 16;
-  }
-
-  static void checkRange(byte[] buf, int off) {
-    if (off < 0 || off >= buf.length) {
-      throw new ArrayIndexOutOfBoundsException(off);
-    }
-  }
-
-  static void checkRange(byte[] buf, int off, int len) {
-    checkLength(len);
-    if (len > 0) {
-      checkRange(buf, off);
-      checkRange(buf, off + len - 1);
-    }
-  }
-
-  static void checkLength(int len) {
-    if (len < 0) {
-      throw new IllegalArgumentException("lengths must be >= 0");
-    }
   }
 
   static int hash(int i) {
@@ -182,7 +163,7 @@ enum LZ4Utils {
   }
 
   static int readVInt(byte[] buf, int off, int len) {
-    LZ4Utils.checkRange(buf, off, len);
+    checkRange(buf, off, len);
     int n = 0;
     for (int i = 0; i < 4; ++i) {
       if (i >= len) {

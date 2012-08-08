@@ -18,43 +18,19 @@ package net.jpountz.lz4;
  */
 
 import static net.jpountz.lz4.LZ4Utils.COPY_LENGTH;
+import static net.jpountz.util.UnsafeUtils.NATIVE_BYTE_ORDER;
+import static net.jpountz.util.UnsafeUtils.readByte;
+import static net.jpountz.util.UnsafeUtils.readInt;
+import static net.jpountz.util.UnsafeUtils.readLong;
+import static net.jpountz.util.UnsafeUtils.readShort;
+import static net.jpountz.util.UnsafeUtils.writeByte;
+import static net.jpountz.util.UnsafeUtils.writeLong;
+import static net.jpountz.util.UnsafeUtils.writeShort;
 
-import java.lang.reflect.Field;
 import java.nio.ByteOrder;
-
-import sun.misc.Unsafe;
 
 enum LZ4UnsafeUtils {
   ;
-
-  static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
-  private static final Unsafe UNSAFE;
-  private static final long BYTE_ARRAY_OFFSET;
-  private static final int BYTE_ARRAY_SCALE;
-  private static final long INT_ARRAY_OFFSET;
-  private static final int INT_ARRAY_SCALE;
-  private static final long SHORT_ARRAY_OFFSET;
-  private static final int SHORT_ARRAY_SCALE;
-  
-  static {
-    try {
-      Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-      theUnsafe.setAccessible(true);
-      UNSAFE = (Unsafe) theUnsafe.get(null);
-      BYTE_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
-      BYTE_ARRAY_SCALE = UNSAFE.arrayIndexScale(byte[].class);
-      INT_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(int[].class);
-      INT_ARRAY_SCALE = UNSAFE.arrayIndexScale(int[].class);
-      SHORT_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(short[].class);
-      SHORT_ARRAY_SCALE = UNSAFE.arrayIndexScale(short[].class);
-    } catch (IllegalAccessException e) {
-      throw new ExceptionInInitializerError("Cannot access Unsafe");
-    } catch (NoSuchFieldException e) {
-      throw new ExceptionInInitializerError("Cannot access Unsafe");
-    } catch (SecurityException e) {
-      throw new ExceptionInInitializerError("Cannot access Unsafe");
-    }
-  }
 
   static void safeArraycopy(byte[] src, int srcOff, byte[] dest, int destOff, int len) {
     final int fastLen = len & 0xFFFFFFF8;
@@ -84,54 +60,6 @@ enum LZ4UnsafeUtils {
       dOff += 8;
       matchOff += 8;
     }
-  }
-
-  static int readByte(byte[] src, int srcOff) {
-    return UNSAFE.getByte(src, BYTE_ARRAY_OFFSET + BYTE_ARRAY_SCALE * srcOff) & 0xFF;
-  }
-
-  static void writeByte(byte[] src, int srcOff, int value) {
-    UNSAFE.putByte(src, BYTE_ARRAY_OFFSET + BYTE_ARRAY_SCALE * srcOff, (byte) value);
-  }
-
-  static long readLong(byte[] src, int srcOff) {
-    return UNSAFE.getLong(src, BYTE_ARRAY_OFFSET + srcOff);
-  }
-
-  static void writeLong(byte[] dest, int destOff, long value) {
-    UNSAFE.putLong(dest, BYTE_ARRAY_OFFSET + destOff, value);
-  }
-
-  static int readInt(byte[] src, int srcOff) {
-    return UNSAFE.getInt(src, BYTE_ARRAY_OFFSET + srcOff);
-  }
-
-  static void writeInt(byte[] dest, int destOff, int value) {
-    UNSAFE.putInt(dest, BYTE_ARRAY_OFFSET + destOff, value);
-  }
-
-  static short readShort(byte[] src, int srcOff) {
-    return UNSAFE.getShort(src, BYTE_ARRAY_OFFSET + srcOff);
-  }
-
-  static void writeShort(byte[] dest, int destOff, short value) {
-    UNSAFE.putShort(dest, BYTE_ARRAY_OFFSET + destOff, value);
-  }
-
-  static int readInt(int[] src, int srcOff) {
-    return UNSAFE.getInt(src, INT_ARRAY_OFFSET + INT_ARRAY_SCALE * srcOff);
-  }
-
-  static void writeInt(int[] dest, int destOff, int value) {
-    UNSAFE.putInt(dest, INT_ARRAY_OFFSET + INT_ARRAY_SCALE * destOff, value);
-  }
-
-  static int readShort(short[] src, int srcOff) {
-    return UNSAFE.getShort(src, SHORT_ARRAY_OFFSET + SHORT_ARRAY_SCALE * srcOff) & 0xFFFF;
-  }
-
-  static void writeShort(short[] dest, int destOff, int value) {
-    UNSAFE.putShort(dest, SHORT_ARRAY_OFFSET + SHORT_ARRAY_SCALE * destOff, (short) value);
   }
 
   static int readShortLittleEndian(byte[] src, int srcOff) {

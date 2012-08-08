@@ -22,11 +22,11 @@ import static net.jpountz.lz4.LZ4Utils.MIN_MATCH;
 import static net.jpountz.lz4.LZ4Utils.ML_BITS;
 import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
-import static net.jpountz.lz4.LZ4Utils.checkRange;
 import static net.jpountz.lz4.LZ4Utils.safeArraycopy;
 import static net.jpountz.lz4.LZ4Utils.safeIncrementalCopy;
 import static net.jpountz.lz4.LZ4Utils.wildArraycopy;
 import static net.jpountz.lz4.LZ4Utils.wildIncrementalCopy;
+import static net.jpountz.util.Utils.checkRange;
 
 /**
  * Uncompressor written in pure Java without using the unofficial

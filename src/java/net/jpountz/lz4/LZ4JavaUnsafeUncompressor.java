@@ -21,13 +21,15 @@ import static net.jpountz.lz4.LZ4UnsafeUtils.readShortLittleEndian;
 import static net.jpountz.lz4.LZ4UnsafeUtils.safeArraycopy;
 import static net.jpountz.lz4.LZ4UnsafeUtils.safeIncrementalCopy;
 import static net.jpountz.lz4.LZ4UnsafeUtils.wildArraycopy;
-import static net.jpountz.lz4.LZ4UnsafeUtils.*;
+import static net.jpountz.lz4.LZ4UnsafeUtils.wildIncrementalCopy;
 import static net.jpountz.lz4.LZ4Utils.COPY_LENGTH;
 import static net.jpountz.lz4.LZ4Utils.MIN_MATCH;
 import static net.jpountz.lz4.LZ4Utils.ML_BITS;
 import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
-import static net.jpountz.lz4.LZ4Utils.checkRange;
+import static net.jpountz.util.UnsafeUtils.readByte;
+import static net.jpountz.util.Utils.checkRange;
+
 
 /**
  * Very fast uncompressor written in pure Java with the unofficial

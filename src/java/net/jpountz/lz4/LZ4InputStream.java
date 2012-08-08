@@ -19,6 +19,7 @@ package net.jpountz.lz4;
 
 import static net.jpountz.lz4.LZ4Utils.MAX_DISTANCE;
 import static net.jpountz.lz4.LZ4Utils.maxCompressedLength;
+import static net.jpountz.util.Utils.checkRange;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +55,7 @@ abstract class LZ4InputStream extends InputStream {
 
   @Override
   public int read(byte[] b, int off, int len) throws IOException {
-    LZ4Utils.checkRange(b, off, len);
+    checkRange(b, off, len);
 
     if (len == 0) {
       if (compressedLen == 0) {

@@ -17,7 +17,7 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.lz4.LZ4Utils.checkRange;
+import static net.jpountz.util.Utils.checkRange;
 
 /**
  * {@link LZ4Compressor}s implemented with JNI bindings to the original C
