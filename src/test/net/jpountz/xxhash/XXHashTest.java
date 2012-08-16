@@ -31,7 +31,8 @@ public class XXHashTest extends RandomizedTest {
   @Repeat(iterations = 5)
   public void testAIOOBE() {
     final int seed = randomInt();
-    final int bufLen = randomBoolean() ? randomInt(32) : randomInt(1000);
+    final int max = randomBoolean() ? 32 : 1000;
+    final int bufLen = randomIntBetween(1, max);
     final byte[] buf = new byte[bufLen];
     for (int i = 0; i < buf.length; ++i) {
       buf[i] = randomByte();
