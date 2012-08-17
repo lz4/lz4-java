@@ -23,14 +23,14 @@ enum LZ4Utils {
   ;
 
   static final int MEMORY_USAGE = 14;
-  static final int NOT_COMPRESSIBLE_CONFIRMATION = 6;
+  static final int NOT_COMPRESSIBLE_DETECTION_LEVEL = 6;
 
   static final int MIN_MATCH = 4;
 
   static final int HASH_LOG = MEMORY_USAGE - 2;
   static final int HASH_TABLE_SIZE = 1 << HASH_LOG;
 
-  static final int SKIP_STRENGTH = Math.max(NOT_COMPRESSIBLE_CONFIRMATION, 2);
+  static final int SKIP_STRENGTH = Math.max(NOT_COMPRESSIBLE_DETECTION_LEVEL, 2);
   static final int COPY_LENGTH = 8;
   static final int LAST_LITERALS = 5;
   static final int MF_LIMIT = COPY_LENGTH + MIN_MATCH;
@@ -130,8 +130,13 @@ enum LZ4Utils {
     System.arraycopy(src, sOff, dest, dOff, fastLen);
   }
 
-  static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff) {
+  static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff, int destEnd) {
     final int runLen = srcLen;
+
+    if (dOff + runLen + 1 + (runLen - 15) / 255 >= destEnd) {
+      throw new LZ4Exception("maxDestLen is too small");
+    }
+
     if (runLen >= RUN_MASK) {
       dest[dOff++] = (byte) (RUN_MASK << ML_BITS);
       int len = runLen - RUN_MASK;

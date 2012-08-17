@@ -50,7 +50,7 @@ public class LengthLZ4 extends CompressionCodec {
   public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
     checkRange(src, srcOff, srcLen);
     final int lengthBytes = writeVInt(srcLen, dest, destOff, dest.length - destOff);
-    return lengthBytes + compressor.compress(src, srcOff, srcLen, dest, destOff + lengthBytes);
+    return lengthBytes + compressor.compress(src, srcOff, srcLen, dest, destOff + lengthBytes, dest.length - destOff - lengthBytes);
   }
 
   @Override

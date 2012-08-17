@@ -80,7 +80,7 @@ class LZ4OutputStream extends OutputStream {
   private void encode() throws IOException {
     long sdOff = compressor.greedyCompress(
         uncompressed, 0, compressedOffset, offset - compressedOffset,
-        compressed, 0, hashTable);
+        compressed, 0, compressed.length, hashTable);
     compressedOffset = (int) (sdOff >>> 32);
     int compressedLen = (int) (sdOff & 0xFFFFL);
     if (compressedLen == 0) {

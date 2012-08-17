@@ -35,12 +35,12 @@ static void throw_OOM(JNIEnv *env) {
 }
 
 /*
- * Class:     net_jpountz_lz4_LZ4
- * Method:    LZ4_compress
- * Signature: ([BII[BI)I
+ * Class:     net_jpountz_lz4_LZ4JNI
+ * Method:    LZ4_compress_limitedOutput
+ * Signature: ([BII[BII)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress
-  (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff) {
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress_1limitedOutput
+  (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff, jint maxDestLen) {
 
   char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
   if (in == NULL) {
@@ -53,7 +53,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress
     return 0;
   }
 
-  jint compressed = LZ4_compress(in + srcOff, out + destOff, srcLen);
+  jint compressed = LZ4_compress_limitedOutput(in + srcOff, out + destOff, srcLen, maxDestLen);
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
   (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);

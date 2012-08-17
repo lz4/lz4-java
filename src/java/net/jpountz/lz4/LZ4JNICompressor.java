@@ -25,21 +25,24 @@ import static net.jpountz.util.Utils.checkRange;
  */
 public enum LZ4JNICompressor implements LZ4Compressor {
   FAST {
-    public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
+    public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
       checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff, maxCompressedLength(srcLen));
-      final int result = LZ4JNI.LZ4_compress(src, srcOff, srcLen, dest, destOff);
+      checkRange(dest, destOff, maxDestLen);
+      final int result = LZ4JNI.LZ4_compress_limitedOutput(src, srcOff, srcLen, dest, destOff, maxDestLen);
       if (result <= 0) {
-        throw new LZ4Exception();
+        throw new LZ4Exception("maxDestLen is too small");
       }
       return result;
     }
   },
 
   HIGH_COMPRESSION {
-    public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
+    public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
       checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff, maxCompressedLength(srcLen));
+      checkRange(dest, destOff, maxDestLen);
+      if (maxDestLen < maxCompressedLength(srcLen)) {
+        throw new LZ4Exception("This compressor does not support output buffers whose size is < maxCompressedLength(srcLen)");
+      }
       final int result = LZ4JNI.LZ4_compressHC(src, srcOff, srcLen, dest, destOff);
       if (result <= 0) {
         throw new LZ4Exception();

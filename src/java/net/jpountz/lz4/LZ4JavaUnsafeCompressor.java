@@ -61,7 +61,7 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor, LZ4PartialCompress
 
     @Override
     public long greedyCompress(byte[] src, int srcOrig, int sOff, int srcLen,
-        byte[] dest, int dOff, int[] hashTable) {
+        byte[] dest, int dOff, int destEnd, int[] hashTable) {
       
       final int srcEnd = sOff + srcLen;
       final int srcLimit = srcEnd - LAST_LITERALS;
@@ -119,6 +119,11 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor, LZ4PartialCompress
 
           // encode literal length
           int tokenOff = dOff++;
+
+          if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) >= destEnd) {
+            throw new LZ4Exception("maxDestLen is too small");
+          }
+
           if (runLen >= RUN_MASK) {
             writeByte(dest, tokenOff, RUN_MASK << ML_BITS);
             int len = runLen - RUN_MASK;
@@ -210,10 +215,10 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor, LZ4PartialCompress
 
     @Override
     public int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff) {
-      return LZ4Utils.lastLiterals(src, sOff, srcLen, dest, dOff);
+      return LZ4Utils.lastLiterals(src, sOff, srcLen, dest, dOff, dest.length);
     }
 
-    private int compress64k(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
+    private int compress64k(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int destEnd) {
       final int srcEnd = srcOff + srcLen;
       final int srcLimit = srcEnd - LAST_LITERALS;
       final int mflimit = srcEnd - MF_LIMIT;
@@ -265,6 +270,11 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor, LZ4PartialCompress
 
           // encode literal length
           int tokenOff = dOff++;
+
+          if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) >= destEnd) {
+            throw new LZ4Exception("maxDestLen is too small");
+          }
+
           if (runLen >= RUN_MASK) {
             writeByte(dest, tokenOff, RUN_MASK << ML_BITS);
             int len = runLen - RUN_MASK;
@@ -355,15 +365,16 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor, LZ4PartialCompress
     }
 
     @Override
-    public int compress(byte[] src, final int srcOff, int srcLen, byte[] dest, final int destOff) {
+    public int compress(byte[] src, final int srcOff, int srcLen, byte[] dest, final int destOff, int maxDestLen) {
       checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff, maxCompressedLength(srcLen));
+      checkRange(dest, destOff, maxDestLen);
+      final int destEnd = destOff + maxDestLen;
 
       if (srcLen < LZ4_64K_LIMIT) {
-        return compress64k(src, srcOff, srcLen, dest, destOff);
+        return compress64k(src, srcOff, srcLen, dest, destOff, destEnd);
       }
 
-      final long sdOff = greedyCompress(src, srcOff, srcOff, srcLen, dest, destOff, null);
+      final long sdOff = greedyCompress(src, srcOff, srcOff, srcLen, dest, destOff, destEnd, null);
       int sOff = (int) (sdOff >>> 32);
       int dOff = (int) (sdOff & 0xFFFFFFFFL);
       dOff = lastLiterals(src, sOff, srcLen - sOff + srcOff, dest, dOff);

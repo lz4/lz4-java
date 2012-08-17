@@ -36,7 +36,7 @@ class LengthBitsLZ4 extends CompressionCodec {
       int destOff) {
     final int bitsRequired = Math.max(1, 32 - Integer.numberOfLeadingZeros(srcLen));
     dest[destOff++] = (byte) (bitsRequired - 1);
-    return 1 + compressor.compress(src, srcOff, srcLen, dest, destOff);
+    return 1 + compressor.compress(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
   }
 
   @Override

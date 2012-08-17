@@ -25,7 +25,16 @@ public interface LZ4Compressor {
   /** Return the maximum compressed length for an input of size <code>length</code>. */
   int maxCompressedLength(int length);
 
-  /** Compress <code>src[srcOff:srcOff+srcLen]</code> into <code>dest[destOff:]</code> */
-  int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
+  /**
+   * Compress <code>src[srcOff:srcOff+srcLen]</code> into
+   * <code>dest[destOff:destOff+destLen]</code> and return the compressed
+   * length.
+   *
+   * This method will throw a {@link LZ4Exception} if this compressor is unable
+   * to compress the input into less than <code>maxDestLen</code> bytes. To
+   * prevent this exception to be thrown, you should make sure that
+   * <code>maxDestLen >= maxCompressedLength(srcLen)</code>.
+   */
+  int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
 
 }

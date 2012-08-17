@@ -190,7 +190,7 @@ public class LZ4Test extends RandomizedTest {
     }
     final int maxCompressedLength = LZ4JNICompressor.FAST.maxCompressedLength(len);
     final byte[] compressed = new byte[maxCompressedLength];
-    final int compressedLength = LZ4JNICompressor.FAST.compress(data, 0, data.length, compressed, 0);
+    final int compressedLength = LZ4JNICompressor.FAST.compress(data, 0, data.length, compressed, 0, compressed.length);
     uncompressor.uncompressUnknownSize(compressed, 0, compressedLength, new byte[data.length - 1], 0);
   }
 }
