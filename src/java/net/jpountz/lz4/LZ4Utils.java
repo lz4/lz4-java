@@ -47,6 +47,10 @@ enum LZ4Utils {
   static final int HASH_LOG_64K = HASH_LOG + 1;
   static final int HASH_TABLE_SIZE_64K = 1 << HASH_LOG_64K;
 
+  static final int HASH_LOG_HC = 15;
+  static final int HASH_TABLE_SIZE_HC = 1 << HASH_LOG_HC;
+  static final int OPTIMAL_ML = ML_MASK - 1 + MIN_MATCH;
+
   static final int maxCompressedLength(int length) {
     if (length < 0) {
       throw new IllegalArgumentException("length must be >= 0, got " + length);
@@ -60,6 +64,10 @@ enum LZ4Utils {
 
   static int hash64k(int i) {
     return (i * -1640531535) >>> ((MIN_MATCH * 8) - HASH_LOG_64K);
+  }
+
+  static int hashHC(int i) {
+    return (i * -1640531535) >>> ((MIN_MATCH * 8) - HASH_LOG_HC);
   }
 
   static int readInt(byte[] buf, int i) {
@@ -128,6 +136,51 @@ enum LZ4Utils {
     // can make uncompression 10% faster
     final int fastLen = ((len - 1) & 0xFFFFFFF8) + COPY_LENGTH;
     System.arraycopy(src, sOff, dest, dOff, fastLen);
+  }
+
+  static int encodeSequence(byte[] src, int anchor, int matchOff, int matchRef, int matchLen, byte[] dest, int dOff) {
+    final int runLen = matchOff - anchor;
+    final int tokenOff = dOff++;
+    int token;
+
+    if (runLen >= RUN_MASK) {
+      token = (byte) (RUN_MASK << ML_BITS);
+      int len = runLen - RUN_MASK;
+      while (len >= 255) {
+        dest[dOff++] = (byte) 255;
+        len -= 255;
+      }
+      dest[dOff++] = (byte) len;
+    } else {
+      token = runLen << ML_BITS;
+    }
+
+    // copy literals
+    wildArraycopy(src, anchor, dest, dOff, runLen);
+    dOff += runLen;
+
+    // encode offset
+    final int matchDec = matchOff - matchRef;
+    dest[dOff++] = (byte) matchDec;
+    dest[dOff++] = (byte) (matchDec >>> 8);
+
+    // encode match len
+    matchLen -= 4;
+    if (matchLen >= ML_MASK) {
+      token |= ML_MASK;
+      int len = matchLen - ML_MASK;
+      while (len >= 255) {
+        dest[dOff++] = (byte) 255;
+        len -= 255;
+      }
+      dest[dOff++] = (byte) len;
+    } else {
+      token |= matchLen;
+    }
+
+    dest[tokenOff] = (byte) token;
+
+    return dOff;
   }
 
   static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff, int destEnd) {

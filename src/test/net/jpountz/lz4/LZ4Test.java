@@ -96,7 +96,9 @@ public class LZ4Test extends RandomizedTest {
   }
 
   public void testCompress(CompressionCodec compressionCodec) {
-    final int max = randomInt(256);
+    final int max = randomBoolean()
+        ? randomInt(3)
+        : randomInt(256);
     final int size = randomBoolean()
         ? randomBoolean() ? 19 : 20
             : randomBoolean() ? randomIntBetween(45, 64000) : randomIntBetween(200000, 1000000);
