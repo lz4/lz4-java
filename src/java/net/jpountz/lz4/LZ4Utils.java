@@ -145,12 +145,7 @@ enum LZ4Utils {
 
     if (runLen >= RUN_MASK) {
       token = (byte) (RUN_MASK << ML_BITS);
-      int len = runLen - RUN_MASK;
-      while (len >= 255) {
-        dest[dOff++] = (byte) 255;
-        len -= 255;
-      }
-      dest[dOff++] = (byte) len;
+      dOff = writeLen(runLen - RUN_MASK, dest, dOff);
     } else {
       token = runLen << ML_BITS;
     }
@@ -168,12 +163,7 @@ enum LZ4Utils {
     matchLen -= 4;
     if (matchLen >= ML_MASK) {
       token |= ML_MASK;
-      int len = matchLen - ML_MASK;
-      while (len >= 255) {
-        dest[dOff++] = (byte) 255;
-        len -= 255;
-      }
-      dest[dOff++] = (byte) len;
+      dOff = writeLen(matchLen - RUN_MASK, dest, dOff);
     } else {
       token |= matchLen;
     }
@@ -192,12 +182,7 @@ enum LZ4Utils {
 
     if (runLen >= RUN_MASK) {
       dest[dOff++] = (byte) (RUN_MASK << ML_BITS);
-      int len = runLen - RUN_MASK;
-      while (len >= 255) {
-        dest[dOff++] = (byte) 255;
-        len -= 255;
-      }
-      dest[dOff++] = (byte) len;
+      dOff = writeLen(runLen - RUN_MASK, dest, dOff);
     } else {
       dest[dOff++] = (byte) (runLen << ML_BITS);
     }
@@ -260,6 +245,15 @@ enum LZ4Utils {
     }
     buf[off + i] = (byte) n;
     return i + 1;
+  }
+
+  static int writeLen(int len, byte[] dest, int dOff) {
+    while (len >= 0xFF) {
+      dest[dOff++] = (byte) 0xFF;
+      len -= 0xFF;
+    }
+    dest[dOff++] = (byte) len;
+    return dOff;
   }
 
 }

@@ -17,10 +17,12 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import static net.jpountz.lz4.LZ4UnsafeUtils.commonBytes;
 import static net.jpountz.lz4.LZ4UnsafeUtils.hash;
 import static net.jpountz.lz4.LZ4UnsafeUtils.hash64k;
 import static net.jpountz.lz4.LZ4UnsafeUtils.readIntEquals;
 import static net.jpountz.lz4.LZ4UnsafeUtils.wildArraycopy;
+import static net.jpountz.lz4.LZ4UnsafeUtils.writeLen;
 import static net.jpountz.lz4.LZ4UnsafeUtils.writeShortLittleEndian;
 import static net.jpountz.lz4.LZ4Utils.HASH_TABLE_SIZE;
 import static net.jpountz.lz4.LZ4Utils.HASH_TABLE_SIZE_64K;
@@ -35,18 +37,14 @@ import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
 import static net.jpountz.lz4.LZ4Utils.SKIP_STRENGTH;
 import static net.jpountz.lz4.LZ4Utils.lastLiterals;
-
-import static net.jpountz.util.UnsafeUtils.NATIVE_BYTE_ORDER;
 import static net.jpountz.util.UnsafeUtils.readByte;
 import static net.jpountz.util.UnsafeUtils.readInt;
-import static net.jpountz.util.UnsafeUtils.readLong;
 import static net.jpountz.util.UnsafeUtils.readShort;
 import static net.jpountz.util.UnsafeUtils.writeByte;
 import static net.jpountz.util.UnsafeUtils.writeInt;
 import static net.jpountz.util.UnsafeUtils.writeShort;
 import static net.jpountz.util.Utils.checkRange;
 
-import java.nio.ByteOrder;
 import java.util.Arrays;
 
 /**
@@ -120,12 +118,7 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
 
           if (runLen >= RUN_MASK) {
             writeByte(dest, tokenOff, RUN_MASK << ML_BITS);
-            int len = runLen - RUN_MASK;
-            while (len >= 255) {
-              writeByte(dest, dOff++, 255);
-              len -= 255;
-            }
-            writeByte(dest, dOff++, len);
+            dOff = writeLen(runLen - RUN_MASK, dest, dOff);
           } else {
             writeByte(dest, tokenOff, runLen << ML_BITS);
           }
@@ -142,36 +135,12 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
             // count nb matches
             sOff += MIN_MATCH;
             ref += MIN_MATCH;
-            int matchLen = 0;
-            while (sOff < srcLimit - 8) {
-              final long diff = readLong(src, sOff) - readLong(src, ref);
-              final int zeroBits;
-              if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
-                zeroBits = Long.numberOfLeadingZeros(diff);
-              } else {
-                zeroBits = Long.numberOfTrailingZeros(diff);
-              }
-              if (zeroBits == 64) {
-                matchLen += 8;
-                sOff += 8;
-                ref += 8;
-              } else {
-                final int inc = zeroBits >>> 3;
-                matchLen += inc;
-                sOff += inc;
-                break;
-              }
-            }
+            final int matchLen = commonBytes(src, ref, sOff, srcLimit);
 
             // encode match len
             if (matchLen >= ML_MASK) {
               writeByte(dest, tokenOff, readByte(dest, tokenOff) | ML_MASK);
-              int len = matchLen - ML_MASK;
-              while (len >= 255) {
-                writeByte(dest, dOff++, 255);
-                len -= 255;
-              }
-              writeByte(dest, dOff++, len);
+              dOff = writeLen(matchLen - ML_MASK, dest, dOff);
             } else {
               writeByte(dest, tokenOff, readByte(dest, tokenOff) | matchLen);
             }
@@ -276,12 +245,7 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
 
           if (runLen >= RUN_MASK) {
             writeByte(dest, tokenOff, RUN_MASK << ML_BITS);
-            int len = runLen - RUN_MASK;
-            while (len >= 255) {
-              writeByte(dest, dOff++, 255);
-              len -= 255;
-            }
-            writeByte(dest, dOff++, len);
+            dOff = writeLen(runLen - RUN_MASK, dest, dOff);
           } else {
             writeByte(dest, tokenOff, runLen << ML_BITS);
           }
@@ -298,36 +262,12 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
             // count nb matches
             sOff += MIN_MATCH;
             ref += MIN_MATCH;
-            int matchLen = 0;
-            while (sOff < srcLimit - 8) {
-              final long diff = readLong(src, sOff) - readLong(src, ref);
-              final int zeroBits;
-              if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
-                zeroBits = Long.numberOfLeadingZeros(diff);
-              } else {
-                zeroBits = Long.numberOfTrailingZeros(diff);
-              }
-              if (zeroBits == 64) {
-                matchLen += 8;
-                sOff += 8;
-                ref += 8;
-              } else {
-                final int inc = zeroBits >>> 3;
-                matchLen += inc;
-                sOff += inc;
-                break;
-              }
-            }
+            final int matchLen = commonBytes(src, ref, sOff, srcLimit);
 
             // encode match len
             if (matchLen >= ML_MASK) {
               writeByte(dest, tokenOff, readByte(dest, tokenOff) | ML_MASK);
-              int len = matchLen - ML_MASK;
-              while (len >= 255) {
-                writeByte(dest, dOff++, 255);
-                len -= 255;
-              }
-              writeByte(dest, dOff++, len);
+              dOff = writeLen(matchLen - ML_MASK, dest, dOff);
             } else {
               writeByte(dest, tokenOff, readByte(dest, tokenOff) | matchLen);
             }

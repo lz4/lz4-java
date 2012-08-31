@@ -41,6 +41,7 @@ import static net.jpountz.lz4.LZ4Utils.lastLiterals;
 import static net.jpountz.lz4.LZ4Utils.readInt;
 import static net.jpountz.lz4.LZ4Utils.readIntEquals;
 import static net.jpountz.lz4.LZ4Utils.wildArraycopy;
+import static net.jpountz.lz4.LZ4Utils.writeLen;
 import static net.jpountz.util.Utils.checkRange;
 
 import java.util.Arrays;
@@ -112,12 +113,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
           int token;
           if (runLen >= RUN_MASK) {
             token = RUN_MASK << ML_BITS;
-            int len = runLen - RUN_MASK;
-            while (len >= 255) {
-              dest[dOff++] = (byte) 255;
-              len -= 255;
-            }
-            dest[dOff++] = (byte) len;
+            dOff = writeLen(runLen - RUN_MASK, dest, dOff);
           } else {
             token = runLen << ML_BITS;
           }
@@ -140,12 +136,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
             // encode match len
             if (matchLen >= ML_MASK) {
               token |= ML_MASK;
-              int len = matchLen - ML_MASK;
-              while (len >= 255) {
-                dest[dOff++] = (byte) 255;
-                len -= 255;
-              }
-              dest[dOff++] = (byte) len;
+              dOff = writeLen(matchLen - ML_MASK, dest, dOff);
             } else {
               token |= matchLen;
             }
@@ -253,12 +244,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
           int token;
           if (runLen >= RUN_MASK) {
             token = RUN_MASK << ML_BITS;
-            int len = runLen - RUN_MASK;
-            while (len >= 255) {
-              dest[dOff++] = (byte) 255;
-              len -= 255;
-            }
-            dest[dOff++] = (byte) len;
+            dOff = writeLen(runLen - RUN_MASK, dest, dOff);
           } else {
             token = runLen << ML_BITS;
           }
@@ -280,12 +266,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
             // encode match len
             if (matchLen >= ML_MASK) {
               token |= ML_MASK;
-              int len = matchLen - ML_MASK;
-              while (len >= 255) {
-                dest[dOff++] = (byte) 255;
-                len -= 255;
-              }
-              dest[dOff++] = (byte) len;
+              dOff = writeLen(matchLen - ML_MASK, dest, dOff);
             } else {
               token |= matchLen;
             }

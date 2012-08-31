@@ -90,4 +90,37 @@ enum LZ4UnsafeUtils {
     return readInt(src, ref) == readInt(src, sOff);
   }
 
+  static int commonBytes(byte[] src, int ref, int sOff, int srcLimit) {
+    int matchLen = 0;
+    while (sOff < srcLimit - 8) {
+      final long diff = readLong(src, sOff) - readLong(src, ref);
+      final int zeroBits;
+      if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
+        zeroBits = Long.numberOfLeadingZeros(diff);
+      } else {
+        zeroBits = Long.numberOfTrailingZeros(diff);
+      }
+      if (zeroBits == 64) {
+        matchLen += 8;
+        sOff += 8;
+        ref += 8;
+      } else {
+        final int inc = zeroBits >>> 3;
+        matchLen += inc;
+        sOff += inc;
+        break;
+      }
+    }
+    return matchLen;
+  }
+
+  static int writeLen(int len, byte[] dest, int dOff) {
+    while (len >= 0xFF) {
+      writeByte(dest, dOff++, 0xFF);
+      len -= 0xFF;
+    }
+    writeByte(dest, dOff++, len);
+    return dOff;
+  }
+
 }
