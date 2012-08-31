@@ -26,8 +26,4 @@ enum XXHashUtils {
   static final int PRIME4 = 668265263;
   static final int PRIME5 = 374761393;
 
-  static int rotL(int x, int r) {
-    return (x << r) | (x >>> (32 - r));
-  }
-
 }
