@@ -17,8 +17,6 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import java.io.IOException;
-import java.io.InputStream;
 
 enum Instances {
   ;
@@ -28,9 +26,7 @@ enum Instances {
     LZ4JNICompressor.HIGH_COMPRESSION,
     LZ4JavaUnsafeCompressor.FAST,
     LZ4JavaSafeCompressor.FAST,
-    LZ4JavaSafeCompressor.HIGH_COMPRESSION,
-    new LZ4StreamCompressor(LZ4JavaSafeCompressor.FAST),
-    new LZ4StreamCompressor(LZ4JavaUnsafeCompressor.FAST)
+    LZ4JavaSafeCompressor.HIGH_COMPRESSION
   };
 
   static LZ4Uncompressor[] UNCOMPRESSORS = new LZ4Uncompressor[] {
@@ -42,19 +38,7 @@ enum Instances {
   static LZ4UnknwonSizeUncompressor[] UNCOMPRESSORS2 = new LZ4UnknwonSizeUncompressor[] {
     LZ4JNIUncompressor.INSTANCE,
     LZ4JavaUnsafeUncompressor.INSTANCE,
-    LZ4JavaSafeUncompressor.INSTANCE,
-    new LZ4StreamUncompressor() {
-      @Override
-      protected InputStream lz4InputStream(InputStream is) throws IOException {
-        return new LZ4JavaSafeInputStream(is);
-      }
-    },
-    new LZ4StreamUncompressor() {
-      @Override
-      protected InputStream lz4InputStream(InputStream is) throws IOException {
-        return new LZ4JavaUnsafeInputStream(is);
-      }
-    }
+    LZ4JavaSafeUncompressor.INSTANCE
   };
 
 }

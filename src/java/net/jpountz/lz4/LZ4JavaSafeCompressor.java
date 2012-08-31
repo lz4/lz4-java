@@ -37,6 +37,7 @@ import static net.jpountz.lz4.LZ4Utils.encodeSequence;
 import static net.jpountz.lz4.LZ4Utils.hash;
 import static net.jpountz.lz4.LZ4Utils.hash64k;
 import static net.jpountz.lz4.LZ4Utils.hashHC;
+import static net.jpountz.lz4.LZ4Utils.lastLiterals;
 import static net.jpountz.lz4.LZ4Utils.readInt;
 import static net.jpountz.lz4.LZ4Utils.readIntEquals;
 import static net.jpountz.lz4.LZ4Utils.wildArraycopy;
@@ -48,147 +49,9 @@ import java.util.Arrays;
  * Compressors written in pure Java without using the unofficial
  * sun.misc.Unsafe API.
  */
-public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor {
+public enum LZ4JavaSafeCompressor implements LZ4Compressor {
 
   FAST {
-
-    @Override
-    public long greedyCompress(byte[] src, int srcOrig, int sOff, int srcLen,
-        byte[] dest, int dOff, int destEnd, int[] hashTable) {
-
-      final int srcEnd = sOff + srcLen;
-      final int srcLimit = srcEnd - LAST_LITERALS;
-      final int mflimit = srcEnd - MF_LIMIT;
-
-      int anchor = sOff;
-
-      if (srcLen > MIN_LENGTH) {
-
-        if (hashTable == null) {
-          hashTable = new int[HASH_TABLE_SIZE];
-          Arrays.fill(hashTable, sOff);
-        }
-
-        ++sOff;
-
-        main:
-        while (sOff < srcLimit) {
-
-          // find a match
-          int forwardOff = sOff;
-
-          int ref;
-          int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
-          int back;
-          while (true) {
-            sOff = forwardOff;
-            final int step = findMatchAttempts++ >> SKIP_STRENGTH;
-            forwardOff += step;
-
-            if (forwardOff > mflimit) {
-              break main;
-            }
-
-            final int h = hash(src, sOff);
-            ref = hashTable[h];
-            back = sOff - ref;
-            if (back >= MAX_DISTANCE) {
-              continue;
-            }
-            hashTable[h] = sOff;
-
-            if (readIntEquals(src, ref, sOff)) {
-              break;
-            }
-          }
-
-          // catch up
-          final int excess = commonBytesBackward(src, ref, sOff, srcOrig, anchor);
-          sOff -= excess;
-          ref -= excess;
-
-          // sequence == refsequence
-          final int runLen = sOff - anchor;
-
-          // encode literal length
-          int tokenOff = dOff++;
-
-          if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) >= destEnd) {
-            throw new LZ4Exception("maxDestLen is too small");
-          }
-
-          int token;
-          if (runLen >= RUN_MASK) {
-            token = RUN_MASK << ML_BITS;
-            int len = runLen - RUN_MASK;
-            while (len >= 255) {
-              dest[dOff++] = (byte) 255;
-              len -= 255;
-            }
-            dest[dOff++] = (byte) len;
-          } else {
-            token = runLen << ML_BITS;
-          }
-
-          // copy literals
-          wildArraycopy(src, anchor, dest, dOff, runLen);
-          dOff += runLen;
-
-          while (true) {
-            // encode offset
-            dest[dOff++] = (byte) back;
-            dest[dOff++] = (byte) (back >>> 8);
-
-            // count nb matches
-            sOff += MIN_MATCH;
-            final int matchLen = commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
-            sOff += matchLen;
-
-            // encode match len
-            if (matchLen >= ML_MASK) {
-              token |= ML_MASK;
-              int len = matchLen - ML_MASK;
-              while (len >= 255) {
-                dest[dOff++] = (byte) 255;
-                len -= 255;
-              }
-              dest[dOff++] = (byte) len;
-            } else {
-              token |= matchLen;
-            }
-            dest[tokenOff] = (byte) token;
-
-            // test end of chunk
-            if (sOff > mflimit) {
-              anchor = sOff;
-              break main;
-            }
-
-            // fill table
-            hashTable[hash(src, sOff - 2)] = sOff - 2;
-
-            // test next position
-            final int h = hash(src, sOff);
-            ref = hashTable[h];
-            hashTable[h] = sOff;
-            back = sOff - ref;
-
-            //if (back > MAX_DISTANCE || refSequence != sequence) {
-            if (back >= MAX_DISTANCE || !readIntEquals(src, sOff, ref)) {
-              break;
-            }
-
-            tokenOff = dOff++;
-            token = 0;
-          }
-
-          // prepare next loop
-          anchor = sOff++;
-        }
-      }
-
-      return ((anchor & 0xFFFFFFFFL) << 32) | (dOff & 0xFFFFFFFFL);
-    }
 
     private int compress64k(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int destEnd) {
       final int srcEnd = srcOff + srcLen;
@@ -315,7 +178,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
         }
       }
 
-      dOff = lastLiterals(src, anchor, srcLen - anchor + srcOff, dest, dOff);
+      dOff = lastLiterals(src, anchor, srcEnd - anchor, dest, dOff, destEnd);
       return dOff - destOff;
     }
 
@@ -330,10 +193,134 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
         return compress64k(src, srcOff, srcLen, dest, destOff, destEnd);
       }
 
-      final long sdOff = greedyCompress(src, srcOff, srcOff, srcLen, dest, destOff, destEnd, null);
-      int sOff = (int) (sdOff >>> 32);
-      int dOff = (int) (sdOff & 0xFFFFFFFFL);
-      dOff = lastLiterals(src, sOff, srcLen - sOff + srcOff, dest, dOff);
+      final int srcEnd = srcOff + srcLen;
+      final int srcLimit = srcEnd - LAST_LITERALS;
+      final int mflimit = srcEnd - MF_LIMIT;
+
+      int sOff = srcOff, dOff = destOff;
+      int anchor = sOff++;
+
+      if (srcLen > MIN_LENGTH) {
+        final int[] hashTable = new int[HASH_TABLE_SIZE];
+        Arrays.fill(hashTable, anchor);
+
+        main:
+        while (sOff < srcLimit) {
+
+          // find a match
+          int forwardOff = sOff;
+
+          int ref;
+          int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
+          int back;
+          while (true) {
+            sOff = forwardOff;
+            final int step = findMatchAttempts++ >> SKIP_STRENGTH;
+            forwardOff += step;
+
+            if (forwardOff > mflimit) {
+              break main;
+            }
+
+            final int h = hash(src, sOff);
+            ref = hashTable[h];
+            back = sOff - ref;
+            if (back >= MAX_DISTANCE) {
+              continue;
+            }
+            hashTable[h] = sOff;
+
+            if (readIntEquals(src, ref, sOff)) {
+              break;
+            }
+          }
+
+          // catch up
+          final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
+          sOff -= excess;
+          ref -= excess;
+
+          // sequence == refsequence
+          final int runLen = sOff - anchor;
+
+          // encode literal length
+          int tokenOff = dOff++;
+
+          if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) >= destEnd) {
+            throw new LZ4Exception("maxDestLen is too small");
+          }
+
+          int token;
+          if (runLen >= RUN_MASK) {
+            token = RUN_MASK << ML_BITS;
+            int len = runLen - RUN_MASK;
+            while (len >= 255) {
+              dest[dOff++] = (byte) 255;
+              len -= 255;
+            }
+            dest[dOff++] = (byte) len;
+          } else {
+            token = runLen << ML_BITS;
+          }
+
+          // copy literals
+          wildArraycopy(src, anchor, dest, dOff, runLen);
+          dOff += runLen;
+
+          while (true) {
+            // encode offset
+            dest[dOff++] = (byte) back;
+            dest[dOff++] = (byte) (back >>> 8);
+
+            // count nb matches
+            sOff += MIN_MATCH;
+            final int matchLen = commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
+            sOff += matchLen;
+
+            // encode match len
+            if (matchLen >= ML_MASK) {
+              token |= ML_MASK;
+              int len = matchLen - ML_MASK;
+              while (len >= 255) {
+                dest[dOff++] = (byte) 255;
+                len -= 255;
+              }
+              dest[dOff++] = (byte) len;
+            } else {
+              token |= matchLen;
+            }
+            dest[tokenOff] = (byte) token;
+
+            // test end of chunk
+            if (sOff > mflimit) {
+              anchor = sOff;
+              break main;
+            }
+
+            // fill table
+            hashTable[hash(src, sOff - 2)] = sOff - 2;
+
+            // test next position
+            final int h = hash(src, sOff);
+            ref = hashTable[h];
+            hashTable[h] = sOff;
+            back = sOff - ref;
+
+            //if (back > MAX_DISTANCE || refSequence != sequence) {
+            if (back >= MAX_DISTANCE || !readIntEquals(src, sOff, ref)) {
+              break;
+            }
+
+            tokenOff = dOff++;
+            token = 0;
+          }
+
+          // prepare next loop
+          anchor = sOff++;
+        }
+      }
+
+      dOff = lastLiterals(src, anchor, srcEnd - anchor, dest, dOff, destEnd);
       return dOff - destOff;
     }
 
@@ -458,16 +445,11 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
     }
 
     @Override
-    public long greedyCompress(byte[] src, int srcOrig, int sOff, int srcLen,
-        byte[] dest, int dOff, int destEnd, int[] hashTable) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public int compress(byte[] src, int srcOff, int srcLen, byte[] dest,
         int destOff, int maxDestLen) {
 
       final int srcEnd = srcOff + srcLen;
+      final int destEnd = destOff + maxDestLen;
       final int mfLimit = srcEnd - MF_LIMIT;
       final int matchLimit = srcEnd - LAST_LITERALS;
 
@@ -612,7 +594,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
 
       }
 
-      dOff = lastLiterals(src, anchor, srcEnd - anchor, dest, dOff);
+      dOff = lastLiterals(src, anchor, srcEnd - anchor, dest, dOff, destEnd);
       return dOff - destOff;
     }
 
@@ -620,11 +602,6 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor, LZ4PartialCompressor
 
   public int maxCompressedLength(int length) {
     return LZ4Utils.maxCompressedLength(length);
-  }
-
-  @Override
-  public int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff) {
-    return LZ4Utils.lastLiterals(src, sOff, srcLen, dest, dOff, dest.length);
   }
 
 }
