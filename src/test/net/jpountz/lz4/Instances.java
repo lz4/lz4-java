@@ -25,6 +25,7 @@ enum Instances {
     LZ4JNICompressor.FAST,
     LZ4JNICompressor.HIGH_COMPRESSION,
     LZ4JavaUnsafeCompressor.FAST,
+    LZ4JavaUnsafeCompressor.HIGH_COMPRESSION,
     LZ4JavaSafeCompressor.FAST,
     LZ4JavaSafeCompressor.HIGH_COMPRESSION
   };

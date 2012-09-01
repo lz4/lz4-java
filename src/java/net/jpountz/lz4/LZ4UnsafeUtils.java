@@ -18,6 +18,9 @@ package net.jpountz.lz4;
  */
 
 import static net.jpountz.lz4.LZ4Utils.COPY_LENGTH;
+import static net.jpountz.lz4.LZ4Utils.ML_BITS;
+import static net.jpountz.lz4.LZ4Utils.ML_MASK;
+import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
 import static net.jpountz.util.UnsafeUtils.NATIVE_BYTE_ORDER;
 import static net.jpountz.util.UnsafeUtils.readByte;
 import static net.jpountz.util.UnsafeUtils.readInt;
@@ -121,6 +124,49 @@ enum LZ4UnsafeUtils {
     }
     writeByte(dest, dOff++, len);
     return dOff;
+  }
+
+  static int encodeSequence(byte[] src, int anchor, int matchOff, int matchRef, int matchLen, byte[] dest, int dOff) {
+    final int runLen = matchOff - anchor;
+    final int tokenOff = dOff++;
+    int token;
+
+    if (runLen >= RUN_MASK) {
+      token = (byte) (RUN_MASK << ML_BITS);
+      dOff = writeLen(runLen - RUN_MASK, dest, dOff);
+    } else {
+      token = runLen << ML_BITS;
+    }
+
+    // copy literals
+    wildArraycopy(src, anchor, dest, dOff, runLen);
+    dOff += runLen;
+
+    // encode offset
+    final int matchDec = matchOff - matchRef;
+    dest[dOff++] = (byte) matchDec;
+    dest[dOff++] = (byte) (matchDec >>> 8);
+
+    // encode match len
+    matchLen -= 4;
+    if (matchLen >= ML_MASK) {
+      token |= ML_MASK;
+      dOff = writeLen(matchLen - RUN_MASK, dest, dOff);
+    } else {
+      token |= matchLen;
+    }
+
+    dest[tokenOff] = (byte) token;
+
+    return dOff;
+  }
+
+  static int commonBytesBackward(byte[] b, int o1, int o2, int l1, int l2) {
+    int count = 0;
+    while (o1 > l1 && o2 > l2 && readByte(b, --o1) == readByte(b, --o2)) {
+      ++count;
+    }
+    return count;
   }
 
 }

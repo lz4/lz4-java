@@ -33,6 +33,7 @@ import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
 import static net.jpountz.lz4.LZ4Utils.SKIP_STRENGTH;
 import static net.jpountz.lz4.LZ4Utils.commonBytes;
 import static net.jpountz.lz4.LZ4Utils.commonBytesBackward;
+import static net.jpountz.lz4.LZ4Utils.copyTo;
 import static net.jpountz.lz4.LZ4Utils.encodeSequence;
 import static net.jpountz.lz4.LZ4Utils.hash;
 import static net.jpountz.lz4.LZ4Utils.hash64k;
@@ -45,6 +46,8 @@ import static net.jpountz.lz4.LZ4Utils.writeLen;
 import static net.jpountz.util.Utils.checkRange;
 
 import java.util.Arrays;
+
+import net.jpountz.lz4.LZ4Utils.Match;
 
 /**
  * Compressors written in pure Java without using the unofficial
@@ -309,26 +312,6 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
 
   HIGH_COMPRESSION {
 
-    class Match {
-      int start, ref, len;
-
-      void fix(int correction) {
-        start += correction;
-        ref += correction;
-        len -= correction;
-      }
-
-      int end() {
-        return start + len;
-      }
-    }
-
-    private void copyTo(Match m1, Match m2) {
-      m2.len = m1.len;
-      m2.start = m1.start;
-      m2.ref = m1.ref;
-    }
-
     class HashTable {
       static final int MAX_ATTEMPTS = 256;
       static final int MASK = MAX_DISTANCE - 1;
@@ -453,9 +436,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
         }
 
         // saved, in case we would skip too much
-        match0.start = match1.start;
-        match0.ref = match1.ref;
-        match0.len = match1.len;
+        copyTo(match1, match0);
 
         search2:
         while (true) {
