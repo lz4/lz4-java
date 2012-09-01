@@ -341,6 +341,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
         this.base = base;
         nextToUpdate = base;
         hashTable = new int[HASH_TABLE_SIZE_HC];
+        Arrays.fill(hashTable, -1);
         chainTable = new short[MAX_DISTANCE];
       }
 
@@ -351,7 +352,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
       }
 
       private int next(int off) {
-        return off - (chainTable[off & MASK] & 0xFFFF);
+        return base + off - (chainTable[off & MASK] & 0xFFFF);
       }
 
       private void addHash(byte[] bytes, int off) {
@@ -379,7 +380,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
 
         int ref = hashPointer(buf, off);
         for (int i = 0; i < MAX_ATTEMPTS; ++i) {
-          if (ref <= off - MAX_DISTANCE) {
+          if (ref < Math.max(base, off - MAX_DISTANCE + 1)) {
             break;
           }
           if (buf[ref + match.len] == buf[off + match.len] && readIntEquals(buf, ref, off)) {
@@ -403,7 +404,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
         final int delta = off - startLimit;
         int ref = hashPointer(buf, off);
         for (int i = 0; i < MAX_ATTEMPTS; ++i) {
-          if (ref <= off - MAX_DISTANCE) {
+          if (ref < Math.max(base, off - MAX_DISTANCE + 1)) {
             break;
           }
           if (buf[ref - delta + match.len] == buf[startLimit + match.len]
