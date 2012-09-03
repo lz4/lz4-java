@@ -138,7 +138,7 @@ enum LZ4Utils {
     System.arraycopy(src, sOff, dest, dOff, fastLen);
   }
 
-  static int encodeSequence(byte[] src, int anchor, int matchOff, int matchRef, int matchLen, byte[] dest, int dOff) {
+  static int encodeSequence(byte[] src, int anchor, int matchOff, int matchRef, int matchLen, byte[] dest, int dOff, int destEnd) {
     final int runLen = matchOff - anchor;
     final int tokenOff = dOff++;
     int token;
@@ -161,6 +161,9 @@ enum LZ4Utils {
 
     // encode match len
     matchLen -= 4;
+    if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) >= destEnd) {
+      throw new LZ4Exception("maxDestLen is too small");
+    }
     if (matchLen >= ML_MASK) {
       token |= ML_MASK;
       dOff = writeLen(matchLen - RUN_MASK, dest, dOff);

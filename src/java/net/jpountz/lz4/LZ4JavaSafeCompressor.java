@@ -134,6 +134,9 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
             // count nb matches
             sOff += MIN_MATCH;
             final int matchLen = commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
+            if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) >= destEnd) {
+              throw new LZ4Exception("maxDestLen is too small");
+            }
             sOff += matchLen;
 
             // encode match len
@@ -264,6 +267,9 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
             // count nb matches
             sOff += MIN_MATCH;
             final int matchLen = commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
+            if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) >= destEnd) {
+              throw new LZ4Exception("maxDestLen is too small");
+            }
             sOff += matchLen;
 
             // encode match len
@@ -443,7 +449,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
           if (match1.end() >= mfLimit
               || !ht.insertAndFindWiderMatch(src, match1.end() - 2, match1.start + 1, matchLimit, match1.len, match2)) {
             // no better match
-            dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff);
+            dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
             anchor = sOff = match1.end();
             continue main;
           }
@@ -496,10 +502,10 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
                 }
               }
               // encode seq 1
-              dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff);
+              dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
               anchor = sOff = match1.end();
               // encode seq 2
-              dOff = encodeSequence(src, anchor, match2.start, match2.ref, match2.len, dest, dOff);
+              dOff = encodeSequence(src, anchor, match2.start, match2.ref, match2.len, dest, dOff, destEnd);
               anchor = sOff = match2.end();
               continue main;
             }
@@ -514,7 +520,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
                   }
                 }
 
-                dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff);
+                dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
                 anchor = sOff = match1.end();
 
                 copyTo(match3, match1);
@@ -543,7 +549,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
               }
             }
 
-            dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff);
+            dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
             anchor = sOff = match1.end();
 
             copyTo(match2, match1);

@@ -18,6 +18,7 @@ package net.jpountz.lz4;
  */
 
 import static net.jpountz.lz4.LZ4Utils.COPY_LENGTH;
+import static net.jpountz.lz4.LZ4Utils.LAST_LITERALS;
 import static net.jpountz.lz4.LZ4Utils.ML_BITS;
 import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
@@ -126,7 +127,7 @@ enum LZ4UnsafeUtils {
     return dOff;
   }
 
-  static int encodeSequence(byte[] src, int anchor, int matchOff, int matchRef, int matchLen, byte[] dest, int dOff) {
+  static int encodeSequence(byte[] src, int anchor, int matchOff, int matchRef, int matchLen, byte[] dest, int dOff, int destEnd) {
     final int runLen = matchOff - anchor;
     final int tokenOff = dOff++;
     int token;
@@ -149,6 +150,9 @@ enum LZ4UnsafeUtils {
 
     // encode match len
     matchLen -= 4;
+    if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) >= destEnd) {
+      throw new LZ4Exception("maxDestLen is too small");
+    }
     if (matchLen >= ML_MASK) {
       token |= ML_MASK;
       dOff = writeLen(matchLen - RUN_MASK, dest, dOff);
