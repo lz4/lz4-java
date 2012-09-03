@@ -23,6 +23,7 @@ import static net.jpountz.lz4.Instances.UNCOMPRESSORS2;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -195,4 +196,76 @@ public class LZ4Test extends RandomizedTest {
     final int compressedLength = LZ4JNICompressor.FAST.compress(data, 0, data.length, compressed, 0, compressed.length);
     uncompressor.uncompressUnknownSize(compressed, 0, compressedLength, new byte[data.length - 1], 0);
   }
+
+  private static byte[] readResource(String resource) throws IOException {
+    InputStream is = LZ4Test.class.getResourceAsStream(resource);
+    if (is == null) {
+      throw new IllegalStateException("Cannot find " + resource);
+    }
+    byte[] buf = new byte[4096];
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try {
+      while (true) {
+        final int read = is.read(buf);
+        if (read == -1) {
+          break;
+        }
+        baos.write(buf, 0, read);
+      }
+    } finally {
+      is.close();
+    }
+    return baos.toByteArray();
+  }
+
+  public void testRoundTrip(String resource,
+      LZ4Compressor compressor,
+      LZ4Uncompressor uncompressor,
+      LZ4UnknwonSizeUncompressor uncompressor2) throws IOException {
+    final byte[] uncompressed = readResource(resource);
+    final byte[] compressed = new byte[LZ4Utils.maxCompressedLength(uncompressed.length)];
+    final int compressedLen = compressor.compress(
+        uncompressed, 0, uncompressed.length,
+        compressed, 0, compressed.length);
+
+    final byte[] restored = new byte[uncompressed.length];
+    assertEquals(compressedLen, uncompressor.uncompress(compressed, 0, restored, 0, uncompressed.length));
+    assertArrayEquals(uncompressed, restored);
+
+    Arrays.fill(restored, (byte) 0);
+    uncompressor2.uncompressUnknownSize(compressed, 0, compressedLen, restored, 0);
+    assertEquals(uncompressed.length, uncompressor2.uncompressUnknownSize(compressed, 0, compressedLen, restored, 0));
+  }
+
+  public void testRoundTrip(String resource, LZ4Factory lz4) throws IOException {
+    for (LZ4Compressor compressor : Arrays.asList(
+        lz4.fastCompressor(), lz4.highCompressor())) {
+      testRoundTrip(resource, compressor, lz4.uncompressor(), lz4.unknwonSizeUncompressor());
+    }
+  }
+
+  public void testRoundTrip(String resource) throws IOException {
+    for (LZ4Factory lz4 : Arrays.asList(
+        LZ4Factory.nativeInstance(),
+        LZ4Factory.unsafeInstance(),
+        LZ4Factory.safeInstance())) {
+      testRoundTrip(resource, lz4);
+    }
+  }
+
+  @Test
+  public void testRoundtripGeo() throws IOException {
+    testRoundTrip("/calgary/geo");
+  }
+
+  @Test
+  public void testRoundtripBook1() throws IOException {
+    testRoundTrip("/calgary/book1");
+  }
+
+  @Test
+  public void testRoundtripPic() throws IOException {
+    testRoundTrip("/calgary/pic");
+  }
+
 }

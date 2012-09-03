@@ -106,6 +106,7 @@
         <enable package="net.jpountz.lz4"/>
       </assertions>
       <classpath>
+        <path location="${src}/test-resources" />
         <path location="${build}/classes" />
         <path location="${build}/test-classes" />
         <path location="${build}/jni" />
