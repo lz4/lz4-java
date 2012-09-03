@@ -290,8 +290,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
             hashTable[h] = sOff;
             back = sOff - ref;
 
-            //if (back > MAX_DISTANCE || refSequence != sequence) {
-            if (back >= MAX_DISTANCE || !readIntEquals(src, sOff, ref)) {
+            if (back >= MAX_DISTANCE || !readIntEquals(src, ref, sOff)) {
               break;
             }
 

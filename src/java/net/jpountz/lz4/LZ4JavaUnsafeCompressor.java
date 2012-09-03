@@ -212,7 +212,6 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
           int back;
           while (true) {
             sOff = forwardOff;
-            final int h = hash(src, sOff);
             final int step = findMatchAttempts++ >> SKIP_STRENGTH;
             forwardOff += step;
 
@@ -220,12 +219,14 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
               break main;
             }
 
+            final int h = hash(src, sOff);
             ref = readInt(hashTable, h);
             back = sOff - ref;
             if (back >= MAX_DISTANCE) {
               continue;
             }
             writeInt(hashTable, h, sOff);
+
             if (readIntEquals(src, ref, sOff)) {
               break;
             }
@@ -265,8 +266,8 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
 
             // count nb matches
             sOff += MIN_MATCH;
-            ref += MIN_MATCH;
-            final int matchLen = commonBytes(src, ref, sOff, srcLimit);
+            final int matchLen = commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
+            sOff += matchLen;
 
             // encode match len
             if (matchLen >= ML_MASK) {
