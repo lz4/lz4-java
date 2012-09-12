@@ -268,4 +268,28 @@ public class LZ4Test extends RandomizedTest {
     testRoundTrip("/calgary/pic");
   }
 
+  @Test
+  public void testNullMatchDec() {
+    // 0 literals, 4 matchs with matchDec=0, 5 literals
+    final byte[] notUncompressible = new byte[] {0, 0, 0, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    for (LZ4Uncompressor uncompressor : UNCOMPRESSORS) {
+      // the uncompressor is free to throw an exception or to return successfully
+      // but should not end in an infinite loop
+      try {
+        uncompressor.uncompress(notUncompressible, 0, new byte[20], 0, 20);
+        // OK
+      } catch (LZ4Exception e) {
+        // OK
+      }
+    }
+    for (LZ4UnknownSizeUncompressor uncompressor : UNCOMPRESSORS2) {
+      try {
+        uncompressor.uncompressUnknownSize(notUncompressible, 0, notUncompressible.length, new byte[20], 0);
+        // OK
+      } catch (LZ4Exception e) {
+        // OK
+      }
+    }
+  }
+
 }

@@ -81,7 +81,7 @@ public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknownSize
         sOff += 2;
         int matchOff = dOff - matchDec;
 
-        if (matchOff < destOff) {
+        if (matchDec == 0 || matchOff < destOff) {
           throw new LZ4Exception("Malformed input at " + sOff);
         }
 
@@ -159,7 +159,7 @@ public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknownSize
         sOff += 2;
         int matchOff = dOff - matchDec;
 
-        if (matchOff < destOff) {
+        if (matchDec == 0 || matchOff < destOff) {
           throw new LZ4Exception("Malformed input at " + sOff);
         }
 
