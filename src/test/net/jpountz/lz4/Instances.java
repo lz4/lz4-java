@@ -36,7 +36,7 @@ enum Instances {
     LZ4JavaSafeUncompressor.INSTANCE
   };
 
-  static LZ4UnknwonSizeUncompressor[] UNCOMPRESSORS2 = new LZ4UnknwonSizeUncompressor[] {
+  static LZ4UnknownSizeUncompressor[] UNCOMPRESSORS2 = new LZ4UnknownSizeUncompressor[] {
     LZ4JNIUncompressor.INSTANCE,
     LZ4JavaUnsafeUncompressor.INSTANCE,
     LZ4JavaSafeUncompressor.INSTANCE

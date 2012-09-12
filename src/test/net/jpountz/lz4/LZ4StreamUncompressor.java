@@ -21,7 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-abstract class LZ4StreamUncompressor implements LZ4UnknwonSizeUncompressor {
+abstract class LZ4StreamUncompressor implements LZ4UnknownSizeUncompressor {
 
   protected abstract InputStream lz4InputStream(InputStream is) throws IOException;
 

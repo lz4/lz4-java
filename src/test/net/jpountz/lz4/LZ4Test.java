@@ -82,7 +82,7 @@ public class LZ4Test extends RandomizedTest {
       }
     }
     for (LZ4Compressor compressor : COMPRESSORS) {
-      for (LZ4UnknwonSizeUncompressor uncompressor : UNCOMPRESSORS2) {
+      for (LZ4UnknownSizeUncompressor uncompressor : UNCOMPRESSORS2) {
         testEmpty(new LengthBitsLZ4(compressor, uncompressor));
       }
     }
@@ -92,7 +92,7 @@ public class LZ4Test extends RandomizedTest {
     testCompress(new LengthLZ4(compressor, uncompressor));
   }
 
-  public void testCompress(LZ4Compressor compressor, LZ4UnknwonSizeUncompressor uncompressor) {
+  public void testCompress(LZ4Compressor compressor, LZ4UnknownSizeUncompressor uncompressor) {
     testCompress(new LengthBitsLZ4(compressor, uncompressor));
   }
 
@@ -140,7 +140,7 @@ public class LZ4Test extends RandomizedTest {
   @Test
   @Repeat(iterations=5)
   public void testUncompressUnknownSize() {
-    final LZ4UnknwonSizeUncompressor uncompressor = randomFrom(UNCOMPRESSORS2);
+    final LZ4UnknownSizeUncompressor uncompressor = randomFrom(UNCOMPRESSORS2);
     testCompress(LZ4JNICompressor.HIGH_COMPRESSION, uncompressor);
   }
 
@@ -162,7 +162,7 @@ public class LZ4Test extends RandomizedTest {
     }
   }
 
-  public void testUncompressWorstCase(LZ4UnknwonSizeUncompressor uncompressor) {
+  public void testUncompressWorstCase(LZ4UnknownSizeUncompressor uncompressor) {
     final int len = randomInt(100 * 1024);
     final int max = randomInt(256);
     byte[] uncompressed = randomArray(len, max);
@@ -175,7 +175,7 @@ public class LZ4Test extends RandomizedTest {
 
   @Test
   public void testUncompressUnknownSizeWorstCase() {
-    for (LZ4UnknwonSizeUncompressor uncompressor : UNCOMPRESSORS2) {
+    for (LZ4UnknownSizeUncompressor uncompressor : UNCOMPRESSORS2) {
       testUncompressWorstCase(uncompressor);
     }
   }
@@ -184,7 +184,7 @@ public class LZ4Test extends RandomizedTest {
   //@Test(expected=LZ4Exception.class)
   @Repeat(iterations=5)
   public void testUncompressUnknownSizeUnderflow() {
-    final LZ4UnknwonSizeUncompressor uncompressor = randomFrom(UNCOMPRESSORS2);
+    final LZ4UnknownSizeUncompressor uncompressor = randomFrom(UNCOMPRESSORS2);
     final int len = randomInt(100000);
     final int max = randomInt(256);
     final byte[] data = new byte[len];
@@ -221,7 +221,7 @@ public class LZ4Test extends RandomizedTest {
   public void testRoundTrip(String resource,
       LZ4Compressor compressor,
       LZ4Uncompressor uncompressor,
-      LZ4UnknwonSizeUncompressor uncompressor2) throws IOException {
+      LZ4UnknownSizeUncompressor uncompressor2) throws IOException {
     final byte[] uncompressed = readResource(resource);
     final byte[] compressed = new byte[LZ4Utils.maxCompressedLength(uncompressed.length)];
     final int compressedLen = compressor.compress(

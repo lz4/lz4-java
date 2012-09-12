@@ -42,7 +42,7 @@ public final class LZ4Factory {
   private final LZ4Compressor fastCompressor;
   private final LZ4Compressor highCompressor;
   private final LZ4Uncompressor uncompressor;
-  private final LZ4UnknwonSizeUncompressor unknwonSizeUncompressor;
+  private final LZ4UnknownSizeUncompressor unknwonSizeUncompressor;
 
   private LZ4Factory(String impl) throws ClassNotFoundException {
     final Class<?> compressorEnum = Class.forName("net.jpountz.lz4.LZ4" + impl + "Compressor");
@@ -67,10 +67,10 @@ public final class LZ4Factory {
       throw new AssertionError();
     }
     uncompressor = uncompressors[0];
-    if (!(uncompressor instanceof LZ4UnknwonSizeUncompressor)) {
+    if (!(uncompressor instanceof LZ4UnknownSizeUncompressor)) {
       throw new AssertionError();
     }
-    unknwonSizeUncompressor = (LZ4UnknwonSizeUncompressor) uncompressor;
+    unknwonSizeUncompressor = (LZ4UnknownSizeUncompressor) uncompressor;
   }
 
   public LZ4Compressor fastCompressor() {
@@ -85,7 +85,7 @@ public final class LZ4Factory {
     return uncompressor;
   }
 
-  public LZ4UnknwonSizeUncompressor unknwonSizeUncompressor() {
+  public LZ4UnknownSizeUncompressor unknwonSizeUncompressor() {
     return unknwonSizeUncompressor;
   }
 

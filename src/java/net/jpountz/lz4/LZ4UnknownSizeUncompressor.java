@@ -22,7 +22,7 @@ package net.jpountz.lz4;
  * of {@link LZ4Uncompressor} but do not require to know the size of the
  * uncompressed data.
  */
-public interface LZ4UnknwonSizeUncompressor {
+public interface LZ4UnknownSizeUncompressor {
 
   /**
    * Uncompress <code>src[srcOff:srcLen]</code> into <code>dest[destOff:]</code>.

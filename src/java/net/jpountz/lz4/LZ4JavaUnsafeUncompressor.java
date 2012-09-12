@@ -35,7 +35,7 @@ import static net.jpountz.util.Utils.checkRange;
  * Very fast uncompressor written in pure Java with the unofficial
  * sun.misc.Unsafe API.
  */
-public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknwonSizeUncompressor {
+public enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor, LZ4UnknownSizeUncompressor {
 
   INSTANCE {
 

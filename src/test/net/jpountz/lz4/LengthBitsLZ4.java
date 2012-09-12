@@ -2,7 +2,7 @@ package net.jpountz.lz4;
 
 /**
  * Utility class that writes the number of bits of the uncompressed length at
- * the beginning of the stream and uses a {@link LZ4UnknwonSizeUncompressor} to
+ * the beginning of the stream and uses a {@link LZ4UnknownSizeUncompressor} to
  * uncompress data.
  *
  * Only for testing purposes.
@@ -10,9 +10,9 @@ package net.jpountz.lz4;
 class LengthBitsLZ4 extends CompressionCodec {
 
   private final LZ4Compressor compressor;
-  private final LZ4UnknwonSizeUncompressor uncompressor;
+  private final LZ4UnknownSizeUncompressor uncompressor;
 
-  public LengthBitsLZ4(LZ4Compressor compressor, LZ4UnknwonSizeUncompressor uncompressor) {
+  public LengthBitsLZ4(LZ4Compressor compressor, LZ4UnknownSizeUncompressor uncompressor) {
     this.compressor = compressor;
     this.uncompressor = uncompressor;
   }
