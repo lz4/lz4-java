@@ -197,7 +197,7 @@ public enum LZ4JavaSafeCompressor implements LZ4Compressor {
       int sOff = srcOff, dOff = destOff;
       int anchor = sOff++;
 
-      if (srcLen > MIN_LENGTH) {
+      if (srcLen >= MIN_LENGTH) {
         final int[] hashTable = new int[HASH_TABLE_SIZE];
         Arrays.fill(hashTable, anchor);
 

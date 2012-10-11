@@ -72,7 +72,7 @@ public enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
 
       int anchor = sOff;
 
-      if (srcLen > MIN_LENGTH) {
+      if (srcLen >= MIN_LENGTH) {
 
         final short[] hashTable = new short[HASH_TABLE_SIZE_64K];
 
