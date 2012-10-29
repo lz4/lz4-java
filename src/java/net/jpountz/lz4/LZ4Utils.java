@@ -135,7 +135,11 @@ enum LZ4Utils {
   static void wildArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
     // can make uncompression 10% faster
     final int fastLen = ((len - 1) & 0xFFFFFFF8) + COPY_LENGTH;
-    System.arraycopy(src, sOff, dest, dOff, fastLen);
+    try {
+      System.arraycopy(src, sOff, dest, dOff, fastLen);
+    } catch (ArrayIndexOutOfBoundsException e) {
+      throw new LZ4Exception("Malformed input at " + sOff);
+    }
   }
 
   static int encodeSequence(byte[] src, int anchor, int matchOff, int matchRef, int matchLen, byte[] dest, int dOff, int destEnd) {

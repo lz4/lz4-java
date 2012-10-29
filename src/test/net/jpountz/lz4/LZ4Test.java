@@ -270,24 +270,87 @@ public class LZ4Test extends RandomizedTest {
 
   @Test
   public void testNullMatchDec() {
-    // 0 literals, 4 matchs with matchDec=0, 5 literals
-    final byte[] notUncompressible = new byte[] {0, 0, 0, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    // 1 literal, 4 matchs with matchDec=0, 5 literals
+    final byte[] invalid = new byte[] { 16, 42, 0, 0, 42, 42, 42, 42, 42 };
     for (LZ4Uncompressor uncompressor : UNCOMPRESSORS) {
-      // the uncompressor is free to throw an exception or to return successfully
-      // but should not end in an infinite loop
       try {
-        uncompressor.uncompress(notUncompressible, 0, new byte[20], 0, 20);
-        // OK
+        uncompressor.uncompress(invalid, 0, new byte[10], 0, 10);
+        if (!uncompressor.toString().contains("JNI")) {
+          assertTrue(uncompressor.toString(), false);
+        }
       } catch (LZ4Exception e) {
         // OK
       }
     }
     for (LZ4UnknownSizeUncompressor uncompressor : UNCOMPRESSORS2) {
       try {
-        uncompressor.uncompressUnknownSize(notUncompressible, 0, notUncompressible.length, new byte[20], 0);
-        // OK
+        uncompressor.uncompressUnknownSize(invalid, 0, invalid.length, new byte[10], 0);
+        assertTrue(uncompressor.toString(), false);
       } catch (LZ4Exception e) {
         // OK
+      }
+    }
+  }
+
+  @Test
+  public void testEndsWithMatch() {
+    // 6 literals, 4 matchs
+    final byte[] invalid = new byte[] { 96, 42, 43, 44, 45, 46, 47, 5, 0 };
+    final int uncompressedLength = 10;
+
+    for (LZ4Uncompressor uncompressor : UNCOMPRESSORS) {
+      try {
+        // it is invalid to end with a match, should be at least 5 literals
+        uncompressor.uncompress(invalid, 0, new byte[uncompressedLength], 0, uncompressedLength);
+        // TODO: disable the condition when the JNI instances are fixed
+        if (!uncompressor.toString().contains("JNI")) {
+          assertTrue(uncompressor.toString(), false);
+        }
+      } catch (LZ4Exception e) {
+        // OK
+      }
+    }
+
+    for (LZ4UnknownSizeUncompressor uncompressor : UNCOMPRESSORS2) {
+      try {
+        // it is invalid to end with a match, should be at least 5 literals
+        uncompressor.uncompressUnknownSize(invalid, 0, invalid.length, new byte[20], 0);
+        assertTrue(false);
+      } catch (LZ4Exception e) {
+        // OK
+      }
+    }
+  }
+
+  @Test
+  public void testEndsWithLessThan5Literals() {
+    // 6 literals, 4 matchs
+    final byte[] invalidBase = new byte[] { 96, 42, 43, 44, 45, 46, 47, 5, 0 };
+
+    for (int i = 1; i < 5; ++i) {
+      final byte[] invalid = Arrays.copyOf(invalidBase, invalidBase.length + 1 + i);
+      invalid[invalidBase.length] = (byte) (i << 4); // i literals at the end
+
+      for (LZ4Uncompressor uncompressor : UNCOMPRESSORS) {
+        try {
+          // it is invalid to end with a match, should be at least 5 literals
+          uncompressor.uncompress(invalid, 0, new byte[20], 0, 20);
+          if (!uncompressor.toString().contains("JNI")) {
+            assertTrue(uncompressor.toString(), false);
+          }
+        } catch (LZ4Exception e) {
+          // OK
+        }
+      }
+
+      for (LZ4UnknownSizeUncompressor uncompressor : UNCOMPRESSORS2) {
+        try {
+          // it is invalid to end with a match, should be at least 5 literals
+          uncompressor.uncompressUnknownSize(invalid, 0, invalid.length, new byte[20], 0);
+          assertTrue(false);
+        } catch (LZ4Exception e) {
+          // OK
+        }
       }
     }
   }

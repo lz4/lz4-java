@@ -35,20 +35,22 @@ import static net.jpountz.util.Utils.checkRange;
  * Very fast uncompressor written in pure Java with the unofficial
  * sun.misc.Unsafe API.
  */
-enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor {
+enum LZ4JavaUnsafeUnknownSizeUncompressor implements LZ4UnknownSizeUncompressor {
 
   INSTANCE {
 
-    public int uncompress(byte[] src, final int srcOff, byte[] dest, final int destOff, int destLen) {
-      checkRange(src, srcOff);
-      checkRange(dest, destOff, destLen);
+    @Override
+    public int uncompressUnknownSize(byte[] src, int srcOff, int srcLen,
+        byte[] dest, int destOff) {
+      checkRange(src, srcOff, srcLen);
+      checkRange(dest, destOff);
 
-      final int destEnd = destOff + destLen;
+      final int srcEnd = srcOff + srcLen;
 
       int sOff = srcOff;
       int dOff = destOff;
 
-      while (true) {
+      while (sOff < srcEnd) {
         final int token = readByte(src, sOff++);
 
         // literals
@@ -62,12 +64,16 @@ enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor {
         }
 
         final int literalCopyEnd = dOff + literalLen;
-        if (literalCopyEnd > destEnd - COPY_LENGTH) {
-          if (literalCopyEnd != destEnd) {
+        if (literalCopyEnd > dest.length - COPY_LENGTH || sOff + literalLen > srcEnd - COPY_LENGTH) {
+          if (literalCopyEnd > dest.length || sOff + literalLen > srcEnd) {
             throw new LZ4Exception("Malformed input at " + sOff);
           } else {
             safeArraycopy(src, sOff, dest, dOff, literalLen);
             sOff += literalLen;
+            dOff += literalLen;
+            if (sOff < srcEnd) {
+              throw new LZ4Exception("Malformed input at " + sOff);
+            }
             break; // EOF
           }
         }
@@ -98,7 +104,7 @@ enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor {
         final int matchCopyEnd = dOff + matchLen;
 
         if (matchCopyEnd > dest.length - COPY_LENGTH) {
-          if (matchCopyEnd > destEnd) {
+          if (matchCopyEnd > dest.length) {
             throw new LZ4Exception("Malformed input at " + sOff);
           }
           safeIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
@@ -108,7 +114,7 @@ enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor {
         dOff = matchCopyEnd;
       }
 
-      return sOff - srcOff;
+      return dOff - destOff;
     }
 
   };

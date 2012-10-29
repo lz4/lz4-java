@@ -57,4 +57,10 @@ enum LZ4JNICompressor implements LZ4Compressor {
     }
     return LZ4JNI.LZ4_compressBound(length);
   }
+
+  @Override
+  public String toString() {
+    return getDeclaringClass().getSimpleName() + "-" + super.toString();
+  }
+
 }

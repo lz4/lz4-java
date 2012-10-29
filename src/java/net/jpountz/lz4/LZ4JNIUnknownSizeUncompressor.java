@@ -23,14 +23,14 @@ import static net.jpountz.util.Utils.checkRange;
  * {@link LZ4Uncompressor} implemented with JNI bindings to the original C
  * implementation of LZ4.
  */
-enum LZ4JNIUncompressor implements LZ4Uncompressor {
+enum LZ4JNIUnknownSizeUncompressor implements LZ4UnknownSizeUncompressor {
 
   INSTANCE {
 
-    public final int uncompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen) {
-      checkRange(src, srcOff);
-      checkRange(dest, destOff, destLen);
-      final int result = LZ4JNI.LZ4_uncompress(src, srcOff, dest, destOff, destLen);
+    public final int uncompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
+      checkRange(src, srcOff, srcLen);
+      checkRange(dest, destOff);
+      final int result = LZ4JNI.LZ4_uncompress_unknownOutputSize(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
       if (result < 0) {
         throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
       }

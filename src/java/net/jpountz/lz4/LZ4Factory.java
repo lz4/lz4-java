@@ -52,7 +52,7 @@ public final class LZ4Factory {
   private final LZ4Compressor fastCompressor;
   private final LZ4Compressor highCompressor;
   private final LZ4Uncompressor uncompressor;
-  private final LZ4UnknownSizeUncompressor unknwonSizeUncompressor;
+  private final LZ4UnknownSizeUncompressor unknownSizeUncompressor;
 
   private LZ4Factory(String impl) throws ClassNotFoundException {
     final Class<?> compressorEnum = Class.forName("net.jpountz.lz4.LZ4" + impl + "Compressor");
@@ -77,10 +77,17 @@ public final class LZ4Factory {
       throw new AssertionError();
     }
     uncompressor = uncompressors[0];
-    if (!(uncompressor instanceof LZ4UnknownSizeUncompressor)) {
+
+    final Class<?> unknownSizeUncompressorEnum = Class.forName("net.jpountz.lz4.LZ4" + impl + "UnknownSizeUncompressor");
+    if (!LZ4UnknownSizeUncompressor.class.isAssignableFrom(unknownSizeUncompressorEnum)) {
       throw new AssertionError();
     }
-    unknwonSizeUncompressor = (LZ4UnknownSizeUncompressor) uncompressor;
+    @SuppressWarnings("unchecked")
+    LZ4UnknownSizeUncompressor[] unknownSizeUncompressors = ((Class<? extends LZ4UnknownSizeUncompressor>) unknownSizeUncompressorEnum).getEnumConstants();
+    if (uncompressors.length != 1) {
+      throw new AssertionError();
+    }
+    unknownSizeUncompressor = unknownSizeUncompressors[0];
   }
 
   /** Return a {@link LZ4Compressor} that uses a fast-scan method to compress
@@ -102,7 +109,7 @@ public final class LZ4Factory {
 
   /** Return a {@link LZ4UnknownSizeUncompressor} instance. */
   public LZ4UnknownSizeUncompressor unknwonSizeUncompressor() {
-    return unknwonSizeUncompressor;
+    return unknownSizeUncompressor;
   }
 
 }

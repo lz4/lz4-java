@@ -574,4 +574,9 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
     return LZ4Utils.maxCompressedLength(length);
   }
 
+  @Override
+  public String toString() {
+    return getDeclaringClass().getSimpleName() + "-" + super.toString();
+  }
+
 }
