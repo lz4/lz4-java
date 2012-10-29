@@ -109,7 +109,7 @@ enum LZ4JavaSafeCompressor implements LZ4Compressor {
           // encode literal length
           int tokenOff = dOff++;
 
-          if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) >= destEnd) {
+          if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) > destEnd) {
             throw new LZ4Exception("maxDestLen is too small");
           }
 
@@ -243,7 +243,7 @@ enum LZ4JavaSafeCompressor implements LZ4Compressor {
           // encode literal length
           int tokenOff = dOff++;
 
-          if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) >= destEnd) {
+          if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) > destEnd) {
             throw new LZ4Exception("maxDestLen is too small");
           }
 

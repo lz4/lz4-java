@@ -183,7 +183,7 @@ enum LZ4Utils {
   static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff, int destEnd) {
     final int runLen = srcLen;
 
-    if (dOff + runLen + 1 + (runLen - 15) / 255 >= destEnd) {
+    if (dOff + runLen + 1 + (runLen + 255 - RUN_MASK) / 255 > destEnd) {
       throw new LZ4Exception("maxDestLen is too small");
     }
 
