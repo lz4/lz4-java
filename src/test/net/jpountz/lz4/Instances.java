@@ -22,24 +22,24 @@ enum Instances {
   ;
 
   static LZ4Compressor[] COMPRESSORS = new LZ4Compressor[] {
-    LZ4JNICompressor.FAST,
-    LZ4JNICompressor.HIGH_COMPRESSION,
-    LZ4JavaUnsafeCompressor.FAST,
-    LZ4JavaUnsafeCompressor.HIGH_COMPRESSION,
-    LZ4JavaSafeCompressor.FAST,
-    LZ4JavaSafeCompressor.HIGH_COMPRESSION
+    LZ4Factory.nativeInstance().fastCompressor(),
+    LZ4Factory.nativeInstance().highCompressor(),
+    LZ4Factory.unsafeInstance().fastCompressor(),
+    LZ4Factory.unsafeInstance().highCompressor(),
+    LZ4Factory.safeInstance().fastCompressor(),
+    LZ4Factory.safeInstance().highCompressor()
   };
 
   static LZ4Uncompressor[] UNCOMPRESSORS = new LZ4Uncompressor[] {
-    LZ4JNIUncompressor.INSTANCE,
-    LZ4JavaUnsafeUncompressor.INSTANCE,
-    LZ4JavaSafeUncompressor.INSTANCE
+    LZ4Factory.nativeInstance().uncompressor(),
+    LZ4Factory.unsafeInstance().uncompressor(),
+    LZ4Factory.safeInstance().uncompressor()
   };
 
   static LZ4UnknownSizeUncompressor[] UNCOMPRESSORS2 = new LZ4UnknownSizeUncompressor[] {
-    LZ4JNIUncompressor.INSTANCE,
-    LZ4JavaUnsafeUncompressor.INSTANCE,
-    LZ4JavaSafeUncompressor.INSTANCE
+    LZ4Factory.nativeInstance().unknwonSizeUncompressor(),
+    LZ4Factory.unsafeInstance().unknwonSizeUncompressor(),
+    LZ4Factory.safeInstance().unknwonSizeUncompressor()
   };
 
 }

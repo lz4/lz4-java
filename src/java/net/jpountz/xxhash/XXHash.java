@@ -17,12 +17,15 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-public interface XXHash {
+/**
+ * A hash.
+ */
+public abstract interface XXHash {
 
   /**
    * Compute the 32-bits hash of <code>buf[off:off+len]</code> using seed
    * <code>seed</code>.
    */
-  int hash(byte[] buf, int off, int len, int seed);
+  public abstract int hash(byte[] buf, int off, int len, int seed);
 
 }

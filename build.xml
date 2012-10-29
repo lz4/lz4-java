@@ -134,6 +134,19 @@
     </junit4:junit4>
   </target>
 
+  <target name="docs">
+    <mkdir dir="${dist}/docs" />
+    <javadoc
+        overview="${src}/java/overview.html"
+        packagenames="net.jpountz.lz4,net.jpountz.xxhash"
+        windowtitle="LZ4 - Java API"
+        destDir="${dist}/docs">
+      <sourcepath>
+        <pathelement location="${src}/java"/>
+      </sourcepath>
+    </javadoc>
+  </target>
+
   <target name="dist" depends="compile">
     <mkdir dir="${dist}" />
     <jar

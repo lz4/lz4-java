@@ -29,7 +29,7 @@ import static net.jpountz.xxhash.XXHashUtils.PRIME5;
 /**
  * Safe Java implementation of {@link XXHash}.
  */
-public enum XXHashJavaUnsafe implements XXHash {
+enum XXHashJavaUnsafe implements XXHash {
 
   FAST {
 

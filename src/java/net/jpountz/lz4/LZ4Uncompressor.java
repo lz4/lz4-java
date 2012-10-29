@@ -18,7 +18,7 @@ package net.jpountz.lz4;
  */
 
 /**
- * LZ4 uncompressor.
+ * LZ4 uncompressor that requires the size of the original input to be known.
  */
 public interface LZ4Uncompressor {
 

@@ -17,6 +17,9 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+/**
+ * Entry point for the LZ4 API.
+ */
 public final class LZ4Factory {
 
   private static LZ4Factory instance(String impl) {
@@ -27,14 +30,21 @@ public final class LZ4Factory {
     }
   }
 
+  /** Return a {@link LZ4Factory} instance that returns compressors and
+   *  uncompressors that are native bindings to the original C API. */
   public static LZ4Factory nativeInstance() {
     return instance("JNI");
   }
 
+  /** Return a {@link LZ4Factory} instance that returns compressors and
+   *  uncompressors that are written with Java's official API. */
   public static LZ4Factory safeInstance() {
     return instance("JavaSafe");
   }
 
+  /** Return a {@link LZ4Factory} instance that returns compressors and
+   *  uncompressors that may use {@link sun.misc.Unsafe} to speed up compression
+   *  and uncompression. */
   public static LZ4Factory unsafeInstance() {
     return instance("JavaUnsafe");
   }
@@ -73,18 +83,24 @@ public final class LZ4Factory {
     unknwonSizeUncompressor = (LZ4UnknownSizeUncompressor) uncompressor;
   }
 
+  /** Return a {@link LZ4Compressor} that uses a fast-scan method to compress
+   *  data. */
   public LZ4Compressor fastCompressor() {
     return fastCompressor;
   }
 
+  /** Return a {@link LZ4Compressor} that uses more CPU and memory to compress
+   *  data in order to improve the compression ratio. */
   public LZ4Compressor highCompressor() {
     return highCompressor;
   }
 
+  /** Return a {@link LZ4Uncompressor} instance. */
   public LZ4Uncompressor uncompressor() {
     return uncompressor;
   }
 
+  /** Return a {@link LZ4UnknownSizeUncompressor} instance. */
   public LZ4UnknownSizeUncompressor unknwonSizeUncompressor() {
     return unknwonSizeUncompressor;
   }

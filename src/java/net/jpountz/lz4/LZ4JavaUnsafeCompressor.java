@@ -59,7 +59,7 @@ import net.jpountz.lz4.LZ4Utils.Match;
  * Very fast compressors written in pure Java with the unofficial
  * sun.misc.Unsafe API.
  */
-public enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
+enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
 
   FAST {
 

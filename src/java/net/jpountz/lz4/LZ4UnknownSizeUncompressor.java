@@ -18,8 +18,10 @@ package net.jpountz.lz4;
  */
 
 /**
- * LZ4 uncompressor. Implementations of this class are usually slower than those
- * of {@link LZ4Uncompressor} but do not require to know the size of the
+ * LZ4 uncompressor that requires the size of the compressed data to be known.
+ *
+ * Implementations of this class are usually slower than those of
+ * {@link LZ4Uncompressor} but do not require to know the size of the
  * uncompressed data.
  */
 public interface LZ4UnknownSizeUncompressor {

@@ -17,38 +17,17 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-import static net.jpountz.util.Utils.checkRange;
-import net.jpountz.util.Native;
+import junit.framework.TestCase;
 
-enum XXHashJNI implements XXHash {
+public class XXHashFactoryTest extends TestCase {
 
-  FAST {
-
-    @Override
-    public int hash(byte[] buf, int off, int len, int seed) {
-      checkRange(buf, off, len);
-      return XXH_fast32(buf, off, len, seed);
-    }
-
-  },
-
-  STRONG {
-
-    @Override
-    public int hash(byte[] buf, int off, int len, int seed) {
-      checkRange(buf, off, len);
-      return XXH_strong32(buf, off, len, seed);
-    }
-
-  };
-
-  static {
-    Native.load();
-    init();
+  public void test() {
+    assertEquals(XXHashJNI.FAST, XXHashFactory.nativeInstance().fastHash());
+    assertEquals(XXHashJNI.STRONG, XXHashFactory.nativeInstance().strongHash());
+    assertEquals(XXHashJavaUnsafe.FAST, XXHashFactory.unsafeInstance().fastHash());
+    assertEquals(XXHashJavaUnsafe.STRONG, XXHashFactory.unsafeInstance().strongHash());
+    assertEquals(XXHashJavaSafe.FAST, XXHashFactory.safeInstance().fastHash());
+    assertEquals(XXHashJavaSafe.STRONG, XXHashFactory.safeInstance().strongHash());
   }
-
-  private static native void init();
-  private static native int XXH_fast32(byte[] input, int offset, int len, int seed);
-  private static native int XXH_strong32(byte[] input, int offset, int len, int seed);
 
 }

@@ -18,7 +18,7 @@ package net.jpountz.lz4;
  */
 
 /**
- * A compressor for the LZ4 compression format.
+ * LZ4 compressor.
  */
 public interface LZ4Compressor {
 

@@ -23,7 +23,7 @@ import static net.jpountz.util.Utils.checkRange;
  * {@link LZ4Compressor}s implemented with JNI bindings to the original C
  * implementation of LZ4.
  */
-public enum LZ4JNICompressor implements LZ4Compressor {
+enum LZ4JNICompressor implements LZ4Compressor {
   FAST {
     public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
       checkRange(src, srcOff, srcLen);

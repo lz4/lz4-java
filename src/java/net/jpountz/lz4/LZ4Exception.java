@@ -18,7 +18,7 @@ package net.jpountz.lz4;
  */
 
 /**
- * LZ4 compression/uncompression error.
+ * LZ4 compression or uncompression error.
  */
 public class LZ4Exception extends RuntimeException {
 
