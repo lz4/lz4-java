@@ -10,8 +10,6 @@ This repository contains three LZ4 compressor/uncompressor implementations:
  - a Java implementation that uses sun.misc.Unsafe to speedup
    compression/uncompression.
 
-This repository is still experimental, don't use it (yet)!
-
 Build
 -----
 
