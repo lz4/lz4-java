@@ -357,9 +357,7 @@ public class LZ4Test extends RandomizedTest {
       final int compressedLength = compressor.compress(data, 0, data.length, buf, 0, buf.length);
       final byte[] buf2 = new byte[compressedLength];
       try {
-        System.out.println("1");
         final int compressedLength2 = compressor.compress(data, 0, data.length, buf2, 0, buf2.length);
-        System.out.println("2");
         assertEquals(compressedLength, compressedLength2);
         assertArrayEquals(Arrays.copyOf(buf, compressedLength), buf2);
 
