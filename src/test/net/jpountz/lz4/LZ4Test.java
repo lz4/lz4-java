@@ -351,9 +351,9 @@ public class LZ4Test extends RandomizedTest {
   @Test
   @Repeat(iterations=20)
   public void testCompressExactSize() {
-    final byte[] data = randomArray(randomInt(200), randomIntBetween(1, 10));
-    final byte[] buf = new byte[1000];
+    final byte[] data = randomArray(randomInt(rarely() ? 100000 : 200), randomIntBetween(1, 10));
     for (LZ4Compressor compressor : COMPRESSORS) {
+      final byte[] buf = new byte[compressor.maxCompressedLength(data.length)];
       final int compressedLength = compressor.compress(data, 0, data.length, buf, 0, buf.length);
       final byte[] buf2 = new byte[compressedLength];
       try {
