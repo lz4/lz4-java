@@ -348,4 +348,31 @@ public class LZ4Test extends RandomizedTest {
     }
   }
 
+  @Test
+  @Repeat(iterations=20)
+  public void testCompressExactSize() {
+    final byte[] data = randomArray(randomInt(200), randomIntBetween(1, 10));
+    final byte[] buf = new byte[1000];
+    for (LZ4Compressor compressor : COMPRESSORS) {
+      final int compressedLength = compressor.compress(data, 0, data.length, buf, 0, buf.length);
+      final byte[] buf2 = new byte[compressedLength];
+      try {
+        System.out.println("1");
+        final int compressedLength2 = compressor.compress(data, 0, data.length, buf2, 0, buf2.length);
+        System.out.println("2");
+        assertEquals(compressedLength, compressedLength2);
+        assertArrayEquals(Arrays.copyOf(buf, compressedLength), buf2);
+
+        try {
+          compressor.compress(data, 0, data.length, buf2, 0, buf2.length - 1);
+          assertFalse(true);
+        } catch (LZ4Exception e) {
+          // ok
+        }
+      } catch (IllegalArgumentException e) {
+        // ok not to support it, but do not fail with another exception than IAE
+      }
+    }
+  }
+
 }

@@ -41,7 +41,7 @@ enum LZ4JNICompressor implements LZ4Compressor {
       checkRange(src, srcOff, srcLen);
       checkRange(dest, destOff, maxDestLen);
       if (maxDestLen < maxCompressedLength(srcLen)) {
-        throw new LZ4Exception("This compressor does not support output buffers whose size is < maxCompressedLength(srcLen)");
+        throw new IllegalArgumentException("This compressor does not support output buffers whose size is < maxCompressedLength(srcLen)");
       }
       final int result = LZ4JNI.LZ4_compressHC(src, srcOff, srcLen, dest, destOff);
       if (result <= 0) {
