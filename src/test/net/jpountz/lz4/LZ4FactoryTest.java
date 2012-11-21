@@ -33,9 +33,9 @@ public class LZ4FactoryTest extends TestCase {
     assertEquals(LZ4JavaUnsafeUncompressor.INSTANCE, LZ4Factory.unsafeInstance().uncompressor());
     assertEquals(LZ4JavaSafeUncompressor.INSTANCE, LZ4Factory.safeInstance().uncompressor());
 
-    assertEquals(LZ4JNIUncompressor.INSTANCE, LZ4Factory.nativeInstance().unknwonSizeUncompressor());
-    assertEquals(LZ4JavaUnsafeUncompressor.INSTANCE, LZ4Factory.unsafeInstance().unknwonSizeUncompressor());
-    assertEquals(LZ4JavaSafeUncompressor.INSTANCE, LZ4Factory.safeInstance().unknwonSizeUncompressor());
+    assertEquals(LZ4JNIUnknownSizeUncompressor.INSTANCE, LZ4Factory.nativeInstance().unknwonSizeUncompressor());
+    assertEquals(LZ4JavaUnsafeUnknownSizeUncompressor.INSTANCE, LZ4Factory.unsafeInstance().unknwonSizeUncompressor());
+    assertEquals(LZ4JavaSafeUnknownSizeUncompressor.INSTANCE, LZ4Factory.safeInstance().unknwonSizeUncompressor());
   }
 
 }
