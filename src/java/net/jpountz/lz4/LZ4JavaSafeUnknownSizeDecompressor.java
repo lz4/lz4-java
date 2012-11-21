@@ -37,7 +37,7 @@ enum LZ4JavaSafeUnknownSizeDecompressor implements LZ4UnknownSizeDecompressor {
   INSTANCE {
 
     @Override
-    public int decompressUnknownSize(byte[] src, int srcOff, int srcLen,
+    public int decompress(byte[] src, int srcOff, int srcLen,
         byte[] dest, int destOff) {
       checkRange(src, srcOff, srcLen);
       checkRange(dest, destOff);

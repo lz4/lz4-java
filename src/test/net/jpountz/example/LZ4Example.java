@@ -45,7 +45,7 @@ public class LZ4Example {
     // - method 2: when the compressed length is known (a little slower)
     // the destination buffer needs to be over-sized
     LZ4UnknownSizeDecompressor uncompressor2 = factory.unknwonSizeDecompressor();
-    int uncompressedLength2 = uncompressor2.decompressUnknownSize(compressed, 0, compressedLength, restored, 0);
+    int uncompressedLength2 = uncompressor2.decompress(compressed, 0, compressedLength, restored, 0);
     // uncompressedLength == uncompressedLength2
   }
 

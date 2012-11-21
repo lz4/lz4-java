@@ -42,7 +42,7 @@ class LengthBitsLZ4 extends CompressionCodec {
   @Override
   public int decompress(byte[] src, int srcOff, int srcLen, byte[] dest,
       int destOff) {
-    return decompressor.decompressUnknownSize(src, srcOff + 1, srcLen - 1, dest, destOff);
+    return decompressor.decompress(src, srcOff + 1, srcLen - 1, dest, destOff);
   }
 
 }

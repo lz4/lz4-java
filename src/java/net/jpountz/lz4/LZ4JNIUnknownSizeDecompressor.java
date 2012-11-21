@@ -27,7 +27,7 @@ enum LZ4JNIUnknownSizeDecompressor implements LZ4UnknownSizeDecompressor {
 
   INSTANCE {
 
-    public final int decompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
+    public final int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
       checkRange(src, srcOff, srcLen);
       checkRange(dest, destOff);
       final int result = LZ4JNI.LZ4_decompress_unknownOutputSize(src, srcOff, srcLen, dest, destOff, dest.length - destOff);

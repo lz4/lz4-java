@@ -168,7 +168,7 @@ public class LZ4Test extends RandomizedTest {
     byte[] decompressed = randomArray(len, max);
     byte[] compressed = getCompressedWorstCase(decompressed);
     byte[] restored = new byte[decompressed.length];
-    int uncpLen = decompressor.decompressUnknownSize(compressed, 0, compressed.length, restored, 0);
+    int uncpLen = decompressor.decompress(compressed, 0, compressed.length, restored, 0);
     assertEquals(decompressed.length, uncpLen);
     assertArrayEquals(decompressed, restored);
   }
@@ -194,7 +194,7 @@ public class LZ4Test extends RandomizedTest {
     final int maxCompressedLength = LZ4JNICompressor.FAST.maxCompressedLength(len);
     final byte[] compressed = new byte[maxCompressedLength];
     final int compressedLength = LZ4JNICompressor.FAST.compress(data, 0, data.length, compressed, 0, compressed.length);
-    decompressor.decompressUnknownSize(compressed, 0, compressedLength, new byte[data.length - 1], 0);
+    decompressor.decompress(compressed, 0, compressedLength, new byte[data.length - 1], 0);
   }
 
   private static byte[] readResource(String resource) throws IOException {
@@ -233,8 +233,8 @@ public class LZ4Test extends RandomizedTest {
     assertArrayEquals(decompressed, restored);
 
     Arrays.fill(restored, (byte) 0);
-    decompressor2.decompressUnknownSize(compressed, 0, compressedLen, restored, 0);
-    assertEquals(decompressed.length, decompressor2.decompressUnknownSize(compressed, 0, compressedLen, restored, 0));
+    decompressor2.decompress(compressed, 0, compressedLen, restored, 0);
+    assertEquals(decompressed.length, decompressor2.decompress(compressed, 0, compressedLen, restored, 0));
   }
 
   public void testRoundTrip(String resource, LZ4Factory lz4) throws IOException {
@@ -275,16 +275,14 @@ public class LZ4Test extends RandomizedTest {
     for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
       try {
         decompressor.decompress(invalid, 0, new byte[10], 0, 10);
-        if (!decompressor.toString().contains("JNI")) {
-          assertTrue(decompressor.toString(), false);
-        }
+        // free not to fail, but do not throw something else than a LZ4Exception
       } catch (LZ4Exception e) {
         // OK
       }
     }
     for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
       try {
-        decompressor.decompressUnknownSize(invalid, 0, invalid.length, new byte[10], 0);
+        decompressor.decompress(invalid, 0, invalid.length, new byte[10], 0);
         assertTrue(decompressor.toString(), false);
       } catch (LZ4Exception e) {
         // OK
@@ -302,10 +300,7 @@ public class LZ4Test extends RandomizedTest {
       try {
         // it is invalid to end with a match, should be at least 5 literals
         decompressor.decompress(invalid, 0, new byte[decompressedLength], 0, decompressedLength);
-        // TODO: disable the condition when the JNI instances are fixed
-        if (!decompressor.toString().contains("JNI")) {
-          assertTrue(decompressor.toString(), false);
-        }
+        assertTrue(decompressor.toString(), false);
       } catch (LZ4Exception e) {
         // OK
       }
@@ -314,7 +309,7 @@ public class LZ4Test extends RandomizedTest {
     for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
       try {
         // it is invalid to end with a match, should be at least 5 literals
-        decompressor.decompressUnknownSize(invalid, 0, invalid.length, new byte[20], 0);
+        decompressor.decompress(invalid, 0, invalid.length, new byte[20], 0);
         assertTrue(false);
       } catch (LZ4Exception e) {
         // OK
@@ -335,9 +330,7 @@ public class LZ4Test extends RandomizedTest {
         try {
           // it is invalid to end with a match, should be at least 5 literals
           decompressor.decompress(invalid, 0, new byte[20], 0, 20);
-          if (!decompressor.toString().contains("JNI")) {
-            assertTrue(decompressor.toString(), false);
-          }
+          assertTrue(decompressor.toString(), false);
         } catch (LZ4Exception e) {
           // OK
         }
@@ -346,7 +339,7 @@ public class LZ4Test extends RandomizedTest {
       for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
         try {
           // it is invalid to end with a match, should be at least 5 literals
-          decompressor.decompressUnknownSize(invalid, 0, invalid.length, new byte[20], 0);
+          decompressor.decompress(invalid, 0, invalid.length, new byte[20], 0);
           assertTrue(false);
         } catch (LZ4Exception e) {
           // OK

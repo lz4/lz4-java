@@ -30,6 +30,6 @@ public interface LZ4UnknownSizeDecompressor {
    * Uncompress <code>src[srcOff:srcLen]</code> into <code>dest[destOff:]</code>.
    * Returns the number of decompressed bytes written into <code>dest</code>.
    */
-  int decompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
+  int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
 
 }
