@@ -21,12 +21,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-abstract class LZ4StreamUncompressor implements LZ4UnknownSizeUncompressor {
+abstract class LZ4StreamDecompressor implements LZ4UnknownSizeDecompressor {
 
   protected abstract InputStream lz4InputStream(InputStream is) throws IOException;
 
   @Override
-  public int uncompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
+  public int decompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
     ByteArrayInputStream bais = new ByteArrayInputStream(src, srcOff, srcLen);
     InputStream lz4Is;
     try {

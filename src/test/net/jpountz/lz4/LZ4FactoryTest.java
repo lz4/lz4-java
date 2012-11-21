@@ -29,13 +29,13 @@ public class LZ4FactoryTest extends TestCase {
     assertEquals(LZ4JavaSafeCompressor.FAST, LZ4Factory.safeInstance().fastCompressor());
     assertEquals(LZ4JavaSafeCompressor.HIGH_COMPRESSION, LZ4Factory.safeInstance().highCompressor());
 
-    assertEquals(LZ4JNIUncompressor.INSTANCE, LZ4Factory.nativeInstance().uncompressor());
-    assertEquals(LZ4JavaUnsafeUncompressor.INSTANCE, LZ4Factory.unsafeInstance().uncompressor());
-    assertEquals(LZ4JavaSafeUncompressor.INSTANCE, LZ4Factory.safeInstance().uncompressor());
+    assertEquals(LZ4JNIDecompressor.INSTANCE, LZ4Factory.nativeInstance().decompressor());
+    assertEquals(LZ4JavaUnsafeDecompressor.INSTANCE, LZ4Factory.unsafeInstance().decompressor());
+    assertEquals(LZ4JavaSafeDecompressor.INSTANCE, LZ4Factory.safeInstance().decompressor());
 
-    assertEquals(LZ4JNIUnknownSizeUncompressor.INSTANCE, LZ4Factory.nativeInstance().unknwonSizeUncompressor());
-    assertEquals(LZ4JavaUnsafeUnknownSizeUncompressor.INSTANCE, LZ4Factory.unsafeInstance().unknwonSizeUncompressor());
-    assertEquals(LZ4JavaSafeUnknownSizeUncompressor.INSTANCE, LZ4Factory.safeInstance().unknwonSizeUncompressor());
+    assertEquals(LZ4JNIUnknownSizeDecompressor.INSTANCE, LZ4Factory.nativeInstance().unknwonSizeDecompressor());
+    assertEquals(LZ4JavaUnsafeUnknownSizeDecompressor.INSTANCE, LZ4Factory.unsafeInstance().unknwonSizeDecompressor());
+    assertEquals(LZ4JavaSafeUnknownSizeDecompressor.INSTANCE, LZ4Factory.safeInstance().unknwonSizeDecompressor());
   }
 
 }

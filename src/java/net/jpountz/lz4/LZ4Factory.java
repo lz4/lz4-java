@@ -31,28 +31,28 @@ public final class LZ4Factory {
   }
 
   /** Return a {@link LZ4Factory} instance that returns compressors and
-   *  uncompressors that are native bindings to the original C API. */
+   *  decompressors that are native bindings to the original C API. */
   public static LZ4Factory nativeInstance() {
     return instance("JNI");
   }
 
   /** Return a {@link LZ4Factory} instance that returns compressors and
-   *  uncompressors that are written with Java's official API. */
+   *  decompressors that are written with Java's official API. */
   public static LZ4Factory safeInstance() {
     return instance("JavaSafe");
   }
 
   /** Return a {@link LZ4Factory} instance that returns compressors and
-   *  uncompressors that may use {@link sun.misc.Unsafe} to speed up compression
-   *  and uncompression. */
+   *  decompressors that may use {@link sun.misc.Unsafe} to speed up compression
+   *  and decompression. */
   public static LZ4Factory unsafeInstance() {
     return instance("JavaUnsafe");
   }
 
   private final LZ4Compressor fastCompressor;
   private final LZ4Compressor highCompressor;
-  private final LZ4Uncompressor uncompressor;
-  private final LZ4UnknownSizeUncompressor unknownSizeUncompressor;
+  private final LZ4Decompressor decompressor;
+  private final LZ4UnknownSizeDecompressor unknownSizeDecompressor;
 
   private LZ4Factory(String impl) throws ClassNotFoundException {
     final Class<?> compressorEnum = Class.forName("net.jpountz.lz4.LZ4" + impl + "Compressor");
@@ -67,27 +67,27 @@ public final class LZ4Factory {
     fastCompressor = compressors[0];
     highCompressor = compressors[1];
 
-    final Class<?> uncompressorEnum = Class.forName("net.jpountz.lz4.LZ4" + impl + "Uncompressor");
-    if (!LZ4Uncompressor.class.isAssignableFrom(uncompressorEnum)) {
+    final Class<?> decompressorEnum = Class.forName("net.jpountz.lz4.LZ4" + impl + "Decompressor");
+    if (!LZ4Decompressor.class.isAssignableFrom(decompressorEnum)) {
       throw new AssertionError();
     }
     @SuppressWarnings("unchecked")
-    LZ4Uncompressor[] uncompressors = ((Class<? extends LZ4Uncompressor>) uncompressorEnum).getEnumConstants();
-    if (uncompressors.length != 1) {
+    LZ4Decompressor[] decompressors = ((Class<? extends LZ4Decompressor>) decompressorEnum).getEnumConstants();
+    if (decompressors.length != 1) {
       throw new AssertionError();
     }
-    uncompressor = uncompressors[0];
+    decompressor = decompressors[0];
 
-    final Class<?> unknownSizeUncompressorEnum = Class.forName("net.jpountz.lz4.LZ4" + impl + "UnknownSizeUncompressor");
-    if (!LZ4UnknownSizeUncompressor.class.isAssignableFrom(unknownSizeUncompressorEnum)) {
+    final Class<?> unknownSizeDecompressorEnum = Class.forName("net.jpountz.lz4.LZ4" + impl + "UnknownSizeDecompressor");
+    if (!LZ4UnknownSizeDecompressor.class.isAssignableFrom(unknownSizeDecompressorEnum)) {
       throw new AssertionError();
     }
     @SuppressWarnings("unchecked")
-    LZ4UnknownSizeUncompressor[] unknownSizeUncompressors = ((Class<? extends LZ4UnknownSizeUncompressor>) unknownSizeUncompressorEnum).getEnumConstants();
-    if (uncompressors.length != 1) {
+    LZ4UnknownSizeDecompressor[] unknownSizeDecompressors = ((Class<? extends LZ4UnknownSizeDecompressor>) unknownSizeDecompressorEnum).getEnumConstants();
+    if (decompressors.length != 1) {
       throw new AssertionError();
     }
-    unknownSizeUncompressor = unknownSizeUncompressors[0];
+    unknownSizeDecompressor = unknownSizeDecompressors[0];
   }
 
   /** Return a {@link LZ4Compressor} that uses a fast-scan method to compress
@@ -102,14 +102,14 @@ public final class LZ4Factory {
     return highCompressor;
   }
 
-  /** Return a {@link LZ4Uncompressor} instance. */
-  public LZ4Uncompressor uncompressor() {
-    return uncompressor;
+  /** Return a {@link LZ4Decompressor} instance. */
+  public LZ4Decompressor decompressor() {
+    return decompressor;
   }
 
-  /** Return a {@link LZ4UnknownSizeUncompressor} instance. */
-  public LZ4UnknownSizeUncompressor unknwonSizeUncompressor() {
-    return unknownSizeUncompressor;
+  /** Return a {@link LZ4UnknownSizeDecompressor} instance. */
+  public LZ4UnknownSizeDecompressor unknwonSizeDecompressor() {
+    return unknownSizeDecompressor;
   }
 
 }

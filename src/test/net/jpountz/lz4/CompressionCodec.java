@@ -20,22 +20,22 @@ package net.jpountz.lz4;
 import java.util.Arrays;
 
 /**
- * A compression codec built on top of a compressor and an uncompressor.
+ * A compression codec built on top of a compressor and an decompressor.
  */
 public abstract class CompressionCodec {
 
   /** Return the maximum compressed length for an input of size <code>length</code>. */
   public abstract int maxCompressedLength(int length);
 
-  /** Return the maximum uncompressed length for the specified input. */
+  /** Return the maximum decompressed length for the specified input. */
   public abstract int maxUncompressedLength(byte[] src, int srcOff, int srcLen);
 
   /** Compress <code>src[srcOff:srcOff+srcLen]</code> into <code>dest[destOff:]</code> */
   public abstract int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
 
   /** Uncompress <code>src[srcOff:srcOff+srcLen]</code> into <code>dest[destOff:]</code>.
-   * Return the length of the uncompressed data. */
-  public abstract int uncompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
+   * Return the length of the decompressed data. */
+  public abstract int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
 
   /** Compress <code>src[srcOff:srcOff+srcLen]</code>. */
   public final byte[] compress(byte[] src, int srcOff, int srcLen) {
@@ -50,19 +50,19 @@ public abstract class CompressionCodec {
   }
 
   /** Uncompress <code>src[srcOff:srcOff+srcLen]</code>. */
-  public final byte[] uncompress(byte[] src, int srcOff, int srcLen) {
+  public final byte[] decompress(byte[] src, int srcOff, int srcLen) {
     final int maxUncompressedLength = maxUncompressedLength(src, srcOff, srcLen);
-    final byte[] uncompressed = new byte[maxUncompressedLength];
-    final int uncompressedLen = uncompress(src, srcOff, srcLen, uncompressed, 0);
-    if (uncompressedLen == maxUncompressedLength) {
-      return uncompressed;
+    final byte[] decompressed = new byte[maxUncompressedLength];
+    final int decompressedLen = decompress(src, srcOff, srcLen, decompressed, 0);
+    if (decompressedLen == maxUncompressedLength) {
+      return decompressed;
     } else {
-      return Arrays.copyOf(uncompressed, uncompressedLen);
+      return Arrays.copyOf(decompressed, decompressedLen);
     }
   }
 
   /** Uncompress <code>src</code>. */
-  public final byte[] uncompress(byte[] src) {
-    return uncompress(src, 0, src.length);
+  public final byte[] decompress(byte[] src) {
+    return decompress(src, 0, src.length);
   }
 }

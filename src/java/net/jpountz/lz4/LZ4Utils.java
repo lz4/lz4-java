@@ -133,7 +133,7 @@ enum LZ4Utils {
   }
 
   static void wildArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
-    // can make uncompression 10% faster
+    // can make decompression 10% faster
     final int fastLen = ((len - 1) & 0xFFFFFFF8) + COPY_LENGTH;
     try {
       System.arraycopy(src, sOff, dest, dOff, fastLen);

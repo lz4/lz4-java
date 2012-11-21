@@ -17,19 +17,31 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-/**
- * LZ4 uncompressor that requires the size of the compressed data to be known.
- *
- * Implementations of this class are usually slower than those of
- * {@link LZ4Uncompressor} but do not require to know the size of the
- * uncompressed data.
- */
-public interface LZ4UnknownSizeUncompressor {
+import static net.jpountz.util.Utils.checkRange;
 
-  /**
-   * Uncompress <code>src[srcOff:srcLen]</code> into <code>dest[destOff:]</code>.
-   * Returns the number of uncompressed bytes written into <code>dest</code>.
-   */
-  int uncompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
+/**
+ * {@link LZ4Decompressor} implemented with JNI bindings to the original C
+ * implementation of LZ4.
+ */
+enum LZ4JNIUnknownSizeDecompressor implements LZ4UnknownSizeDecompressor {
+
+  INSTANCE {
+
+    public final int decompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
+      checkRange(src, srcOff, srcLen);
+      checkRange(dest, destOff);
+      final int result = LZ4JNI.LZ4_decompress_unknownOutputSize(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
+      if (result < 0) {
+        throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
+      }
+      return result;
+    }
+ 
+  };
+
+  @Override
+  public String toString() {
+    return getDeclaringClass().getSimpleName();
+  }
 
 }

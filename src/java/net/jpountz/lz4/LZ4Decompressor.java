@@ -17,31 +17,14 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.util.Utils.checkRange;
-
 /**
- * {@link LZ4Uncompressor} implemented with JNI bindings to the original C
- * implementation of LZ4.
+ * LZ4 decompressor that requires the size of the original input to be known.
  */
-enum LZ4JNIUnknownSizeUncompressor implements LZ4UnknownSizeUncompressor {
+public interface LZ4Decompressor {
 
-  INSTANCE {
-
-    public final int uncompressUnknownSize(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
-      checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff);
-      final int result = LZ4JNI.LZ4_uncompress_unknownOutputSize(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
-      if (result < 0) {
-        throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
-      }
-      return result;
-    }
- 
-  };
-
-  @Override
-  public String toString() {
-    return getDeclaringClass().getSimpleName();
-  }
+  /** Uncompress <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>.
+   * <code>destLen</code> must be exactly the size of the decompressed data. Return the
+   * number of bytes decompressed from <code>src</code>. */
+  int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
 
 }

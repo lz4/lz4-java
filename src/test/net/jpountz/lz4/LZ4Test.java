@@ -36,9 +36,9 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
 @RunWith(RandomizedRunner.class)
 public class LZ4Test extends RandomizedTest {
 
-  private static byte[] getCompressedWorstCase(byte[] uncompressed) {
+  private static byte[] getCompressedWorstCase(byte[] decompressed) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    int len = uncompressed.length;
+    int len = decompressed.length;
     if (len >= LZ4Utils.RUN_MASK) {
       baos.write(LZ4Utils.RUN_MASK << LZ4Utils.ML_BITS);
       len -= LZ4Utils.RUN_MASK;
@@ -49,7 +49,7 @@ public class LZ4Test extends RandomizedTest {
     }
     baos.write(len);
     try {
-      baos.write(uncompressed);
+      baos.write(decompressed);
     } catch (IOException e) {
       throw new AssertionError();
     }
@@ -71,29 +71,29 @@ public class LZ4Test extends RandomizedTest {
     final int compressedLength = compressionCodec.compress(data, 0, 0, compressed, 0);
     assertTrue(compressedLength > 0);
     assertTrue(compressedLength <= maxCompressedLength);
-    assertEquals(0, compressionCodec.uncompress(compressed, 0, compressedLength, new byte[3], 1));
+    assertEquals(0, compressionCodec.decompress(compressed, 0, compressedLength, new byte[3], 1));
   }
 
   @Test
   public void testEmpty() {
     for (LZ4Compressor compressor : COMPRESSORS) {
-      for (LZ4Uncompressor uncompressor : UNCOMPRESSORS) {
-        testEmpty(new LengthLZ4(compressor, uncompressor));
+      for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
+        testEmpty(new LengthLZ4(compressor, decompressor));
       }
     }
     for (LZ4Compressor compressor : COMPRESSORS) {
-      for (LZ4UnknownSizeUncompressor uncompressor : UNCOMPRESSORS2) {
-        testEmpty(new LengthBitsLZ4(compressor, uncompressor));
+      for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
+        testEmpty(new LengthBitsLZ4(compressor, decompressor));
       }
     }
   }
 
-  public void testCompress(LZ4Compressor compressor, LZ4Uncompressor uncompressor) {
-    testCompress(new LengthLZ4(compressor, uncompressor));
+  public void testCompress(LZ4Compressor compressor, LZ4Decompressor decompressor) {
+    testCompress(new LengthLZ4(compressor, decompressor));
   }
 
-  public void testCompress(LZ4Compressor compressor, LZ4UnknownSizeUncompressor uncompressor) {
-    testCompress(new LengthBitsLZ4(compressor, uncompressor));
+  public void testCompress(LZ4Compressor compressor, LZ4UnknownSizeDecompressor decompressor) {
+    testCompress(new LengthBitsLZ4(compressor, decompressor));
   }
 
   public void testCompress(CompressionCodec compressionCodec) {
@@ -112,71 +112,71 @@ public class LZ4Test extends RandomizedTest {
     byte[] compressed = new byte[maxCompressedLength + 10];
     final int compressedLength = compressionCodec.compress(src, 4, src.length - 15, compressed, 2);
     assertTrue(compressedLength <= maxCompressedLength);
-    byte[] uncompressed = new byte[src.length];
-    final int uncompressedLength = compressionCodec.uncompress(compressed, 2, compressedLength, uncompressed, 3);
-    assertEquals(src.length - 15, uncompressedLength);
+    byte[] decompressed = new byte[src.length];
+    final int decompressedLength = compressionCodec.decompress(compressed, 2, compressedLength, decompressed, 3);
+    assertEquals(src.length - 15, decompressedLength);
     final byte[] original = Arrays.copyOfRange(src, 4, 4 + src.length - 15);
     compressed = Arrays.copyOfRange(compressed, 2, compressedLength + 2);
-    final byte[] restored = Arrays.copyOfRange(uncompressed, 3, 3 + uncompressedLength);
+    final byte[] restored = Arrays.copyOfRange(decompressed, 3, 3 + decompressedLength);
     assertArrayEquals(original, restored);
     assertArrayEquals(compressed, compressionCodec.compress(src, 4, src.length - 15));
-    assertArrayEquals(original, compressionCodec.uncompress(compressed));
+    assertArrayEquals(original, compressionCodec.decompress(compressed));
   }
 
   @Test
   @Repeat(iterations=5)
   public void testCompress() {
     final LZ4Compressor compressor = randomFrom(COMPRESSORS);
-    testCompress(compressor, (LZ4Uncompressor) LZ4JNIUncompressor.INSTANCE);
+    testCompress(compressor, (LZ4Decompressor) LZ4JNIDecompressor.INSTANCE);
   }
 
   @Test
   @Repeat(iterations=5)
   public void testUncompress() {
-    final LZ4Uncompressor uncompressor = randomFrom(UNCOMPRESSORS);
-    testCompress(LZ4JNICompressor.HIGH_COMPRESSION, uncompressor);
+    final LZ4Decompressor decompressor = randomFrom(UNCOMPRESSORS);
+    testCompress(LZ4JNICompressor.HIGH_COMPRESSION, decompressor);
   }
 
   @Test
   @Repeat(iterations=5)
   public void testUncompressUnknownSize() {
-    final LZ4UnknownSizeUncompressor uncompressor = randomFrom(UNCOMPRESSORS2);
-    testCompress(LZ4JNICompressor.HIGH_COMPRESSION, uncompressor);
+    final LZ4UnknownSizeDecompressor decompressor = randomFrom(UNCOMPRESSORS2);
+    testCompress(LZ4JNICompressor.HIGH_COMPRESSION, decompressor);
   }
 
-  public void testUncompressWorstCase(LZ4Uncompressor uncompressor) {
+  public void testUncompressWorstCase(LZ4Decompressor decompressor) {
     final int len = randomInt(100 * 1024);
     final int max = randomInt(256);
-    byte[] uncompressed = randomArray(len, max);
-    byte[] compressed = getCompressedWorstCase(uncompressed);
-    byte[] restored = new byte[uncompressed.length];
-    int cpLen = uncompressor.uncompress(compressed, 0, restored, 0, uncompressed.length);
+    byte[] decompressed = randomArray(len, max);
+    byte[] compressed = getCompressedWorstCase(decompressed);
+    byte[] restored = new byte[decompressed.length];
+    int cpLen = decompressor.decompress(compressed, 0, restored, 0, decompressed.length);
     assertEquals(compressed.length, cpLen);
-    assertArrayEquals(uncompressed, restored);
+    assertArrayEquals(decompressed, restored);
   }
 
   @Test
   public void testUncompressWorstCase() {
-    for (LZ4Uncompressor uncompressor : UNCOMPRESSORS) {
-      testUncompressWorstCase(uncompressor);
+    for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
+      testUncompressWorstCase(decompressor);
     }
   }
 
-  public void testUncompressWorstCase(LZ4UnknownSizeUncompressor uncompressor) {
+  public void testUncompressWorstCase(LZ4UnknownSizeDecompressor decompressor) {
     final int len = randomInt(100 * 1024);
     final int max = randomInt(256);
-    byte[] uncompressed = randomArray(len, max);
-    byte[] compressed = getCompressedWorstCase(uncompressed);
-    byte[] restored = new byte[uncompressed.length];
-    int uncpLen = uncompressor.uncompressUnknownSize(compressed, 0, compressed.length, restored, 0);
-    assertEquals(uncompressed.length, uncpLen);
-    assertArrayEquals(uncompressed, restored);
+    byte[] decompressed = randomArray(len, max);
+    byte[] compressed = getCompressedWorstCase(decompressed);
+    byte[] restored = new byte[decompressed.length];
+    int uncpLen = decompressor.decompressUnknownSize(compressed, 0, compressed.length, restored, 0);
+    assertEquals(decompressed.length, uncpLen);
+    assertArrayEquals(decompressed, restored);
   }
 
   @Test
   public void testUncompressUnknownSizeWorstCase() {
-    for (LZ4UnknownSizeUncompressor uncompressor : UNCOMPRESSORS2) {
-      testUncompressWorstCase(uncompressor);
+    for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
+      testUncompressWorstCase(decompressor);
     }
   }
 
@@ -184,7 +184,7 @@ public class LZ4Test extends RandomizedTest {
   //@Test(expected=LZ4Exception.class)
   @Repeat(iterations=5)
   public void testUncompressUnknownSizeUnderflow() {
-    final LZ4UnknownSizeUncompressor uncompressor = randomFrom(UNCOMPRESSORS2);
+    final LZ4UnknownSizeDecompressor decompressor = randomFrom(UNCOMPRESSORS2);
     final int len = randomInt(100000);
     final int max = randomInt(256);
     final byte[] data = new byte[len];
@@ -194,7 +194,7 @@ public class LZ4Test extends RandomizedTest {
     final int maxCompressedLength = LZ4JNICompressor.FAST.maxCompressedLength(len);
     final byte[] compressed = new byte[maxCompressedLength];
     final int compressedLength = LZ4JNICompressor.FAST.compress(data, 0, data.length, compressed, 0, compressed.length);
-    uncompressor.uncompressUnknownSize(compressed, 0, compressedLength, new byte[data.length - 1], 0);
+    decompressor.decompressUnknownSize(compressed, 0, compressedLength, new byte[data.length - 1], 0);
   }
 
   private static byte[] readResource(String resource) throws IOException {
@@ -220,27 +220,27 @@ public class LZ4Test extends RandomizedTest {
 
   public void testRoundTrip(String resource,
       LZ4Compressor compressor,
-      LZ4Uncompressor uncompressor,
-      LZ4UnknownSizeUncompressor uncompressor2) throws IOException {
-    final byte[] uncompressed = readResource(resource);
-    final byte[] compressed = new byte[LZ4Utils.maxCompressedLength(uncompressed.length)];
+      LZ4Decompressor decompressor,
+      LZ4UnknownSizeDecompressor decompressor2) throws IOException {
+    final byte[] decompressed = readResource(resource);
+    final byte[] compressed = new byte[LZ4Utils.maxCompressedLength(decompressed.length)];
     final int compressedLen = compressor.compress(
-        uncompressed, 0, uncompressed.length,
+        decompressed, 0, decompressed.length,
         compressed, 0, compressed.length);
 
-    final byte[] restored = new byte[uncompressed.length];
-    assertEquals(compressedLen, uncompressor.uncompress(compressed, 0, restored, 0, uncompressed.length));
-    assertArrayEquals(uncompressed, restored);
+    final byte[] restored = new byte[decompressed.length];
+    assertEquals(compressedLen, decompressor.decompress(compressed, 0, restored, 0, decompressed.length));
+    assertArrayEquals(decompressed, restored);
 
     Arrays.fill(restored, (byte) 0);
-    uncompressor2.uncompressUnknownSize(compressed, 0, compressedLen, restored, 0);
-    assertEquals(uncompressed.length, uncompressor2.uncompressUnknownSize(compressed, 0, compressedLen, restored, 0));
+    decompressor2.decompressUnknownSize(compressed, 0, compressedLen, restored, 0);
+    assertEquals(decompressed.length, decompressor2.decompressUnknownSize(compressed, 0, compressedLen, restored, 0));
   }
 
   public void testRoundTrip(String resource, LZ4Factory lz4) throws IOException {
     for (LZ4Compressor compressor : Arrays.asList(
         lz4.fastCompressor(), lz4.highCompressor())) {
-      testRoundTrip(resource, compressor, lz4.uncompressor(), lz4.unknwonSizeUncompressor());
+      testRoundTrip(resource, compressor, lz4.decompressor(), lz4.unknwonSizeDecompressor());
     }
   }
 
@@ -272,20 +272,20 @@ public class LZ4Test extends RandomizedTest {
   public void testNullMatchDec() {
     // 1 literal, 4 matchs with matchDec=0, 5 literals
     final byte[] invalid = new byte[] { 16, 42, 0, 0, 42, 42, 42, 42, 42 };
-    for (LZ4Uncompressor uncompressor : UNCOMPRESSORS) {
+    for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
       try {
-        uncompressor.uncompress(invalid, 0, new byte[10], 0, 10);
-        if (!uncompressor.toString().contains("JNI")) {
-          assertTrue(uncompressor.toString(), false);
+        decompressor.decompress(invalid, 0, new byte[10], 0, 10);
+        if (!decompressor.toString().contains("JNI")) {
+          assertTrue(decompressor.toString(), false);
         }
       } catch (LZ4Exception e) {
         // OK
       }
     }
-    for (LZ4UnknownSizeUncompressor uncompressor : UNCOMPRESSORS2) {
+    for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
       try {
-        uncompressor.uncompressUnknownSize(invalid, 0, invalid.length, new byte[10], 0);
-        assertTrue(uncompressor.toString(), false);
+        decompressor.decompressUnknownSize(invalid, 0, invalid.length, new byte[10], 0);
+        assertTrue(decompressor.toString(), false);
       } catch (LZ4Exception e) {
         // OK
       }
@@ -296,25 +296,25 @@ public class LZ4Test extends RandomizedTest {
   public void testEndsWithMatch() {
     // 6 literals, 4 matchs
     final byte[] invalid = new byte[] { 96, 42, 43, 44, 45, 46, 47, 5, 0 };
-    final int uncompressedLength = 10;
+    final int decompressedLength = 10;
 
-    for (LZ4Uncompressor uncompressor : UNCOMPRESSORS) {
+    for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
       try {
         // it is invalid to end with a match, should be at least 5 literals
-        uncompressor.uncompress(invalid, 0, new byte[uncompressedLength], 0, uncompressedLength);
+        decompressor.decompress(invalid, 0, new byte[decompressedLength], 0, decompressedLength);
         // TODO: disable the condition when the JNI instances are fixed
-        if (!uncompressor.toString().contains("JNI")) {
-          assertTrue(uncompressor.toString(), false);
+        if (!decompressor.toString().contains("JNI")) {
+          assertTrue(decompressor.toString(), false);
         }
       } catch (LZ4Exception e) {
         // OK
       }
     }
 
-    for (LZ4UnknownSizeUncompressor uncompressor : UNCOMPRESSORS2) {
+    for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
       try {
         // it is invalid to end with a match, should be at least 5 literals
-        uncompressor.uncompressUnknownSize(invalid, 0, invalid.length, new byte[20], 0);
+        decompressor.decompressUnknownSize(invalid, 0, invalid.length, new byte[20], 0);
         assertTrue(false);
       } catch (LZ4Exception e) {
         // OK
@@ -331,22 +331,22 @@ public class LZ4Test extends RandomizedTest {
       final byte[] invalid = Arrays.copyOf(invalidBase, invalidBase.length + 1 + i);
       invalid[invalidBase.length] = (byte) (i << 4); // i literals at the end
 
-      for (LZ4Uncompressor uncompressor : UNCOMPRESSORS) {
+      for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
         try {
           // it is invalid to end with a match, should be at least 5 literals
-          uncompressor.uncompress(invalid, 0, new byte[20], 0, 20);
-          if (!uncompressor.toString().contains("JNI")) {
-            assertTrue(uncompressor.toString(), false);
+          decompressor.decompress(invalid, 0, new byte[20], 0, 20);
+          if (!decompressor.toString().contains("JNI")) {
+            assertTrue(decompressor.toString(), false);
           }
         } catch (LZ4Exception e) {
           // OK
         }
       }
 
-      for (LZ4UnknownSizeUncompressor uncompressor : UNCOMPRESSORS2) {
+      for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
         try {
           // it is invalid to end with a match, should be at least 5 literals
-          uncompressor.uncompressUnknownSize(invalid, 0, invalid.length, new byte[20], 0);
+          decompressor.decompressUnknownSize(invalid, 0, invalid.length, new byte[20], 0);
           assertTrue(false);
         } catch (LZ4Exception e) {
           // OK

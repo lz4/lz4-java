@@ -32,14 +32,14 @@ import static net.jpountz.util.Utils.checkRange;
 
 
 /**
- * Very fast uncompressor written in pure Java with the unofficial
+ * Very fast decompressor written in pure Java with the unofficial
  * sun.misc.Unsafe API.
  */
-enum LZ4JavaUnsafeUncompressor implements LZ4Uncompressor {
+enum LZ4JavaUnsafeDecompressor implements LZ4Decompressor {
 
   INSTANCE {
 
-    public int uncompress(byte[] src, final int srcOff, byte[] dest, final int destOff, int destLen) {
+    public int decompress(byte[] src, final int srcOff, byte[] dest, final int destOff, int destLen) {
       checkRange(src, srcOff);
       checkRange(dest, destOff, destLen);
 

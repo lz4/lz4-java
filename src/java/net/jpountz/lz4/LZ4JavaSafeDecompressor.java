@@ -17,74 +17,66 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.lz4.LZ4UnsafeUtils.readShortLittleEndian;
-import static net.jpountz.lz4.LZ4UnsafeUtils.safeArraycopy;
-import static net.jpountz.lz4.LZ4UnsafeUtils.safeIncrementalCopy;
-import static net.jpountz.lz4.LZ4UnsafeUtils.wildArraycopy;
-import static net.jpountz.lz4.LZ4UnsafeUtils.wildIncrementalCopy;
 import static net.jpountz.lz4.LZ4Utils.COPY_LENGTH;
 import static net.jpountz.lz4.LZ4Utils.MIN_MATCH;
 import static net.jpountz.lz4.LZ4Utils.ML_BITS;
 import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
-import static net.jpountz.util.UnsafeUtils.readByte;
+import static net.jpountz.lz4.LZ4Utils.safeArraycopy;
+import static net.jpountz.lz4.LZ4Utils.safeIncrementalCopy;
+import static net.jpountz.lz4.LZ4Utils.wildArraycopy;
+import static net.jpountz.lz4.LZ4Utils.wildIncrementalCopy;
 import static net.jpountz.util.Utils.checkRange;
 
-
 /**
- * Very fast uncompressor written in pure Java with the unofficial
+ * Decompressor written in pure Java without using the unofficial
  * sun.misc.Unsafe API.
  */
-enum LZ4JavaUnsafeUnknownSizeUncompressor implements LZ4UnknownSizeUncompressor {
+enum LZ4JavaSafeDecompressor implements LZ4Decompressor {
 
   INSTANCE {
 
-    @Override
-    public int uncompressUnknownSize(byte[] src, int srcOff, int srcLen,
-        byte[] dest, int destOff) {
-      checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff);
+    public int decompress(byte[] src, final int srcOff, byte[] dest, final int destOff, int destLen) {
+      checkRange(src, srcOff);
+      checkRange(dest, destOff, destLen);
 
-      final int srcEnd = srcOff + srcLen;
+      final int destEnd = destOff + destLen;
 
       int sOff = srcOff;
       int dOff = destOff;
 
-      while (sOff < srcEnd) {
-        final int token = readByte(src, sOff++);
+      while (true) {
+        final int token = src[sOff++] & 0xFF;
 
         // literals
         int literalLen = token >>> ML_BITS;
         if (literalLen == RUN_MASK) {
-            int len;
-            while ((len = readByte(src, sOff++)) == 255) {
-              literalLen += 255;
-            }
-            literalLen += len;
+          int len;
+          while ((len = src[sOff++] & 0xFF) == 255) {
+            literalLen += 255;
+          }
+          literalLen += len;
         }
 
         final int literalCopyEnd = dOff + literalLen;
-        if (literalCopyEnd > dest.length - COPY_LENGTH || sOff + literalLen > srcEnd - COPY_LENGTH) {
-          if (literalCopyEnd > dest.length || sOff + literalLen > srcEnd) {
+        if (literalCopyEnd > destEnd - COPY_LENGTH) {
+          if (literalCopyEnd != destEnd) {
             throw new LZ4Exception("Malformed input at " + sOff);
           } else {
             safeArraycopy(src, sOff, dest, dOff, literalLen);
             sOff += literalLen;
-            dOff += literalLen;
-            if (sOff < srcEnd) {
-              throw new LZ4Exception("Malformed input at " + sOff);
-            }
             break; // EOF
           }
         }
 
-        wildArraycopy(src, sOff, dest, dOff, literalLen);
-        sOff += literalLen;
-        dOff = literalCopyEnd;
+        if (literalLen != 0) {
+          wildArraycopy(src, sOff, dest, dOff, literalLen);
+          sOff += literalLen;
+          dOff = literalCopyEnd;
+        }
 
         // matchs
-        final int matchDec = readShortLittleEndian(src, sOff);
-        sOff += 2;
+        final int matchDec = (src[sOff++] & 0xFF) | ((src[sOff++] & 0xFF) << 8);
         int matchOff = dOff - matchDec;
 
         if (matchDec == 0 || matchOff < destOff) {
@@ -94,7 +86,7 @@ enum LZ4JavaUnsafeUnknownSizeUncompressor implements LZ4UnknownSizeUncompressor 
         int matchLen = token & ML_MASK;
         if (matchLen == ML_MASK) {
           int len;
-          while ((len = readByte(src, sOff++)) == 255) {
+          while ((len = src[sOff++] & 0xFF) == 255) {
             matchLen += 255;
           }
           matchLen += len;
@@ -104,17 +96,17 @@ enum LZ4JavaUnsafeUnknownSizeUncompressor implements LZ4UnknownSizeUncompressor 
         final int matchCopyEnd = dOff + matchLen;
 
         if (matchCopyEnd > dest.length - COPY_LENGTH) {
-          if (matchCopyEnd > dest.length) {
+          if (matchCopyEnd > destEnd) {
             throw new LZ4Exception("Malformed input at " + sOff);
           }
-          safeIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
+          safeIncrementalCopy(dest, matchOff, dOff, matchLen);
         } else {
-          wildIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
+          wildIncrementalCopy(dest, matchOff, dOff, matchLen);
         }
         dOff = matchCopyEnd;
       }
 
-      return dOff - destOff;
+      return sOff - srcOff;
     }
 
   };

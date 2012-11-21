@@ -3,9 +3,9 @@ package net.jpountz.example;
 import java.io.UnsupportedEncodingException;
 
 import net.jpountz.lz4.LZ4Compressor;
+import net.jpountz.lz4.LZ4Decompressor;
 import net.jpountz.lz4.LZ4Factory;
-import net.jpountz.lz4.LZ4Uncompressor;
-import net.jpountz.lz4.LZ4UnknownSizeUncompressor;
+import net.jpountz.lz4.LZ4UnknownSizeDecompressor;
 
 public class LZ4Example {
 
@@ -37,15 +37,15 @@ public class LZ4Example {
 
     // uncompress data
     // - method 1: when the uncompressed length is known
-    LZ4Uncompressor uncompressor = factory.uncompressor();
+    LZ4Decompressor uncompressor = factory.decompressor();
     byte[] restored = new byte[uncompressedLength];
-    int compressedLength2 = uncompressor.uncompress(compressed, 0, restored, 0, uncompressedLength);
+    int compressedLength2 = uncompressor.decompress(compressed, 0, restored, 0, uncompressedLength);
     // compressedLength == compressedLength2
 
     // - method 2: when the compressed length is known (a little slower)
     // the destination buffer needs to be over-sized
-    LZ4UnknownSizeUncompressor uncompressor2 = factory.unknwonSizeUncompressor();
-    int uncompressedLength2 = uncompressor2.uncompressUnknownSize(compressed, 0, compressedLength, restored, 0);
+    LZ4UnknownSizeDecompressor uncompressor2 = factory.unknwonSizeDecompressor();
+    int uncompressedLength2 = uncompressor2.decompressUnknownSize(compressed, 0, compressedLength, restored, 0);
     // uncompressedLength == uncompressedLength2
   }
 
