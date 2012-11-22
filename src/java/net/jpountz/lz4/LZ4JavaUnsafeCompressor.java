@@ -86,9 +86,10 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
 
           int ref;
           int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
+          int step;
           while (true) {
             sOff = forwardOff;
-            final int step = findMatchAttempts++ >> SKIP_STRENGTH;
+            step = findMatchAttempts++ >> SKIP_STRENGTH;
             forwardOff += step;
 
             if (forwardOff > mflimit) {
@@ -105,9 +106,10 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
           }
 
           // catch up
-          while (sOff > anchor && ref > srcOff && readByte(src, sOff - 1) == readByte(src, ref - 1)) {
-            --sOff;
-            --ref;
+          if (step != 1) {
+            final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
+            sOff -= excess;
+            ref -= excess;
           }
 
           // sequence == refsequence
@@ -200,7 +202,7 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
 
       int sOff = srcOff, dOff = destOff;
       int anchor = sOff++;
-      
+
       if (srcLen > MIN_LENGTH) {
         final int[] hashTable = new int[HASH_TABLE_SIZE];
         Arrays.fill(hashTable, anchor);
@@ -214,9 +216,10 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
           int ref;
           int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
           int back;
+          int step;
           while (true) {
             sOff = forwardOff;
-            final int step = findMatchAttempts++ >> SKIP_STRENGTH;
+            step = findMatchAttempts++ >> SKIP_STRENGTH;
             forwardOff += step;
 
             if (forwardOff > mflimit) {
@@ -237,9 +240,10 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
           }
 
           // catch up
-          while (sOff > anchor && ref > srcOff && readByte(src, sOff - 1) == readByte(src, ref - 1)) {
-            --sOff;
-            --ref;
+          if (step != 1) {
+            final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
+            sOff -= excess;
+            ref -= excess;
           }
 
           // sequence == refsequence

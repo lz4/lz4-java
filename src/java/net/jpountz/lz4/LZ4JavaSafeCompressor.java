@@ -80,9 +80,10 @@ enum LZ4JavaSafeCompressor implements LZ4Compressor {
 
           int ref;
           int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
+          int step;
           while (true) {
             sOff = forwardOff;
-            final int step = findMatchAttempts++ >> SKIP_STRENGTH;
+            step = findMatchAttempts++ >> SKIP_STRENGTH;
             forwardOff += step;
 
             if (forwardOff > mflimit) {
@@ -99,9 +100,11 @@ enum LZ4JavaSafeCompressor implements LZ4Compressor {
           }
 
           // catch up
-          final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
-          sOff -= excess;
-          ref -= excess;
+          if (step != 1) {
+            final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
+            sOff -= excess;
+            ref -= excess;
+          }
 
           // sequence == refsequence
           final int runLen = sOff - anchor;
@@ -210,9 +213,10 @@ enum LZ4JavaSafeCompressor implements LZ4Compressor {
           int ref;
           int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
           int back;
+          int step;
           while (true) {
             sOff = forwardOff;
-            final int step = findMatchAttempts++ >> SKIP_STRENGTH;
+            step = findMatchAttempts++ >> SKIP_STRENGTH;
             forwardOff += step;
 
             if (forwardOff > mflimit) {
@@ -233,9 +237,11 @@ enum LZ4JavaSafeCompressor implements LZ4Compressor {
           }
 
           // catch up
-          final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
-          sOff -= excess;
-          ref -= excess;
+          if (step != 1) {
+            final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
+            sOff -= excess;
+            ref -= excess;
+          }
 
           // sequence == refsequence
           final int runLen = sOff - anchor;

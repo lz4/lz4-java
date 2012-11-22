@@ -19,7 +19,6 @@ package net.jpountz.lz4;
 
 import static net.jpountz.lz4.LZ4UnsafeUtils.readShortLittleEndian;
 import static net.jpountz.lz4.LZ4UnsafeUtils.safeArraycopy;
-import static net.jpountz.lz4.LZ4UnsafeUtils.safeIncrementalCopy;
 import static net.jpountz.lz4.LZ4UnsafeUtils.wildArraycopy;
 import static net.jpountz.lz4.LZ4UnsafeUtils.wildIncrementalCopy;
 import static net.jpountz.lz4.LZ4Utils.COPY_LENGTH;
@@ -27,6 +26,7 @@ import static net.jpountz.lz4.LZ4Utils.MIN_MATCH;
 import static net.jpountz.lz4.LZ4Utils.ML_BITS;
 import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
+import static net.jpountz.lz4.LZ4Utils.naiveIncrementalCopy;
 import static net.jpountz.util.UnsafeUtils.readByte;
 import static net.jpountz.util.Utils.checkRange;
 
@@ -43,55 +43,64 @@ enum LZ4JavaUnsafeDecompressor implements LZ4Decompressor {
       checkRange(src, srcOff);
       checkRange(dest, destOff, destLen);
 
+      if (destLen == 0) {
+        if (src[srcOff] != 0) {
+          throw new LZ4Exception("Malformed input at " + srcOff);
+        }
+        return 1;
+      }
+
       final int destEnd = destOff + destLen;
 
       int sOff = srcOff;
       int dOff = destOff;
 
       while (true) {
-        final int token = readByte(src, sOff++);
+        final int token = readByte(src, sOff++) & 0xFF;
 
         // literals
         int literalLen = token >>> ML_BITS;
-        if (literalLen == RUN_MASK) {
-            int len;
-            while ((len = readByte(src, sOff++)) == 255) {
-              literalLen += 255;
-            }
-            literalLen += len;
-        }
-
-        final int literalCopyEnd = dOff + literalLen;
-        if (literalCopyEnd > destEnd - COPY_LENGTH) {
-          if (literalCopyEnd != destEnd) {
-            throw new LZ4Exception("Malformed input at " + sOff);
-          } else {
-            safeArraycopy(src, sOff, dest, dOff, literalLen);
-            sOff += literalLen;
-            break; // EOF
+        if (literalLen != 0) {
+          if (literalLen == RUN_MASK) {
+              byte len;
+              while ((len = readByte(src, sOff++)) == (byte) 0xFF) {
+                literalLen += 0xFF;
+              }
+              literalLen += len & 0xFF;
           }
-        }
 
-        wildArraycopy(src, sOff, dest, dOff, literalLen);
-        sOff += literalLen;
-        dOff = literalCopyEnd;
+          final int literalCopyEnd = dOff + literalLen;
+          if (literalCopyEnd > destEnd - COPY_LENGTH) {
+            if (literalCopyEnd != destEnd) {
+              throw new LZ4Exception("Malformed input at " + sOff);
+            } else {
+              safeArraycopy(src, sOff, dest, dOff, literalLen);
+              sOff += literalLen;
+              break; // EOF
+            }
+          }
+
+          wildArraycopy(src, sOff, dest, dOff, literalLen);
+          sOff += literalLen;
+          dOff = literalCopyEnd;
+        }
 
         // matchs
         final int matchDec = readShortLittleEndian(src, sOff);
         sOff += 2;
         int matchOff = dOff - matchDec;
 
-        if (matchDec == 0 || matchOff < destOff) {
+        if (matchOff < destOff) {
           throw new LZ4Exception("Malformed input at " + sOff);
         }
 
         int matchLen = token & ML_MASK;
         if (matchLen == ML_MASK) {
-          int len;
-          while ((len = readByte(src, sOff++)) == 255) {
-            matchLen += 255;
+          byte len;
+          while ((len = readByte(src, sOff++)) == (byte) 0xFF) {
+            matchLen += 0xFF;
           }
-          matchLen += len;
+          matchLen += len & 0xFF;
         }
         matchLen += MIN_MATCH;
 
@@ -101,7 +110,7 @@ enum LZ4JavaUnsafeDecompressor implements LZ4Decompressor {
           if (matchCopyEnd > destEnd) {
             throw new LZ4Exception("Malformed input at " + sOff);
           }
-          safeIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
+          naiveIncrementalCopy(dest, matchOff, dOff, matchLen);
         } else {
           wildIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
         }

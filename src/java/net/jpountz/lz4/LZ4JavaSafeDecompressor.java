@@ -40,6 +40,13 @@ enum LZ4JavaSafeDecompressor implements LZ4Decompressor {
       checkRange(src, srcOff);
       checkRange(dest, destOff, destLen);
 
+      if (destLen == 0) {
+        if (src[srcOff] != 0) {
+          throw new LZ4Exception("Malformed input at " + srcOff);
+        }
+        return 1;
+      }
+
       final int destEnd = destOff + destLen;
 
       int sOff = srcOff;
@@ -50,26 +57,26 @@ enum LZ4JavaSafeDecompressor implements LZ4Decompressor {
 
         // literals
         int literalLen = token >>> ML_BITS;
-        if (literalLen == RUN_MASK) {
-          int len;
-          while ((len = src[sOff++] & 0xFF) == 255) {
-            literalLen += 255;
-          }
-          literalLen += len;
-        }
-
-        final int literalCopyEnd = dOff + literalLen;
-        if (literalCopyEnd > destEnd - COPY_LENGTH) {
-          if (literalCopyEnd != destEnd) {
-            throw new LZ4Exception("Malformed input at " + sOff);
-          } else {
-            safeArraycopy(src, sOff, dest, dOff, literalLen);
-            sOff += literalLen;
-            break; // EOF
-          }
-        }
-
         if (literalLen != 0) {
+          if (literalLen == RUN_MASK) {
+            byte len;
+            while ((len = src[sOff++]) == (byte) 0xFF) {
+              literalLen += 0xFF;
+            }
+            literalLen += len & 0xFF;
+          }
+
+          final int literalCopyEnd = dOff + literalLen;
+          if (literalCopyEnd > destEnd - COPY_LENGTH) {
+            if (literalCopyEnd != destEnd) {
+              throw new LZ4Exception("Malformed input at " + sOff);
+            } else {
+              safeArraycopy(src, sOff, dest, dOff, literalLen);
+              sOff += literalLen;
+              break; // EOF
+            }
+          }
+
           wildArraycopy(src, sOff, dest, dOff, literalLen);
           sOff += literalLen;
           dOff = literalCopyEnd;
@@ -85,11 +92,11 @@ enum LZ4JavaSafeDecompressor implements LZ4Decompressor {
 
         int matchLen = token & ML_MASK;
         if (matchLen == ML_MASK) {
-          int len;
-          while ((len = src[sOff++] & 0xFF) == 255) {
-            matchLen += 255;
+          byte len;
+          while ((len = src[sOff++]) == (byte) 0xFF) {
+            matchLen += 0xFF;
           }
-          matchLen += len;
+          matchLen += len & 0xFF;
         }
         matchLen += MIN_MATCH;
 

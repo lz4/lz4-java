@@ -54,12 +54,16 @@ public enum UnsafeUtils {
     }
   }
 
-  public static int readByte(byte[] src, int srcOff) {
-    return UNSAFE.getByte(src, BYTE_ARRAY_OFFSET + BYTE_ARRAY_SCALE * srcOff) & 0xFF;
+  public static byte readByte(byte[] src, int srcOff) {
+    return UNSAFE.getByte(src, BYTE_ARRAY_OFFSET + BYTE_ARRAY_SCALE * srcOff);
+  }
+
+  public static void writeByte(byte[] src, int srcOff, byte value) {
+    UNSAFE.putByte(src, BYTE_ARRAY_OFFSET + BYTE_ARRAY_SCALE * srcOff, (byte) value);
   }
 
   public static void writeByte(byte[] src, int srcOff, int value) {
-    UNSAFE.putByte(src, BYTE_ARRAY_OFFSET + BYTE_ARRAY_SCALE * srcOff, (byte) value);
+    writeByte(src, srcOff, (byte) value);
   }
 
   public static long readLong(byte[] src, int srcOff) {

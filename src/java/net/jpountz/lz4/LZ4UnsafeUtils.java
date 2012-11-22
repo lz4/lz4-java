@@ -50,10 +50,6 @@ enum LZ4UnsafeUtils {
     }
   }
 
-  static void safeIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
-    LZ4Utils.naiveIncrementalCopy(dest, matchOff, dOff, matchCopyEnd - dOff);
-  }
-
   static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
     while (dOff - matchOff < COPY_LENGTH) {
       writeLong(dest, dOff, readLong(dest, matchOff));
@@ -98,21 +94,18 @@ enum LZ4UnsafeUtils {
     int matchLen = 0;
     while (sOff < srcLimit - 8) {
       final long diff = readLong(src, sOff) - readLong(src, ref);
-      final int zeroBits;
-      if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
-        zeroBits = Long.numberOfLeadingZeros(diff);
-      } else {
-        zeroBits = Long.numberOfTrailingZeros(diff);
-      }
-      if (zeroBits == 64) {
+      if (diff == 0) {
         matchLen += 8;
         sOff += 8;
         ref += 8;
       } else {
-        final int inc = zeroBits >>> 3;
-        matchLen += inc;
-        sOff += inc;
-        break;
+        final int zeroBits;
+        if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
+          zeroBits = Long.numberOfLeadingZeros(diff);
+        } else {
+          zeroBits = Long.numberOfTrailingZeros(diff);
+        }
+        return matchLen + (zeroBits >>> 3);
       }
     }
     return matchLen;
