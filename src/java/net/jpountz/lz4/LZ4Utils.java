@@ -17,6 +17,7 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import static net.jpountz.lz4.LZ4Utils.LAST_LITERALS;
 import static net.jpountz.util.Utils.checkRange;
 
 enum LZ4Utils {
@@ -145,8 +146,12 @@ enum LZ4Utils {
   static int encodeSequence(byte[] src, int anchor, int matchOff, int matchRef, int matchLen, byte[] dest, int dOff, int destEnd) {
     final int runLen = matchOff - anchor;
     final int tokenOff = dOff++;
-    int token;
 
+    if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) > destEnd) {
+      throw new LZ4Exception("maxDestLen is too small");
+    }
+
+    int token;
     if (runLen >= RUN_MASK) {
       token = (byte) (RUN_MASK << ML_BITS);
       dOff = writeLen(runLen - RUN_MASK, dest, dOff);
