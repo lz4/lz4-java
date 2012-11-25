@@ -73,7 +73,7 @@ enum LZ4JavaSafeCompressor implements LZ4Compressor {
         ++sOff;
 
         main:
-        while (sOff < srcLimit) {
+        while (true) {
 
           // find a match
           int forwardOff = sOff;
@@ -205,7 +205,7 @@ enum LZ4JavaSafeCompressor implements LZ4Compressor {
         Arrays.fill(hashTable, anchor);
 
         main:
-        while (sOff < srcLimit) {
+        while (true) {
 
           // find a match
           int forwardOff = sOff;
