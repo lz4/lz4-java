@@ -165,7 +165,7 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
             writeShort(hashTable, hash64k(src, sOff - 2), sOff - 2 - srcOff);
 
             // test next position
-            final int h = hash(src, sOff);
+            final int h = hash64k(src, sOff);
             ref = srcOff + readShort(hashTable, h);
             writeShort(hashTable, h, sOff - srcOff);
 

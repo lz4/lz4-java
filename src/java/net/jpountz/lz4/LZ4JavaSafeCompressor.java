@@ -158,7 +158,7 @@ enum LZ4JavaSafeCompressor implements LZ4Compressor {
             }
 
             // fill table
-            hashTable[hash(src, sOff - 2)] = (short) (sOff - 2 - srcOff);
+            hashTable[hash64k(src, sOff - 2)] = (short) (sOff - 2 - srcOff);
 
             // test next position
             final int h = hash64k(src, sOff);
