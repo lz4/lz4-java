@@ -86,11 +86,9 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
 
           int ref;
           int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
-          int step;
-          while (true) {
+          do {
             sOff = forwardOff;
-            step = findMatchAttempts++ >> SKIP_STRENGTH;
-            forwardOff += step;
+            forwardOff += findMatchAttempts++ >>> SKIP_STRENGTH;
 
             if (forwardOff > mflimit) {
               break main;
@@ -99,18 +97,12 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
             final int h = hash64k(src, sOff);
             ref = srcOff + readShort(hashTable, h);
             writeShort(hashTable, h, sOff - srcOff);
-
-            if (readIntEquals(src, ref, sOff)) {
-              break;
-            }
-          }
+          } while (!readIntEquals(src, ref, sOff));
 
           // catch up
-          if (step != 1) {
-            final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
-            sOff -= excess;
-            ref -= excess;
-          }
+          final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
+          sOff -= excess;
+          ref -= excess;
 
           // sequence == refsequence
           final int runLen = sOff - anchor;
@@ -216,11 +208,9 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
           int ref;
           int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
           int back;
-          int step;
-          while (true) {
+          do {
             sOff = forwardOff;
-            step = findMatchAttempts++ >> SKIP_STRENGTH;
-            forwardOff += step;
+            forwardOff += findMatchAttempts++ >>> SKIP_STRENGTH;
 
             if (forwardOff > mflimit) {
               break main;
@@ -229,22 +219,13 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
             final int h = hash(src, sOff);
             ref = readInt(hashTable, h);
             back = sOff - ref;
-            if (back >= MAX_DISTANCE) {
-              continue;
-            }
             writeInt(hashTable, h, sOff);
+          } while (back >= MAX_DISTANCE || !readIntEquals(src, ref, sOff));
 
-            if (readIntEquals(src, ref, sOff)) {
-              break;
-            }
-          }
 
-          // catch up
-          if (step != 1) {
-            final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
-            sOff -= excess;
-            ref -= excess;
-          }
+          final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
+          sOff -= excess;
+          ref -= excess;
 
           // sequence == refsequence
           final int runLen = sOff - anchor;
