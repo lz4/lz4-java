@@ -4,11 +4,38 @@ LZ4 Java
 LZ4 compression for Java, based on Yann Collet's work available at
 http://code.google.com/p/lz4/.
 
-This repository contains three LZ4 compressor/uncompressor implementations:
- - a JNI binding,
- - a pure Java implementation,
- - a Java implementation that uses sun.misc.Unsafe to speedup
-   compression/uncompression.
+This library provides access to two compression methods that both generate a
+valid LZ4 stream:
+ - fast scan (LZ4):
+   - low memory footprint (~ 16 KB),
+   - very fast (fast scan with skipping heuristics in case the input looks
+     incompressible),
+   - reasonable compression ratio (depending on the redundancy of the input).
+ - high compression (LZ4 HC):
+   - medium memory footprint (~ 256 KB),
+   - rather slow (~ 10 times slower than LZ4),
+   - good compression ratio (depending on the size and the redundancy of the
+     input).
+
+The streams produced by those 2 compression algorithms use the same compression
+format, are very fast to decompress and can be decompressed by the same
+decompressor instance.
+
+For LZ4 compressors, LZ4 HC compressors and decompressors, 3 implementations are
+available:
+ - JNI bindings to the original C implementation by Yann Collet,
+ - a pure Java port of the compression and decompression algorithms,
+ - a Java port that uses the sun.misc.Unsafe API in order to achieve compression
+   and decompression speeds similar to the C implementation.
+
+Please have a look at LZ4Factory for more information.
+
+All compressor instances generate valid LZ4 streams and all decompressor
+instances can decompress any valid LZ4 stream. This means that you can use the
+Java decompressor implementation to decompress a stream generated with the JNI
+bindings or vice-versa. However there is now warranty that two different
+compressor implementations will generate exactly the same stream given the same
+input.
 
 Build
 -----
@@ -16,6 +43,7 @@ Build
 Requirements
  - JDK version 6 or newer,
  - ant,
+ - ivy,
  - ant-cpp-tasks.
 
 Then run `ant`. It will compile LZ4, LZ4 JNI bindings and LZ4 Java

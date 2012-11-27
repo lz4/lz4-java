@@ -34,6 +34,9 @@ public interface LZ4Compressor {
    * to compress the input into less than <code>maxDestLen</code> bytes. To
    * prevent this exception to be thrown, you should make sure that
    * <code>maxDestLen >= maxCompressedLength(srcLen)</code>.
+   *
+   * @throws LZ4Exception if maxDestLen is too small
+   * @return the compressed size
    */
   int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
 

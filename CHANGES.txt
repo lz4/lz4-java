@@ -1,0 +1,8 @@
+Change log.
+
+Version 1.0
+===========
+
+  First release.
+
+  Java ports and bindings of LZ4 and xxHash.

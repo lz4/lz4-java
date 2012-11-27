@@ -17,7 +17,6 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.lz4.LZ4Utils.LAST_LITERALS;
 import static net.jpountz.util.Utils.checkRange;
 
 enum LZ4Utils {

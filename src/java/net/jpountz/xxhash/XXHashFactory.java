@@ -1,5 +1,6 @@
 package net.jpountz.xxhash;
 
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -46,6 +47,26 @@ public final class XXHashFactory {
    *  may use {@link sun.misc.Unsafe} to speed up hashing. */
   public static XXHashFactory unsafeInstance() {
     return instance("JavaUnsafe");
+  }
+
+  /** Return a default {@link XXHashFactory} instance. This method tries to return
+   * the {@link #unsafeInstance()} and falls back on the {@link #safeInstance()}
+   * in case an error occurred while loading the {@link #unsafeInstance() unsafe}
+   * instance.
+   * <pre>
+   * try {
+   *   return unsafeInstance();
+   * } catch (Throwable t) {
+   *   return safeInstance();
+   * }
+   * </pre>
+   */
+  public static XXHashFactory defaultInstance() {
+    try {
+      return unsafeInstance();
+    } catch (Throwable t) {
+      return safeInstance();
+    }
   }
 
   private final XXHash fastHash;

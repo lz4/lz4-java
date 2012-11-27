@@ -19,12 +19,18 @@ package net.jpountz.lz4;
 
 /**
  * LZ4 decompressor that requires the size of the original input to be known.
+ * Use {@link LZ4UnknownSizeDecompressor} if you only know the size of the
+ * compressed stream.
  */
 public interface LZ4Decompressor {
 
-  /** Uncompress <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>.
-   * <code>destLen</code> must be exactly the size of the decompressed data. Return the
-   * number of bytes decompressed from <code>src</code>. */
+  /** Uncompress <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>
+   * and return the number of bytes read from <code>src</code>.
+   * <code>destLen</code> must be exactly the size of the decompressed data.
+   *
+   * @param destLen the exact size of the original input
+   * @return the number of bytes read to restore the original input
+   */
   int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
 
 }

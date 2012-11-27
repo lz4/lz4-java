@@ -19,6 +19,15 @@ package net.jpountz.lz4;
 
 /**
  * Entry point for the LZ4 API.
+ * <p>
+ * This class has 3 instances<ul>
+ * <li>a {@link #nativeInstance() native} instance which is a JNI binding to
+ * the original LZ4 implementation.</li>
+ * <li>a {@link #safeInstance() safe Java} instance which is a pure Java port
+ * of the original C library,</li>
+ * <li>an {@link #unsafeInstance() unsafe Java} instance which is a Java port
+ * using the unofficial {@link sun.misc.Unsafe} API.</li>
+ * </ul>
  */
 public final class LZ4Factory {
 
@@ -31,7 +40,10 @@ public final class LZ4Factory {
   }
 
   /** Return a {@link LZ4Factory} instance that returns compressors and
-   *  decompressors that are native bindings to the original C API. */
+   *  decompressors that are native bindings to the original C API.<p>
+   *  Although this instance is likely to be slightly faster on large inputs,
+   *  beware that the JNI overhead might make it much slower than its
+   *  Java counterparts on small inputs. */
   public static LZ4Factory nativeInstance() {
     return instance("JNI");
   }
@@ -47,6 +59,26 @@ public final class LZ4Factory {
    *  and decompression. */
   public static LZ4Factory unsafeInstance() {
     return instance("JavaUnsafe");
+  }
+
+  /** Return a default {@link LZ4Factory} instance. This method tries to return
+   * the {@link #unsafeInstance()} and falls back on the {@link #safeInstance()}
+   * in case an error occurred while loading the {@link #unsafeInstance() unsafe}
+   * instance.
+   * <pre>
+   * try {
+   *   return unsafeInstance();
+   * } catch (Throwable t) {
+   *   return safeInstance();
+   * }
+   * </pre>
+   */
+  public static LZ4Factory defaultInstance() {
+    try {
+      return unsafeInstance();
+    } catch (Throwable t) {
+      return safeInstance();
+    }
   }
 
   private final LZ4Compressor fastCompressor;

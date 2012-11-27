@@ -19,16 +19,19 @@ package net.jpountz.lz4;
 
 /**
  * LZ4 decompressor that requires the size of the compressed data to be known.
- *
- * Implementations of this class are usually slower than those of
- * {@link LZ4Decompressor} but do not require to know the size of the
- * decompressed data.
+ * <p>
+ * Implementations of this class are usually a little slower than those of
+ * {@link LZ4Decompressor} but do not require the size of the original data to
+ * be known.
  */
 public interface LZ4UnknownSizeDecompressor {
 
   /**
-   * Uncompress <code>src[srcOff:srcLen]</code> into <code>dest[destOff:]</code>.
-   * Returns the number of decompressed bytes written into <code>dest</code>.
+   * Uncompress <code>src[srcOff:srcLen]</code> into <code>dest[destOff:]</code>
+   * and returns the number of decompressed bytes written into <code>dest</code>.
+   *
+   * @param srcLen the exact size of the compressed stream
+   * @return the original input size
    */
   int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff);
 

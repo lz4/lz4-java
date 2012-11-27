@@ -24,37 +24,13 @@
 
 <p>The entry point of the API is the {@link net.jpountz.lz4.LZ4Factory} class,
 which gives access to {@link net.jpountz.lz4.LZ4Compressor compressors} and
-{@link net.jpountz.lz4.LZ4Decompressor decompressors}. This class has 3
-instances:</p>
-<ul>
-<li>a {@link net.jpountz.lz4.LZ4Factory#nativeInstance() native} instance, which
-is a JNI binding to the C implementation of LZ4. This LZ4Factory instance is
-expected to provide the fastests compressors and decompressors but the JNI
-overhead might make it slower than the Java instances for short sequences.</li>
-<li>a {@link net.jpountz.lz4.LZ4Factory#safeInstance() safe} instance, which is
-guaranteed to never segfault and throws exceptions instead.</li>
-<li>an {@link net.jpountz.lz4.LZ4Factory#unsafeInstance() unsafe} instance,
-which leverages {@link sun.misc.Unsafe} to speed up compression and
-decompression.</li>
-</ul>
+{@link net.jpountz.lz4.LZ4Decompressor decompressors}.</p>
 
-<p>Under doubt, you should use the safe instance, which is the only one that is
-guaranteed to work with all JVMs and on all platforms. If interested in using
-another instance, you should still use the safe instance as a fallback:</p>
-
-<pre class="prettyprint">
-    LZ4Factory lz4Factory;
-    try {
-      lz4Factory = LZ4Factory.nativeInstance();
-    } catch (Throwable t) {
-      lz4Factory = LZ4Factory.safeInstance();
-    }
-</pre>
 
 <p>Sample usage:</p>
 
 <pre class="prettyprint">
-    LZ4Factory factory = LZ4Factory.safeInstance();
+    LZ4Factory factory = LZ4Factory.defaultInstance();
 
     byte[] data = "12345345234572".getBytes("UTF-8");
     final int decompressedLength = data.length;
@@ -75,7 +51,7 @@ another instance, you should still use the safe instance as a fallback:</p>
     // - method 2: when the compressed length is known (a little slower)
     // the destination buffer needs to be over-sized
     LZ4UnknownSizeDecompressor decompressor2 = factory.unknwonSizeDecompressor();
-    int decompressedLength2 = decompressor2.decompressUnknownSize(compressed, 0, compressedLength, restored, 0);
+    int decompressedLength2 = decompressor2.decompress(compressed, 0, compressedLength, restored, 0);
     // decompressedLength == decompressedLength2
 </pre>
 

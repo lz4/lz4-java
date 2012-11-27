@@ -13,21 +13,11 @@ public class LZ4Example {
     example();
   }
 
-  private static LZ4Factory factoryInstance() {
-    LZ4Factory lz4Factory;
-    try {
-      lz4Factory = LZ4Factory.nativeInstance();
-    } catch (Throwable t) {
-      lz4Factory = LZ4Factory.safeInstance();
-    }
-    return lz4Factory;
-  }
-
   private static void example() throws UnsupportedEncodingException {
-    LZ4Factory factory = LZ4Factory.safeInstance();
+    LZ4Factory factory = LZ4Factory.defaultInstance();
 
     byte[] data = "12345345234572".getBytes("UTF-8");
-    final int uncompressedLength = data.length;
+    final int decompressedLength = data.length;
 
     // compress data
     LZ4Compressor compressor = factory.fastCompressor();
@@ -35,18 +25,18 @@ public class LZ4Example {
     byte[] compressed = new byte[maxCompressedLength];
     int compressedLength = compressor.compress(data, 0, data.length, compressed, 0, maxCompressedLength);
 
-    // uncompress data
-    // - method 1: when the uncompressed length is known
-    LZ4Decompressor uncompressor = factory.decompressor();
-    byte[] restored = new byte[uncompressedLength];
-    int compressedLength2 = uncompressor.decompress(compressed, 0, restored, 0, uncompressedLength);
+    // decompress data
+    // - method 1: when the decompressed length is known
+    LZ4Decompressor decompressor = factory.decompressor();
+    byte[] restored = new byte[decompressedLength];
+    int compressedLength2 = decompressor.decompress(compressed, 0, restored, 0, decompressedLength);
     // compressedLength == compressedLength2
 
     // - method 2: when the compressed length is known (a little slower)
     // the destination buffer needs to be over-sized
-    LZ4UnknownSizeDecompressor uncompressor2 = factory.unknwonSizeDecompressor();
-    int uncompressedLength2 = uncompressor2.decompress(compressed, 0, compressedLength, restored, 0);
-    // uncompressedLength == uncompressedLength2
+    LZ4UnknownSizeDecompressor decompressor2 = factory.unknwonSizeDecompressor();
+    int decompressedLength2 = decompressor2.decompress(compressed, 0, compressedLength, restored, 0);
+    // decompressedLength == decompressedLength2
   }
 
 }
