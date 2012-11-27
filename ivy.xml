@@ -18,9 +18,14 @@
 -->
 
 <ivy-module version="2.0">
-  <info organisation="net.jpountz.lz4" module="lz4"/>
+  <info organisation="net.jpountz.lz4" module="lz4" revision="1.0-SNAPSHOT" />
+
+  <configurations defaultconfmapping="default->default">
+    <conf name="default" />
+    <conf name="test" extends="default" />
+  </configurations>
 
   <dependencies>
-    <dependency org="com.carrotsearch.randomizedtesting" name="junit4-ant" rev="1.6.0" transitive="true" conf="default->*,!sources,!javadoc" />
+    <dependency org="com.carrotsearch.randomizedtesting" name="junit4-ant" rev="1.6.0" transitive="true" conf="test->*,!sources,!javadoc" />
   </dependencies>
 </ivy-module>
