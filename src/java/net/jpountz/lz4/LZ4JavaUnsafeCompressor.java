@@ -134,7 +134,7 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
             sOff += MIN_MATCH;
             ref += MIN_MATCH;
             final int matchLen = commonBytes(src, ref, sOff, srcLimit);
-            if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) >= destEnd) {
+            if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) > destEnd) {
               throw new LZ4Exception("maxDestLen is too small");
             }
             sOff += matchLen;
@@ -256,7 +256,7 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
             // count nb matches
             sOff += MIN_MATCH;
             final int matchLen = commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
-            if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) >= destEnd) {
+            if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) > destEnd) {
               throw new LZ4Exception("maxDestLen is too small");
             }
             sOff += matchLen;

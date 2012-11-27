@@ -169,7 +169,7 @@ enum LZ4Utils {
 
     // encode match len
     matchLen -= 4;
-    if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) >= destEnd) {
+    if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) > destEnd) {
       throw new LZ4Exception("maxDestLen is too small");
     }
     if (matchLen >= ML_MASK) {
