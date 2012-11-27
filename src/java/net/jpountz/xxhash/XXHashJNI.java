@@ -51,4 +51,9 @@ enum XXHashJNI implements XXHash {
   private static native int XXH_fast32(byte[] input, int offset, int len, int seed);
   private static native int XXH_strong32(byte[] input, int offset, int len, int seed);
 
+  @Override
+  public String toString() {
+    return getDeclaringClass().getSimpleName() + "-" + super.toString();
+  }
+
 }

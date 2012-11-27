@@ -18,6 +18,7 @@ package net.jpountz.xxhash;
  */
 
 import static java.lang.Integer.rotateLeft;
+import static net.jpountz.util.UnsafeUtils.readByte;
 import static net.jpountz.util.UnsafeUtils.readInt;
 import static net.jpountz.util.Utils.checkRange;
 import static net.jpountz.xxhash.XXHashUtils.PRIME1;
@@ -56,83 +57,7 @@ enum XXHashJavaUnsafe implements XXHash {
         o += 4;
         v3 = rotateLeft(v3, 17) + readInt(buf, o);
         o += 4;
-        v4 += rotateLeft(v4, 19) + readInt(buf, o);
-        o += 4;
-      }
-
-      o = end - 16;
-
-      v1 += rotateLeft(v1, 17);
-      v2 += rotateLeft(v2, 19);
-      v3 += rotateLeft(v3, 13);
-      v4 += rotateLeft(v4, 11);
-
-      v1 *= PRIME1;
-      v2 *= PRIME1;
-      v3 *= PRIME1;
-      v4 *= PRIME1;
-
-      v1 = rotateLeft(v1, 13) + readInt(buf, o);
-      o += 4;
-      v2 = rotateLeft(v2, 11) + readInt(buf, o);
-      o += 4;
-      v3 = rotateLeft(v3, 17) + readInt(buf, o);
-      o += 4;
-      v4 += rotateLeft(v4, 19) + readInt(buf, o);
-
-      v1 *= PRIME2;
-      v2 *= PRIME2;
-      v3 *= PRIME2;
-      v4 *= PRIME2;
-
-      v1 += rotateLeft(v1, 11);
-      v2 += rotateLeft(v2, 17);
-      v3 += rotateLeft(v3, 19);
-      v4 += rotateLeft(v4, 13);
-
-      v1 *= PRIME3;
-      v2 *= PRIME3;
-      v3 *= PRIME3;
-      v4 *= PRIME3;
-
-      int crc = v1 + rotateLeft(v2, 3) + rotateLeft(v3, 6) + rotateLeft(v4, 9);
-      crc ^= crc >> 11;
-      crc += (PRIME4 + len) * PRIME1;
-      crc ^= crc >> 15;
-      crc *= PRIME2;
-      crc ^= crc >> 13;
-
-      return crc;
-    }
-
-  },
-
-  STRONG {
-
-    @Override
-    public int hash(byte[] buf, int off, int len, int seed) {
-      checkRange(buf, off, len);
-      if (len < 16) {
-        return smallHash(buf, off, len, seed);
-      }
-
-      final int end = off + len;
-      final int limit = end - 16;
-
-      int v1 = seed + PRIME1;
-      int v2 = v1 * PRIME2 + len;
-      int v3 = v2 * PRIME3;
-      int v4 = v3 * PRIME4;
-
-      int o = off;
-      while (o < limit) {
-        v1 = rotateLeft(v1, 13) + readInt(buf, o);
-        o += 4;
-        v2 = rotateLeft(v2, 11) + readInt(buf, o);
-        o += 4;
-        v3 = rotateLeft(v3, 17) + readInt(buf, o);
-        o += 4;
-        v4 += rotateLeft(v4, 19) + readInt(buf, o);
+        v4 = rotateLeft(v4, 19) + readInt(buf, o);
         o += 4;
       }
 
@@ -172,11 +97,95 @@ enum XXHashJavaUnsafe implements XXHash {
       v4 *= PRIME3;
 
       int crc = v1 + rotateLeft(v2, 3) + rotateLeft(v3, 6) + rotateLeft(v4, 9);
-      crc ^= crc >> 11;
+      crc ^= crc >>> 11;
       crc += (PRIME4 + len) * PRIME1;
-      crc ^= crc >> 15;
+      crc ^= crc >>> 15;
       crc *= PRIME2;
-      crc ^= crc >> 13;
+      crc ^= crc >>> 13;
+
+      return crc;
+    }
+
+  },
+
+  STRONG {
+
+    @Override
+    public int hash(byte[] buf, int off, int len, int seed) {
+      checkRange(buf, off, len);
+      if (len < 16) {
+        return smallHash(buf, off, len, seed);
+      }
+
+      final int end = off + len;
+      final int limit = end - 16;
+
+      int v1 = seed + PRIME1;
+      int v2 = v1 * PRIME2 + len;
+      int v3 = v2 * PRIME3;
+      int v4 = v3 * PRIME4;
+
+      int o = off;
+      while (o < limit) {
+        v1 += rotateLeft(v1, 13);
+        v1 *= PRIME1;
+        v1 += readInt(buf, o);
+        o += 4;
+        v2 += rotateLeft(v2, 11);
+        v2 *= PRIME1;
+        v2 += readInt(buf, o);
+        o += 4;
+        v3 += rotateLeft(v3, 17);
+        v3 *= PRIME1;
+        v3 += readInt(buf, o);
+        o += 4;
+        v4 += rotateLeft(v4, 19);
+        v4 *= PRIME1;
+        v4 += readInt(buf, o);
+        o += 4;
+      }
+
+      o = end - 16;
+
+      v1 += rotateLeft(v1, 17);
+      v2 += rotateLeft(v2, 19);
+      v3 += rotateLeft(v3, 13);
+      v4 += rotateLeft(v4, 11);
+
+      v1 *= PRIME1;
+      v2 *= PRIME1;
+      v3 *= PRIME1;
+      v4 *= PRIME1;
+
+      v1 += readInt(buf, o);
+      o += 4;
+      v2 += readInt(buf, o);
+      o += 4;
+      v3 += readInt(buf, o);
+      o += 4;
+      v4 += readInt(buf, o);
+
+      v1 *= PRIME2;
+      v2 *= PRIME2;
+      v3 *= PRIME2;
+      v4 *= PRIME2;
+
+      v1 += rotateLeft(v1, 11);
+      v2 += rotateLeft(v2, 17);
+      v3 += rotateLeft(v3, 19);
+      v4 += rotateLeft(v4, 13);
+
+      v1 *= PRIME3;
+      v2 *= PRIME3;
+      v3 *= PRIME3;
+      v4 *= PRIME3;
+
+      int crc = v1 + rotateLeft(v2, 3) + rotateLeft(v3, 6) + rotateLeft(v4, 9);
+      crc ^= crc >>> 11;
+      crc += (PRIME4 + len) * PRIME1;
+      crc ^= crc >>> 15;
+      crc *= PRIME2;
+      crc ^= crc >>> 13;
 
       return crc;
     }
@@ -197,7 +206,7 @@ enum XXHashJavaUnsafe implements XXHash {
       o += 4;
     }
     while (o < end) {
-      crc += buf[o] + idx++;
+      crc += (readByte(buf, o) & 0xFF) + idx++;
       crc *= PRIME1;
       ++o;
     }
@@ -210,6 +219,11 @@ enum XXHashJavaUnsafe implements XXHash {
     crc ^= crc >>> 16;
 
     return crc;
+  }
+
+  @Override
+  public String toString() {
+    return getDeclaringClass().getSimpleName() + "-" + super.toString();
   }
 
 }

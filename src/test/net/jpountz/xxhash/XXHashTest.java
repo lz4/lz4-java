@@ -1,5 +1,7 @@
 package net.jpountz.xxhash;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -11,12 +13,12 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
 public class XXHashTest extends RandomizedTest {
 
   private static XXHash[] INSTANCES = new XXHash[] {
-    XXHashJNI.FAST,
-    XXHashJNI.STRONG,
-    XXHashJavaUnsafe.FAST,
-    XXHashJavaUnsafe.STRONG,
-    XXHashJavaSafe.FAST,
-    XXHashJavaUnsafe.STRONG
+    XXHashFactory.nativeInstance().fastHash(),
+    XXHashFactory.nativeInstance().strongHash(),
+    XXHashFactory.unsafeInstance().fastHash(),
+    XXHashFactory.unsafeInstance().strongHash(),
+    XXHashFactory.safeInstance().fastHash(),
+    XXHashFactory.safeInstance().strongHash()
   };
 
   @Test
@@ -28,7 +30,7 @@ public class XXHashTest extends RandomizedTest {
   }
 
   @Test
-  @Repeat(iterations = 5)
+  @Repeat(iterations = 20)
   public void testAIOOBE() {
     final int seed = randomInt();
     final int max = randomBoolean() ? 32 : 1000;
@@ -41,6 +43,36 @@ public class XXHashTest extends RandomizedTest {
     final int len = randomInt(buf.length - off);
     for (XXHash xxHash : INSTANCES) {
       xxHash.hash(buf, off, len, seed);
+    }
+  }
+
+  @Test
+  @Repeat(iterations=20)
+  public void testInstances() {
+    final int maxLenLog = randomInt(20);
+    final int bufLen = randomInt(1 << maxLenLog);
+    byte[] buf = new byte[bufLen];
+    for (int i = 0; i < bufLen; ++i) {
+      buf[i] = randomByte();
+    }
+    final int seed = randomInt();
+    final int off = randomIntBetween(0, Math.max(0, bufLen - 1));
+    final int len = randomIntBetween(0, bufLen - off);
+
+    final int fastRef = XXHashFactory.nativeInstance().fastHash().hash(buf, off, len, seed);
+    for (XXHash hash : Arrays.asList(
+        XXHashFactory.unsafeInstance().fastHash(),
+        XXHashFactory.safeInstance().fastHash())) {
+      final int h = hash.hash(buf, off, len, seed);
+      assertEquals(hash.toString(), fastRef, h);
+    }
+
+    final int strongRef = XXHashFactory.nativeInstance().strongHash().hash(buf, off, len, seed);
+    for (XXHash hash : Arrays.asList(
+        XXHashFactory.unsafeInstance().strongHash(),
+        XXHashFactory.safeInstance().strongHash())) {
+      final int h = hash.hash(buf, off, len, seed);
+      assertEquals(hash.toString(), strongRef, h);
     }
   }
 

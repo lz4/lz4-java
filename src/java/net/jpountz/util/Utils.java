@@ -1,5 +1,7 @@
 package net.jpountz.util;
 
+import java.nio.ByteOrder;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,6 +21,8 @@ package net.jpountz.util;
 
 public enum Utils {
   ;
+
+  public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
 
   public static void checkRange(byte[] buf, int off) {
     if (off < 0 || off >= buf.length) {
@@ -40,8 +44,20 @@ public enum Utils {
     }
   }
 
-  public static int readInt(byte[] buf, int i) {
+  public static int readIntBE(byte[] buf, int i) {
     return ((buf[i] & 0xFF) << 24) | ((buf[i+1] & 0xFF) << 16) | ((buf[i+2] & 0xFF) << 8) | (buf[i+3] & 0xFF);
+  }
+
+  public static int readIntLE(byte[] buf, int i) {
+    return (buf[i] & 0xFF) | ((buf[i+1] & 0xFF) << 8) | ((buf[i+2] & 0xFF) << 16) | ((buf[i+3] & 0xFF) << 24);
+  }
+
+  public static int readInt(byte[] buf, int i) {
+    if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
+      return readIntBE(buf, i);
+    } else {
+      return readIntLE(buf, i);
+    }
   }
 
 }

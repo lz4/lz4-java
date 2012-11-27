@@ -22,7 +22,6 @@ import static net.jpountz.lz4.LZ4Utils.LAST_LITERALS;
 import static net.jpountz.lz4.LZ4Utils.ML_BITS;
 import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
-import static net.jpountz.util.UnsafeUtils.NATIVE_BYTE_ORDER;
 import static net.jpountz.util.UnsafeUtils.readByte;
 import static net.jpountz.util.UnsafeUtils.readInt;
 import static net.jpountz.util.UnsafeUtils.readLong;
@@ -30,6 +29,7 @@ import static net.jpountz.util.UnsafeUtils.readShort;
 import static net.jpountz.util.UnsafeUtils.writeByte;
 import static net.jpountz.util.UnsafeUtils.writeLong;
 import static net.jpountz.util.UnsafeUtils.writeShort;
+import static net.jpountz.util.Utils.NATIVE_BYTE_ORDER;
 
 import java.nio.ByteOrder;
 
