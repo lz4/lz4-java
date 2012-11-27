@@ -45,7 +45,7 @@
 
   <target name="init">
     <tstamp />
-    <ivy:resolve conf="default" />
+    <ivy:resolve conf="test" />
     <ivy:retrieve />
   </target>
 
@@ -71,7 +71,7 @@
     </javah>
   </target>
 
-  <target name="compile-jni" depends="generate-header">
+  <target name="compile-jni" depends="generate-header" unless="${skip.jni}">
     <mkdir dir="${build}/objects" />
     <mkdir dir="${build}/jni/${platform}/${os.arch}" />
     <cpptasks:cc
@@ -171,7 +171,7 @@
     <jar
       destfile="${dist}/lz4-java.jar">
       <fileset dir="${build}/classes" />
-      <fileset dir="${build}/jni" />
+      <fileset dir="${build}/jni" erroronmissingdir="false" />
     </jar>
   </target>
 
