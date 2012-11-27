@@ -368,7 +368,8 @@ public class LZ4Test extends RandomizedTest {
           // ok
         }
       } catch (IllegalArgumentException e) {
-        // ok not to support it, but do not fail with another exception than IAE
+        // the JNI high compressor does not support exact size compression
+        assert compressor == LZ4Factory.nativeInstance().highCompressor();
       }
     }
   }
