@@ -195,106 +195,104 @@ enum LZ4JavaUnsafeCompressor implements LZ4Compressor {
       int sOff = srcOff, dOff = destOff;
       int anchor = sOff++;
 
-      if (srcLen > MIN_LENGTH) {
-        final int[] hashTable = new int[HASH_TABLE_SIZE];
-        Arrays.fill(hashTable, anchor);
+      final int[] hashTable = new int[HASH_TABLE_SIZE];
+      Arrays.fill(hashTable, anchor);
 
-        main:
+      main:
+      while (true) {
+
+        // find a match
+        int forwardOff = sOff;
+
+        int ref;
+        int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
+        int back;
+        do {
+          sOff = forwardOff;
+          forwardOff += findMatchAttempts++ >>> SKIP_STRENGTH;
+
+          if (forwardOff > mflimit) {
+            break main;
+          }
+
+          final int h = hash(src, sOff);
+          ref = readInt(hashTable, h);
+          back = sOff - ref;
+          writeInt(hashTable, h, sOff);
+        } while (back >= MAX_DISTANCE || !readIntEquals(src, ref, sOff));
+
+
+        final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
+        sOff -= excess;
+        ref -= excess;
+
+        // sequence == refsequence
+        final int runLen = sOff - anchor;
+
+        // encode literal length
+        int tokenOff = dOff++;
+
+        if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) > destEnd) {
+          throw new LZ4Exception("maxDestLen is too small");
+        }
+
+        if (runLen >= RUN_MASK) {
+          writeByte(dest, tokenOff, RUN_MASK << ML_BITS);
+          dOff = writeLen(runLen - RUN_MASK, dest, dOff);
+        } else {
+          writeByte(dest, tokenOff, runLen << ML_BITS);
+        }
+
+        // copy literals
+        wildArraycopy(src, anchor, dest, dOff, runLen);
+        dOff += runLen;
+
         while (true) {
+          // encode offset
+          writeShortLittleEndian(dest, dOff, back);
+          dOff += 2;
 
-          // find a match
-          int forwardOff = sOff;
-
-          int ref;
-          int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
-          int back;
-          do {
-            sOff = forwardOff;
-            forwardOff += findMatchAttempts++ >>> SKIP_STRENGTH;
-
-            if (forwardOff > mflimit) {
-              break main;
-            }
-
-            final int h = hash(src, sOff);
-            ref = readInt(hashTable, h);
-            back = sOff - ref;
-            writeInt(hashTable, h, sOff);
-          } while (back >= MAX_DISTANCE || !readIntEquals(src, ref, sOff));
-
-
-          final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
-          sOff -= excess;
-          ref -= excess;
-
-          // sequence == refsequence
-          final int runLen = sOff - anchor;
-
-          // encode literal length
-          int tokenOff = dOff++;
-
-          if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) > destEnd) {
+          // count nb matches
+          sOff += MIN_MATCH;
+          final int matchLen = commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
+          if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) > destEnd) {
             throw new LZ4Exception("maxDestLen is too small");
           }
+          sOff += matchLen;
 
-          if (runLen >= RUN_MASK) {
-            writeByte(dest, tokenOff, RUN_MASK << ML_BITS);
-            dOff = writeLen(runLen - RUN_MASK, dest, dOff);
+          // encode match len
+          if (matchLen >= ML_MASK) {
+            writeByte(dest, tokenOff, readByte(dest, tokenOff) | ML_MASK);
+            dOff = writeLen(matchLen - ML_MASK, dest, dOff);
           } else {
-            writeByte(dest, tokenOff, runLen << ML_BITS);
+            writeByte(dest, tokenOff, readByte(dest, tokenOff) | matchLen);
           }
 
-          // copy literals
-          wildArraycopy(src, anchor, dest, dOff, runLen);
-          dOff += runLen;
-
-          while (true) {
-            // encode offset
-            writeShortLittleEndian(dest, dOff, back);
-            dOff += 2;
-
-            // count nb matches
-            sOff += MIN_MATCH;
-            final int matchLen = commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
-            if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) > destEnd) {
-              throw new LZ4Exception("maxDestLen is too small");
-            }
-            sOff += matchLen;
-
-            // encode match len
-            if (matchLen >= ML_MASK) {
-              writeByte(dest, tokenOff, readByte(dest, tokenOff) | ML_MASK);
-              dOff = writeLen(matchLen - ML_MASK, dest, dOff);
-            } else {
-              writeByte(dest, tokenOff, readByte(dest, tokenOff) | matchLen);
-            }
-
-            // test end of chunk
-            if (sOff > mflimit) {
-              anchor = sOff;
-              break main;
-            }
-
-            // fill table
-            writeInt(hashTable, hash(src, sOff - 2), sOff - 2);
-
-            // test next position
-            final int h = hash(src, sOff);
-            ref = readInt(hashTable, h);
-            writeInt(hashTable, h, sOff);
-            back = sOff - ref;
-
-            if (back >= MAX_DISTANCE || !readIntEquals(src, ref, sOff)) {
-              break;
-            }
-
-            tokenOff = dOff++;
-            writeByte(dest, tokenOff, 0);
+          // test end of chunk
+          if (sOff > mflimit) {
+            anchor = sOff;
+            break main;
           }
 
-          // prepare next loop
-          anchor = sOff++;
+          // fill table
+          writeInt(hashTable, hash(src, sOff - 2), sOff - 2);
+
+          // test next position
+          final int h = hash(src, sOff);
+          ref = readInt(hashTable, h);
+          writeInt(hashTable, h, sOff);
+          back = sOff - ref;
+
+          if (back >= MAX_DISTANCE || !readIntEquals(src, ref, sOff)) {
+            break;
+          }
+
+          tokenOff = dOff++;
+          writeByte(dest, tokenOff, 0);
         }
+
+        // prepare next loop
+        anchor = sOff++;
       }
 
       dOff = lastLiterals(src, anchor, srcEnd - anchor, dest, dOff, destEnd);

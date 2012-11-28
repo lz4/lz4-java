@@ -92,7 +92,7 @@ enum LZ4UnsafeUtils {
 
   static int commonBytes(byte[] src, int ref, int sOff, int srcLimit) {
     int matchLen = 0;
-    while (sOff < srcLimit - 8) {
+    while (sOff <= srcLimit - 8) {
       final long diff = readLong(src, sOff) - readLong(src, ref);
       if (diff == 0) {
         matchLen += 8;
@@ -107,6 +107,9 @@ enum LZ4UnsafeUtils {
         }
         return matchLen + (zeroBits >>> 3);
       }
+    }
+    while (sOff < srcLimit && readByte(src, ref++) == readByte(src, sOff++)) {
+      ++matchLen;
     }
     return matchLen;
   }

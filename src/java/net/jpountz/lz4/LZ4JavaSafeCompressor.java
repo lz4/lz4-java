@@ -39,11 +39,11 @@ import static net.jpountz.lz4.LZ4Utils.hash;
 import static net.jpountz.lz4.LZ4Utils.hash64k;
 import static net.jpountz.lz4.LZ4Utils.hashHC;
 import static net.jpountz.lz4.LZ4Utils.lastLiterals;
-import static net.jpountz.lz4.LZ4Utils.readInt;
 import static net.jpountz.lz4.LZ4Utils.readIntEquals;
 import static net.jpountz.lz4.LZ4Utils.wildArraycopy;
 import static net.jpountz.lz4.LZ4Utils.writeLen;
 import static net.jpountz.util.Utils.checkRange;
+import static net.jpountz.util.Utils.readInt;
 
 import java.util.Arrays;
 
@@ -192,107 +192,105 @@ enum LZ4JavaSafeCompressor implements LZ4Compressor {
       int sOff = srcOff, dOff = destOff;
       int anchor = sOff++;
 
-      if (srcLen >= MIN_LENGTH) {
-        final int[] hashTable = new int[HASH_TABLE_SIZE];
-        Arrays.fill(hashTable, anchor);
+      final int[] hashTable = new int[HASH_TABLE_SIZE];
+      Arrays.fill(hashTable, anchor);
 
-        main:
+      main:
+      while (true) {
+
+        // find a match
+        int forwardOff = sOff;
+
+        int ref;
+        int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
+        int back;
+        do {
+          sOff = forwardOff;
+          forwardOff += findMatchAttempts++ >>> SKIP_STRENGTH;
+
+          if (forwardOff > mflimit) {
+            break main;
+          }
+
+          final int h = hash(src, sOff);
+          ref = hashTable[h];
+          back = sOff - ref;
+          hashTable[h] = sOff;
+        } while (back >= MAX_DISTANCE || !readIntEquals(src, ref, sOff));
+
+        final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
+        sOff -= excess;
+        ref -= excess;
+
+        // sequence == refsequence
+        final int runLen = sOff - anchor;
+
+        // encode literal length
+        int tokenOff = dOff++;
+
+        if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) > destEnd) {
+          throw new LZ4Exception("maxDestLen is too small");
+        }
+
+        int token;
+        if (runLen >= RUN_MASK) {
+          token = RUN_MASK << ML_BITS;
+          dOff = writeLen(runLen - RUN_MASK, dest, dOff);
+        } else {
+          token = runLen << ML_BITS;
+        }
+
+        // copy literals
+        wildArraycopy(src, anchor, dest, dOff, runLen);
+        dOff += runLen;
+
         while (true) {
+          // encode offset
+          dest[dOff++] = (byte) back;
+          dest[dOff++] = (byte) (back >>> 8);
 
-          // find a match
-          int forwardOff = sOff;
-
-          int ref;
-          int findMatchAttempts = (1 << SKIP_STRENGTH) + 3;
-          int back;
-          do {
-            sOff = forwardOff;
-            forwardOff += findMatchAttempts++ >>> SKIP_STRENGTH;
-
-            if (forwardOff > mflimit) {
-              break main;
-            }
-
-            final int h = hash(src, sOff);
-            ref = hashTable[h];
-            back = sOff - ref;
-            hashTable[h] = sOff;
-          } while (back >= MAX_DISTANCE || !readIntEquals(src, ref, sOff));
-
-          final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
-          sOff -= excess;
-          ref -= excess;
-
-          // sequence == refsequence
-          final int runLen = sOff - anchor;
-
-          // encode literal length
-          int tokenOff = dOff++;
-
-          if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) > destEnd) {
+          // count nb matches
+          sOff += MIN_MATCH;
+          final int matchLen = commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
+          if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) > destEnd) {
             throw new LZ4Exception("maxDestLen is too small");
           }
+          sOff += matchLen;
 
-          int token;
-          if (runLen >= RUN_MASK) {
-            token = RUN_MASK << ML_BITS;
-            dOff = writeLen(runLen - RUN_MASK, dest, dOff);
+          // encode match len
+          if (matchLen >= ML_MASK) {
+            token |= ML_MASK;
+            dOff = writeLen(matchLen - ML_MASK, dest, dOff);
           } else {
-            token = runLen << ML_BITS;
+            token |= matchLen;
+          }
+          dest[tokenOff] = (byte) token;
+
+          // test end of chunk
+          if (sOff > mflimit) {
+            anchor = sOff;
+            break main;
           }
 
-          // copy literals
-          wildArraycopy(src, anchor, dest, dOff, runLen);
-          dOff += runLen;
+          // fill table
+          hashTable[hash(src, sOff - 2)] = sOff - 2;
 
-          while (true) {
-            // encode offset
-            dest[dOff++] = (byte) back;
-            dest[dOff++] = (byte) (back >>> 8);
+          // test next position
+          final int h = hash(src, sOff);
+          ref = hashTable[h];
+          hashTable[h] = sOff;
+          back = sOff - ref;
 
-            // count nb matches
-            sOff += MIN_MATCH;
-            final int matchLen = commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
-            if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) > destEnd) {
-              throw new LZ4Exception("maxDestLen is too small");
-            }
-            sOff += matchLen;
-
-            // encode match len
-            if (matchLen >= ML_MASK) {
-              token |= ML_MASK;
-              dOff = writeLen(matchLen - ML_MASK, dest, dOff);
-            } else {
-              token |= matchLen;
-            }
-            dest[tokenOff] = (byte) token;
-
-            // test end of chunk
-            if (sOff > mflimit) {
-              anchor = sOff;
-              break main;
-            }
-
-            // fill table
-            hashTable[hash(src, sOff - 2)] = sOff - 2;
-
-            // test next position
-            final int h = hash(src, sOff);
-            ref = hashTable[h];
-            hashTable[h] = sOff;
-            back = sOff - ref;
-
-            if (back >= MAX_DISTANCE || !readIntEquals(src, ref, sOff)) {
-              break;
-            }
-
-            tokenOff = dOff++;
-            token = 0;
+          if (back >= MAX_DISTANCE || !readIntEquals(src, ref, sOff)) {
+            break;
           }
 
-          // prepare next loop
-          anchor = sOff++;
+          tokenOff = dOff++;
+          token = 0;
         }
+
+        // prepare next loop
+        anchor = sOff++;
       }
 
       dOff = lastLiterals(src, anchor, srcEnd - anchor, dest, dOff, destEnd);

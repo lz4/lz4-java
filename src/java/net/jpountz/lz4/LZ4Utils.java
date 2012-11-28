@@ -18,6 +18,7 @@ package net.jpountz.lz4;
  */
 
 import static net.jpountz.util.Utils.checkRange;
+import static net.jpountz.util.Utils.readInt;
 
 enum LZ4Utils {
   ;
@@ -68,10 +69,6 @@ enum LZ4Utils {
 
   static int hashHC(int i) {
     return (i * -1640531535) >>> ((MIN_MATCH * 8) - HASH_LOG_HC);
-  }
-
-  static int readInt(byte[] buf, int i) {
-    return ((buf[i] & 0xFF) << 24) | ((buf[i+1] & 0xFF) << 16) | ((buf[i+2] & 0xFF) << 8) | (buf[i+3] & 0xFF);
   }
 
   static int readShortLittleEndian(byte[] buf, int i) {
