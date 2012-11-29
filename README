@@ -30,12 +30,24 @@ available:
 
 Please have a look at LZ4Factory for more information.
 
-All compressor instances generate valid LZ4 streams and all decompressor
-instances can decompress any valid LZ4 stream. This means that you can use the
-Java decompressor implementation to decompress a stream generated with the JNI
-bindings or vice-versa. However there is now warranty that two different
-compressor implementations will generate exactly the same stream given the same
-input.
+On 64-bits platforms, the Java compressor implementations compress data the same
+way as the C implementation (meaning that the resulting arrays are identical).
+However, similarly to the C implementation, compression might return different
+compressed arrays on a machine of the opposite endianness.
+
+xxhash Java
+===========
+
+xxhash hashing for Java, based on Yann Collet's work available at
+http://code.google.com/p/xxhash/.
+
+Similarly to LZ4, 3 implementations are available: JNI bindings, pure Java port
+and pure Java port that uses sun.misc.Unsafe.
+
+Please note that the 3 implementations will return the same result for the same
+input on the same machine but the hash will differ on a machine of the opposite
+endianess.
+
 
 Build
 -----
@@ -46,6 +58,6 @@ Requirements
  - ivy,
  - ant-cpp-tasks.
 
-Then run `ant`. It will compile LZ4, LZ4 JNI bindings and LZ4 Java
-implementations and generate a JAR file under the dist directory.
+Then run `ant`. It will compile C and Java code and generate a self-contained
+JAR file under the dist directory.
 
