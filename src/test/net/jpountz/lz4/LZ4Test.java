@@ -236,9 +236,15 @@ public class LZ4Test extends RandomizedTest {
     decompressor2.decompress(compressed, 0, compressedLen, restored, 0);
     assertEquals(decompressed.length, decompressor2.decompress(compressed, 0, compressedLen, restored, 0));
 
+    LZ4Compressor refCompressor = null;
     if (compressor == LZ4Factory.unsafeInstance().fastCompressor()
         || compressor == LZ4Factory.safeInstance().fastCompressor()) {
-      final LZ4Compressor refCompressor = LZ4Factory.nativeInstance().fastCompressor();
+      refCompressor = LZ4Factory.nativeInstance().fastCompressor();
+    } else if (compressor == LZ4Factory.unsafeInstance().highCompressor()
+        || compressor == LZ4Factory.safeInstance().highCompressor()) {
+      refCompressor = LZ4Factory.nativeInstance().highCompressor();
+    }
+    if (refCompressor != null) {
       final byte[] compressed2 = new byte[refCompressor.maxCompressedLength(decompressed.length)];
       final int compressedLen2 = refCompressor.compress(decompressed, 0, decompressed.length, compressed2, 0, compressed2.length);
       assertCompressedArrayEquals(compressor.toString(),
