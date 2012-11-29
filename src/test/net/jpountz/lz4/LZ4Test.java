@@ -405,6 +405,18 @@ public class LZ4Test extends RandomizedTest {
   }
 
   @Test
+  public void testMaxDistance() {
+    final int len = randomIntBetween(1 << 17, 1 << 18);
+    final int off = 0;//randomInt(len - (1 << 16) - (1 << 15));
+    final byte[] buf = new byte[len];
+    for (int i = 0; i < (1 << 15); ++i) {
+      buf[off + i] = randomByte();
+    }
+    System.arraycopy(buf, off, buf, off + 65535, 1 << 15);
+    testRoundTrip(buf);
+  }
+
+  @Test
   @Repeat(iterations=10)
   public void testCompressedArrayEqualsJNI() {
     final int max = randomIntBetween(1, 15);
@@ -455,6 +467,7 @@ public class LZ4Test extends RandomizedTest {
       }
       matchLen += len;
     }
+    matchLen += 4;
     return new Sequence(literalLen, matchDec, matchLen, off - start);
   }
 
