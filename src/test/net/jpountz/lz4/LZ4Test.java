@@ -218,23 +218,24 @@ public class LZ4Test extends RandomizedTest {
     return baos.toByteArray();
   }
 
-  public void testRoundTrip(String resource,
+  public void testRoundTrip(byte[] data,
       LZ4Compressor compressor,
       LZ4Decompressor decompressor,
-      LZ4UnknownSizeDecompressor decompressor2) throws IOException {
-    final byte[] decompressed = readResource(resource);
-    final byte[] compressed = new byte[LZ4Utils.maxCompressedLength(decompressed.length)];
+      LZ4UnknownSizeDecompressor decompressor2) {
+    final byte[] compressed = new byte[LZ4Utils.maxCompressedLength(data.length)];
     final int compressedLen = compressor.compress(
-        decompressed, 0, decompressed.length,
+        data, 0, data.length,
         compressed, 0, compressed.length);
 
-    final byte[] restored = new byte[decompressed.length];
-    assertEquals(compressedLen, decompressor.decompress(compressed, 0, restored, 0, decompressed.length));
-    assertArrayEquals(decompressed, restored);
+    final byte[] restored = new byte[data.length];
+    assertEquals(compressedLen, decompressor.decompress(compressed, 0, restored, 0, data.length));
+    assertArrayEquals(data, restored);
 
-    Arrays.fill(restored, (byte) 0);
-    decompressor2.decompress(compressed, 0, compressedLen, restored, 0);
-    assertEquals(decompressed.length, decompressor2.decompress(compressed, 0, compressedLen, restored, 0));
+    if (data.length > 0) {
+      Arrays.fill(restored, (byte) 0);
+      decompressor2.decompress(compressed, 0, compressedLen, restored, 0);
+      assertEquals(data.length, decompressor2.decompress(compressed, 0, compressedLen, restored, 0));
+    }
 
     LZ4Compressor refCompressor = null;
     if (compressor == LZ4Factory.unsafeInstance().fastCompressor()
@@ -245,28 +246,33 @@ public class LZ4Test extends RandomizedTest {
       refCompressor = LZ4Factory.nativeInstance().highCompressor();
     }
     if (refCompressor != null) {
-      final byte[] compressed2 = new byte[refCompressor.maxCompressedLength(decompressed.length)];
-      final int compressedLen2 = refCompressor.compress(decompressed, 0, decompressed.length, compressed2, 0, compressed2.length);
+      final byte[] compressed2 = new byte[refCompressor.maxCompressedLength(data.length)];
+      final int compressedLen2 = refCompressor.compress(data, 0, data.length, compressed2, 0, compressed2.length);
       assertCompressedArrayEquals(compressor.toString(),
           Arrays.copyOf(compressed2,  compressedLen2),
           Arrays.copyOf(compressed,  compressedLen));
     }
   }
 
-  public void testRoundTrip(String resource, LZ4Factory lz4) throws IOException {
+  public void testRoundTrip(byte[] data, LZ4Factory lz4) {
     for (LZ4Compressor compressor : Arrays.asList(
         lz4.fastCompressor(), lz4.highCompressor())) {
-      testRoundTrip(resource, compressor, lz4.decompressor(), lz4.unknwonSizeDecompressor());
+      testRoundTrip(data, compressor, lz4.decompressor(), lz4.unknwonSizeDecompressor());
     }
   }
 
-  public void testRoundTrip(String resource) throws IOException {
+  public void testRoundTrip(byte[] data) {
     for (LZ4Factory lz4 : Arrays.asList(
         LZ4Factory.nativeInstance(),
         LZ4Factory.unsafeInstance(),
         LZ4Factory.safeInstance())) {
-      testRoundTrip(resource, lz4);
+      testRoundTrip(data, lz4);
     }
+  }
+
+  public void testRoundTrip(String resource) throws IOException {
+    final byte[] data = readResource(resource);
+    testRoundTrip(data);
   }
 
   @Test
@@ -396,17 +402,19 @@ public class LZ4Test extends RandomizedTest {
     final int len = randomBoolean() ? randomInt(20) : randomInt(100000);
     final byte[] buf = new byte[len];
     Arrays.fill(buf, randomByte());
-    for (LZ4Compressor compressor : COMPRESSORS) {
-      final byte[] compressed = new byte[compressor.maxCompressedLength(len)];
-      final int compressedLength = compressor.compress(buf, 0, len, compressed, 0, compressed.length);
-      final int lastLiterals;
-      if (len < LZ4Utils.MIN_LENGTH) {
-        lastLiterals = len;
-      } else {
-        lastLiterals = LZ4Utils.LAST_LITERALS;
-      }
-      assertEquals(compressor.toString(), lastLiterals << 4, compressed[compressedLength - 1 - lastLiterals] & 0xFF);
+    testRoundTrip(buf);
+  }
+
+  @Test
+  @Repeat(iterations=10)
+  public void testCompressedArrayEqualsJNI() {
+    final int max = randomIntBetween(1, 15);
+    final int len = randomInt(1 << 18);
+    final byte[] data = new byte[len];
+    for (int i = 0; i < len; ++i) {
+      data[i] = (byte) randomInt(max);
     }
+    testRoundTrip(data);
   }
 
   private static void assertCompressedArrayEquals(String message, byte[] expected, byte[] actual) {
