@@ -180,9 +180,8 @@ public class LZ4Test extends RandomizedTest {
     }
   }
 
-  // doesn't work, should we fix it?
-  //@Test(expected=LZ4Exception.class)
-  @Repeat(iterations=5)
+  @Test(expected=LZ4Exception.class)
+  @Repeat(iterations=10)
   public void testUncompressUnknownSizeUnderflow() {
     final LZ4UnknownSizeDecompressor decompressor = randomFrom(UNCOMPRESSORS2);
     final int len = randomInt(100000);
