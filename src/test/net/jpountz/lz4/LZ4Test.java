@@ -64,84 +64,9 @@ public class LZ4Test extends RandomizedTest {
     return result;
   }
 
-  public void testEmpty(CompressionCodec compressionCodec) {
-    final byte[] data = new byte[0];
-    final int maxCompressedLength = compressionCodec.maxCompressedLength(0);
-    final byte[] compressed = new byte[maxCompressedLength];
-    final int compressedLength = compressionCodec.compress(data, 0, 0, compressed, 0);
-    assertTrue(compressedLength > 0);
-    assertTrue(compressedLength <= maxCompressedLength);
-    assertEquals(0, compressionCodec.decompress(compressed, 0, compressedLength, new byte[3], 1));
-  }
-
   @Test
   public void testEmpty() {
-    for (LZ4Compressor compressor : COMPRESSORS) {
-      for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
-        testEmpty(new LengthLZ4(compressor, decompressor));
-      }
-    }
-    for (LZ4Compressor compressor : COMPRESSORS) {
-      for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
-        testEmpty(new LengthBitsLZ4(compressor, decompressor));
-      }
-    }
-  }
-
-  public void testCompress(LZ4Compressor compressor, LZ4Decompressor decompressor) {
-    testCompress(new LengthLZ4(compressor, decompressor));
-  }
-
-  public void testCompress(LZ4Compressor compressor, LZ4UnknownSizeDecompressor decompressor) {
-    testCompress(new LengthBitsLZ4(compressor, decompressor));
-  }
-
-  public void testCompress(CompressionCodec compressionCodec) {
-    final int max = randomBoolean()
-        ? randomInt(3)
-        : randomInt(256);
-    final int size = randomBoolean()
-        ? randomBoolean() ? 19 : 20
-            : randomBoolean() ? randomIntBetween(45, 64000) : randomIntBetween(200000, 1000000);
-    final byte[] src = new byte[size];
-    for (int i = 0; i < src.length; ++i) {
-      // low values of max are more likely to produce repeated patterns...
-      src[i] = (byte) randomInt(max);
-    }
-    final int maxCompressedLength = compressionCodec.maxCompressedLength(src.length - 15);
-    byte[] compressed = new byte[maxCompressedLength + 10];
-    final int compressedLength = compressionCodec.compress(src, 4, src.length - 15, compressed, 2);
-    assertTrue(compressedLength <= maxCompressedLength);
-    byte[] decompressed = new byte[src.length];
-    final int decompressedLength = compressionCodec.decompress(compressed, 2, compressedLength, decompressed, 3);
-    assertEquals(src.length - 15, decompressedLength);
-    final byte[] original = Arrays.copyOfRange(src, 4, 4 + src.length - 15);
-    compressed = Arrays.copyOfRange(compressed, 2, compressedLength + 2);
-    final byte[] restored = Arrays.copyOfRange(decompressed, 3, 3 + decompressedLength);
-    assertArrayEquals(original, restored);
-    assertArrayEquals(compressed, compressionCodec.compress(src, 4, src.length - 15));
-    assertArrayEquals(original, compressionCodec.decompress(compressed));
-  }
-
-  @Test
-  @Repeat(iterations=5)
-  public void testCompress() {
-    final LZ4Compressor compressor = randomFrom(COMPRESSORS);
-    testCompress(compressor, (LZ4Decompressor) LZ4JNIDecompressor.INSTANCE);
-  }
-
-  @Test
-  @Repeat(iterations=5)
-  public void testUncompress() {
-    final LZ4Decompressor decompressor = randomFrom(UNCOMPRESSORS);
-    testCompress(LZ4JNICompressor.HIGH_COMPRESSION, decompressor);
-  }
-
-  @Test
-  @Repeat(iterations=5)
-  public void testUncompressUnknownSize() {
-    final LZ4UnknownSizeDecompressor decompressor = randomFrom(UNCOMPRESSORS2);
-    testCompress(LZ4JNICompressor.HIGH_COMPRESSION, decompressor);
+    testRoundTrip(new byte[0]);
   }
 
   public void testUncompressWorstCase(LZ4Decompressor decompressor) {
@@ -217,23 +142,25 @@ public class LZ4Test extends RandomizedTest {
     return baos.toByteArray();
   }
 
-  public void testRoundTrip(byte[] data,
+  public void testRoundTrip(byte[] data, int off, int len,
       LZ4Compressor compressor,
       LZ4Decompressor decompressor,
       LZ4UnknownSizeDecompressor decompressor2) {
-    final byte[] compressed = new byte[LZ4Utils.maxCompressedLength(data.length)];
+    final byte[] compressed = new byte[LZ4Utils.maxCompressedLength(len)];
     final int compressedLen = compressor.compress(
-        data, 0, data.length,
+        data, off, len,
         compressed, 0, compressed.length);
 
-    final byte[] restored = new byte[data.length];
-    assertEquals(compressedLen, decompressor.decompress(compressed, 0, restored, 0, data.length));
+    final byte[] restored = new byte[len];
+    assertEquals(compressedLen, decompressor.decompress(compressed, 0, restored, 0, len));
     assertArrayEquals(data, restored);
 
-    if (data.length > 0) {
+    if (len > 0) {
       Arrays.fill(restored, (byte) 0);
       decompressor2.decompress(compressed, 0, compressedLen, restored, 0);
-      assertEquals(data.length, decompressor2.decompress(compressed, 0, compressedLen, restored, 0));
+      assertEquals(len, decompressor2.decompress(compressed, 0, compressedLen, restored, 0));
+    } else {
+      assertEquals(0, decompressor2.decompress(compressed, 0, compressedLen, new byte[1], 0));
     }
 
     LZ4Compressor refCompressor = null;
@@ -245,28 +172,32 @@ public class LZ4Test extends RandomizedTest {
       refCompressor = LZ4Factory.nativeInstance().highCompressor();
     }
     if (refCompressor != null) {
-      final byte[] compressed2 = new byte[refCompressor.maxCompressedLength(data.length)];
-      final int compressedLen2 = refCompressor.compress(data, 0, data.length, compressed2, 0, compressed2.length);
+      final byte[] compressed2 = new byte[refCompressor.maxCompressedLength(len)];
+      final int compressedLen2 = refCompressor.compress(data, off, len, compressed2, 0, compressed2.length);
       assertCompressedArrayEquals(compressor.toString(),
           Arrays.copyOf(compressed2,  compressedLen2),
           Arrays.copyOf(compressed,  compressedLen));
     }
   }
 
-  public void testRoundTrip(byte[] data, LZ4Factory lz4) {
+  public void testRoundTrip(byte[] data, int off, int len, LZ4Factory lz4) {
     for (LZ4Compressor compressor : Arrays.asList(
         lz4.fastCompressor(), lz4.highCompressor())) {
-      testRoundTrip(data, compressor, lz4.decompressor(), lz4.unknwonSizeDecompressor());
+      testRoundTrip(data, off, len, compressor, lz4.decompressor(), lz4.unknwonSizeDecompressor());
     }
   }
 
-  public void testRoundTrip(byte[] data) {
+  public void testRoundTrip(byte[] data, int off, int len) {
     for (LZ4Factory lz4 : Arrays.asList(
         LZ4Factory.nativeInstance(),
         LZ4Factory.unsafeInstance(),
         LZ4Factory.safeInstance())) {
-      testRoundTrip(data, lz4);
+      testRoundTrip(data, off, len, lz4);
     }
+  }
+
+  public void testRoundTrip(byte[] data) {
+    testRoundTrip(data, 0, data.length);
   }
 
   public void testRoundTrip(String resource) throws IOException {
