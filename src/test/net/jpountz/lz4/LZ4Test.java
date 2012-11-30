@@ -115,22 +115,6 @@ public class LZ4Test extends RandomizedTest {
     }
   }
 
-  @Test(expected=LZ4Exception.class)
-  @Repeat(iterations=10)
-  public void testUncompressUnknownSizeUnderflow() {
-    final LZ4UnknownSizeDecompressor decompressor = randomFrom(UNCOMPRESSORS2);
-    final int len = randomInt(100000);
-    final int max = randomInt(256);
-    final byte[] data = new byte[len];
-    for (int i = 0; i < data.length; ++i) {
-      data[i] = (byte) randomInt(max);
-    }
-    final int maxCompressedLength = LZ4JNICompressor.FAST.maxCompressedLength(len);
-    final byte[] compressed = new byte[maxCompressedLength];
-    final int compressedLength = LZ4JNICompressor.FAST.compress(data, 0, data.length, compressed, 0, compressed.length);
-    decompressor.decompress(compressed, 0, compressedLength, new byte[data.length - 1], 0);
-  }
-
   private static byte[] readResource(String resource) throws IOException {
     InputStream is = LZ4Test.class.getResourceAsStream(resource);
     if (is == null) {
@@ -161,10 +145,50 @@ public class LZ4Test extends RandomizedTest {
         data, off, len,
         compressed, 0, compressed.length);
 
+    // try to compress with the exact compressed size
+    final byte[] compressed2 = new byte[compressedLen];
+    if (compressor != LZ4JNICompressor.HIGH_COMPRESSION) { // TODO: remove this test when the compressor is fixed
+      final int compressedLen2 = compressor.compress(data, off, len, compressed2, 0, compressed2.length);
+      assertEquals(compressedLen, compressedLen2);
+      assertArrayEquals(Arrays.copyOf(compressed, compressedLen), compressed2);
+    }
+
+    // make sure it fails if the dest is not large enough
+    if (compressor != LZ4JNICompressor.HIGH_COMPRESSION) { // TODO: remove this test when the compressor is fixed
+      final byte[] compressed3 = new byte[compressedLen-1];
+      try {
+        compressor.compress(data, off, len, compressed3, 0, compressed3.length);
+        assertTrue(false);
+      } catch (LZ4Exception e) {
+        // OK
+      }
+    }
+
+    // test decompression
     final byte[] restored = new byte[len];
     assertEquals(compressedLen, decompressor.decompress(compressed, 0, restored, 0, len));
     assertArrayEquals(data, restored);
 
+    if (len > 0) {
+      // dest is too small
+      try {
+        decompressor.decompress(compressed, 0, restored, 0, len - 1);
+        assertTrue(false);
+      } catch (LZ4Exception e) {
+        // OK
+      }
+    }
+
+    // dest is too large
+    final byte[] restored2 = new byte[len+1];
+    try {
+      decompressor.decompress(compressed, 0, restored2, 0, len + 1);
+      assertTrue(false);
+    } catch (LZ4Exception e) {
+      // OK
+    }
+
+    // try decompression when only the size of the compressed buffer is known
     if (len > 0) {
       Arrays.fill(restored, (byte) 0);
       decompressor2.decompress(compressed, 0, compressedLen, restored, 0);
@@ -173,6 +197,23 @@ public class LZ4Test extends RandomizedTest {
       assertEquals(0, decompressor2.decompress(compressed, 0, compressedLen, new byte[1], 0));
     }
 
+    // over-estimated compressed length
+    try {
+      decompressor2.decompress(compressed, 0, compressedLen + 1, new byte[len + 100], 0);
+      assertTrue(false);
+    } catch (LZ4Exception e) {
+      // OK
+    }
+
+    // under-estimated compressed length
+    try {
+      final int decompressedLen = decompressor2.decompress(compressed, 0, compressedLen - 1, new byte[len + 100], 0);
+      assertEquals(0, decompressedLen);
+    } catch (LZ4Exception e) {
+      // OK
+    }
+
+    // compare compression against the reference
     LZ4Compressor refCompressor = null;
     if (compressor == LZ4Factory.unsafeInstance().fastCompressor()
         || compressor == LZ4Factory.safeInstance().fastCompressor()) {
@@ -182,10 +223,10 @@ public class LZ4Test extends RandomizedTest {
       refCompressor = LZ4Factory.nativeInstance().highCompressor();
     }
     if (refCompressor != null) {
-      final byte[] compressed2 = new byte[refCompressor.maxCompressedLength(len)];
-      final int compressedLen2 = refCompressor.compress(data, off, len, compressed2, 0, compressed2.length);
+      final byte[] compressed4 = new byte[refCompressor.maxCompressedLength(len)];
+      final int compressedLen4 = refCompressor.compress(data, off, len, compressed4, 0, compressed4.length);
       assertCompressedArrayEquals(compressor.toString(),
-          Arrays.copyOf(compressed2,  compressedLen2),
+          Arrays.copyOf(compressed4,  compressedLen4),
           Arrays.copyOf(compressed,  compressedLen));
     }
   }
@@ -237,7 +278,7 @@ public class LZ4Test extends RandomizedTest {
     for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
       try {
         decompressor.decompress(invalid, 0, new byte[10], 0, 10);
-        // free not to fail, but do not throw something else than a LZ4Exception
+        // free not to fail, but do not go into an infinite loop or throw something else than a LZ4Exception
       } catch (LZ4Exception e) {
         // OK
       }
@@ -311,32 +352,6 @@ public class LZ4Test extends RandomizedTest {
   }
 
   @Test
-  @Repeat(iterations=50)
-  public void testCompressExactSize() {
-    final byte[] data = randomArray(randomInt(rarely() ? 100000 : 200), randomIntBetween(1, 10));
-    for (LZ4Compressor compressor : COMPRESSORS) {
-      final byte[] buf = new byte[compressor.maxCompressedLength(data.length)];
-      final int compressedLength = compressor.compress(data, 0, data.length, buf, 0, buf.length);
-      final byte[] buf2 = new byte[compressedLength];
-      try {
-        final int compressedLength2 = compressor.compress(data, 0, data.length, buf2, 0, buf2.length);
-        assertEquals(compressedLength, compressedLength2);
-        assertArrayEquals(Arrays.copyOf(buf, compressedLength), buf2);
-
-        try {
-          compressor.compress(data, 0, data.length, buf2, 0, buf2.length - 1);
-          assertFalse(true);
-        } catch (LZ4Exception e) {
-          // ok
-        }
-      } catch (IllegalArgumentException e) {
-        // the JNI high compressor does not support exact size compression
-        assert compressor == LZ4Factory.nativeInstance().highCompressor();
-      }
-    }
-  }
-
-  @Test
   @Repeat(iterations=5)
   public void testAllEqual() {
     final int len = randomBoolean() ? randomInt(20) : randomInt(100000);
@@ -361,7 +376,7 @@ public class LZ4Test extends RandomizedTest {
   @Repeat(iterations=10)
   public void testCompressedArrayEqualsJNI() {
     final int max = randomIntBetween(1, 15);
-    final int len = randomInt(1 << 18);
+    final int len = randomBoolean() ? randomInt(1 << 16) : randomInt(1 << 21);
     final byte[] data = new byte[len];
     for (int i = 0; i < len; ++i) {
       data[i] = (byte) randomInt(max);
