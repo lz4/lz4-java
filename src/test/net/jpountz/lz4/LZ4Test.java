@@ -36,6 +36,16 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
 @RunWith(RandomizedRunner.class)
 public class LZ4Test extends RandomizedTest {
 
+  @Test
+  @Repeat(iterations=20)
+  public void testMaxCompressedLength() {
+    final int len = randomBoolean() ? randomInt(16) : randomInt(1 << 30);
+    final LZ4Compressor refCompressor = LZ4Factory.nativeInstance().fastCompressor();
+    for (LZ4Compressor compressor : COMPRESSORS) {
+      assertEquals(refCompressor.maxCompressedLength(len), compressor.maxCompressedLength(len));
+    }
+  }
+
   private static byte[] getCompressedWorstCase(byte[] decompressed) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     int len = decompressed.length;
