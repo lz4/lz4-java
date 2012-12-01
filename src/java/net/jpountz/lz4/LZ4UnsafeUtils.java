@@ -93,17 +93,16 @@ enum LZ4UnsafeUtils {
   static int commonBytes(byte[] src, int ref, int sOff, int srcLimit) {
     int matchLen = 0;
     while (sOff <= srcLimit - 8) {
-      final long diff = readLong(src, sOff) - readLong(src, ref);
-      if (diff == 0) {
+      if (readLong(src, sOff) == readLong(src, ref)) {
         matchLen += 8;
-        sOff += 8;
         ref += 8;
+        sOff += 8;
       } else {
         final int zeroBits;
         if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
-          zeroBits = Long.numberOfLeadingZeros(diff);
+          zeroBits = Long.numberOfLeadingZeros(readLong(src, sOff) ^ readLong(src, ref));
         } else {
-          zeroBits = Long.numberOfTrailingZeros(diff);
+          zeroBits = Long.numberOfTrailingZeros(readLong(src, sOff) ^ readLong(src, ref));
         }
         return matchLen + (zeroBits >>> 3);
       }
