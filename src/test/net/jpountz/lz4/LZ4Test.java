@@ -36,6 +36,21 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
 @RunWith(RandomizedRunner.class)
 public class LZ4Test extends RandomizedTest {
 
+  private class RandomBytes {
+    private final byte[] bytes;
+    RandomBytes(int n) {
+      assert n >= 0 && n <= 256;
+      bytes = new byte[n];
+      for (int i = 0; i < n; ++i) {
+        bytes[i] = (byte) randomInt(255);
+      }
+    }
+    byte next() {
+      final int i = randomInt(bytes.length - 1);
+      return bytes[i];
+    }
+  }
+
   @Test
   @Repeat(iterations=20)
   public void testMaxCompressedLength() {
@@ -66,10 +81,11 @@ public class LZ4Test extends RandomizedTest {
     return baos.toByteArray();
   }
 
-  private static byte[] randomArray(int len, int max) {
+  private byte[] randomArray(int len, int n) {
     byte[] result = new byte[len];
+    RandomBytes randomBytes = new RandomBytes(n);
     for (int i = 0; i < result.length; ++i) {
-      result[i] = (byte) randomInt(max);
+      result[i] = randomBytes.next();
     }
     return result;
   }
@@ -375,12 +391,9 @@ public class LZ4Test extends RandomizedTest {
   @Test
   @Repeat(iterations=10)
   public void testCompressedArrayEqualsJNI() {
-    final int max = randomIntBetween(1, 15);
+    final int n = randomIntBetween(1, 15);
     final int len = randomBoolean() ? randomInt(1 << 16) : randomInt(1 << 21);
-    final byte[] data = new byte[len];
-    for (int i = 0; i < len; ++i) {
-      data[i] = (byte) randomInt(max);
-    }
+    final byte[] data = randomArray(len, n);
     testRoundTrip(data);
   }
 
