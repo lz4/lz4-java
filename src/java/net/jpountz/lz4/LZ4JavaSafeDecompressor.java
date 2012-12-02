@@ -53,30 +53,30 @@ enum LZ4JavaSafeDecompressor implements LZ4Decompressor {
       int dOff = destOff;
 
       while (true) {
-        final int token = src[sOff++] & 0xFF;
+      final int token = src[sOff++] & 0xFF;
 
-        // literals
-        int literalLen = token >>> ML_BITS;
-        if (literalLen != 0) {
-          if (literalLen == RUN_MASK) {
-            byte len;
-            while ((len = src[sOff++]) == (byte) 0xFF) {
-              literalLen += 0xFF;
-            }
-            literalLen += len & 0xFF;
+      // literals
+      int literalLen = token >>> ML_BITS;
+        if (literalLen == RUN_MASK) {
+          byte len;
+          while ((len = src[sOff++]) == (byte) 0xFF) {
+            literalLen += 0xFF;
           }
+          literalLen += len & 0xFF;
+        }
 
-          final int literalCopyEnd = dOff + literalLen;
-          if (literalCopyEnd > destEnd - COPY_LENGTH) {
-            if (literalCopyEnd != destEnd) {
-              throw new LZ4Exception("Malformed input at " + sOff);
-            } else {
-              safeArraycopy(src, sOff, dest, dOff, literalLen);
-              sOff += literalLen;
-              break; // EOF
-            }
+        final int literalCopyEnd = dOff + literalLen;
+        if (literalCopyEnd > destEnd - COPY_LENGTH) {
+          if (literalCopyEnd != destEnd) {
+            throw new LZ4Exception("Malformed input at " + sOff);
+          } else {
+            safeArraycopy(src, sOff, dest, dOff, literalLen);
+            sOff += literalLen;
+            break; // EOF
           }
+        }
 
+        if (literalLen > 0) {
           wildArraycopy(src, sOff, dest, dOff, literalLen);
           sOff += literalLen;
           dOff = literalCopyEnd;

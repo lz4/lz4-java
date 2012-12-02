@@ -42,13 +42,6 @@ enum LZ4JavaSafeUnknownSizeDecompressor implements LZ4UnknownSizeDecompressor {
       checkRange(src, srcOff, srcLen);
       checkRange(dest, destOff);
 
-      if (srcLen == 1) {
-        if (src[srcOff] != 0) {
-          throw new LZ4Exception("Malformed input at " + srcOff);
-        }
-        return 0;
-      }
-
       final int srcEnd = srcOff + srcLen;
       final int destEnd = dest.length;
 
@@ -56,34 +49,34 @@ enum LZ4JavaSafeUnknownSizeDecompressor implements LZ4UnknownSizeDecompressor {
       int dOff = destOff;
 
       while (sOff < srcEnd) {
-        final int token = src[sOff++] & 0xFF;
+      final int token = src[sOff++] & 0xFF;
 
-        // literals
-        int literalLen = token >>> ML_BITS;
-        if (literalLen != 0) {
-          if (literalLen == RUN_MASK) {
-              byte len;
-              while ((len = src[sOff++]) == (byte) 0xFF) {
-                literalLen += 0xFF;
-              }
-              literalLen += len & 0xFF;
-          }
-
-          final int literalCopyEnd = dOff + literalLen;
-          if (literalCopyEnd > destEnd - COPY_LENGTH || sOff + literalLen > srcEnd - COPY_LENGTH) {
-            if (literalCopyEnd > destEnd || sOff + literalLen > srcEnd) {
-              throw new LZ4Exception("Malformed input at " + sOff);
-            } else {
-              safeArraycopy(src, sOff, dest, dOff, literalLen);
-              sOff += literalLen;
-              dOff = literalCopyEnd;
-              if (sOff < srcEnd) {
-                throw new LZ4Exception("Malformed input at " + sOff);
-              }
-              break; // EOF
+      // literals
+      int literalLen = token >>> ML_BITS;
+        if (literalLen == RUN_MASK) {
+            byte len;
+            while ((len = src[sOff++]) == (byte) 0xFF) {
+              literalLen += 0xFF;
             }
-          }
+            literalLen += len & 0xFF;
+        }
 
+        final int literalCopyEnd = dOff + literalLen;
+        if (literalCopyEnd > destEnd - COPY_LENGTH || sOff + literalLen > srcEnd - COPY_LENGTH) {
+          if (literalCopyEnd > destEnd || sOff + literalLen > srcEnd) {
+            throw new LZ4Exception("Malformed input at " + sOff);
+          } else {
+            safeArraycopy(src, sOff, dest, dOff, literalLen);
+            sOff += literalLen;
+            dOff = literalCopyEnd;
+            if (sOff < srcEnd) {
+              throw new LZ4Exception("Malformed input at " + sOff);
+            }
+            break; // EOF
+          }
+        }
+
+        if (literalLen > 0) {
           wildArraycopy(src, sOff, dest, dOff, literalLen);
           sOff += literalLen;
           dOff = literalCopyEnd;

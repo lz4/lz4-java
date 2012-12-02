@@ -60,26 +60,26 @@ enum LZ4JavaUnsafeDecompressor implements LZ4Decompressor {
 
         // literals
         int literalLen = token >>> ML_BITS;
-        if (literalLen != 0) {
-          if (literalLen == RUN_MASK) {
-              byte len;
-              while ((len = readByte(src, sOff++)) == (byte) 0xFF) {
-                literalLen += 0xFF;
-              }
-              literalLen += len & 0xFF;
-          }
-
-          final int literalCopyEnd = dOff + literalLen;
-          if (literalCopyEnd > destEnd - COPY_LENGTH) {
-            if (literalCopyEnd != destEnd) {
-              throw new LZ4Exception("Malformed input at " + sOff);
-            } else {
-              safeArraycopy(src, sOff, dest, dOff, literalLen);
-              sOff += literalLen;
-              break; // EOF
+        if (literalLen == RUN_MASK) {
+            byte len;
+            while ((len = readByte(src, sOff++)) == (byte) 0xFF) {
+              literalLen += 0xFF;
             }
-          }
+            literalLen += len & 0xFF;
+        }
 
+        final int literalCopyEnd = dOff + literalLen;
+        if (literalCopyEnd > destEnd - COPY_LENGTH) {
+          if (literalCopyEnd != destEnd) {
+            throw new LZ4Exception("Malformed input at " + sOff);
+          } else {
+            safeArraycopy(src, sOff, dest, dOff, literalLen);
+            sOff += literalLen;
+            break; // EOF
+          }
+        }
+
+        if (literalLen > 0) {
           wildArraycopy(src, sOff, dest, dOff, literalLen);
           sOff += literalLen;
           dOff = literalCopyEnd;
