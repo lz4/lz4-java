@@ -93,7 +93,7 @@ enum LZ4JavaSafeUnknownSizeDecompressor implements LZ4UnknownSizeDecompressor {
         final int matchDec = (src[sOff++] & 0xFF) | ((src[sOff++] & 0xFF) << 8);
         final int matchOff = dOff - matchDec;
 
-        if (matchDec == 0 || matchOff < destOff) {
+        if (matchOff < destOff) {
           throw new LZ4Exception("Malformed input at " + sOff);
         }
 

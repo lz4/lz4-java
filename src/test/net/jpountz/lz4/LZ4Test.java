@@ -289,23 +289,14 @@ public class LZ4Test extends RandomizedTest {
 
   @Test
   public void testNullMatchDec() {
-    // 1 literal, 4 matchs with matchDec=0, 5 literals
-    final byte[] invalid = new byte[] { 16, 42, 0, 0, 42, 42, 42, 42, 42 };
+    // 1 literal, 4 matchs with matchDec=0, 8 literals
+    final byte[] invalid = new byte[] { 16, 42, 0, 0, (byte) 128, 42, 42, 42, 42, 42, 42, 42, 42 };
+    // decompression should neither throw an exception nor loop indefinitely
     for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
-      try {
-        decompressor.decompress(invalid, 0, new byte[10], 0, 10);
-        // free not to fail, but do not go into an infinite loop or throw something else than a LZ4Exception
-      } catch (LZ4Exception e) {
-        // OK
-      }
+      decompressor.decompress(invalid, 0, new byte[13], 0, 13);
     }
     for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
-      try {
-        decompressor.decompress(invalid, 0, invalid.length, new byte[10], 0);
-        assertTrue(decompressor.toString(), false);
-      } catch (LZ4Exception e) {
-        // OK
-      }
+      decompressor.decompress(invalid, 0, invalid.length, new byte[20], 0);
     }
   }
 

@@ -51,7 +51,8 @@ enum LZ4UnsafeUtils {
   }
 
   static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
-    while (dOff - matchOff < COPY_LENGTH) {
+    // the i is here to make sure this loop ends when the stream is corrupted and matchOff == dOff
+    for (int i = 0; i < 8 && dOff - matchOff < COPY_LENGTH; ++i) {
       writeLong(dest, dOff, readLong(dest, matchOff));
       dOff += dOff - matchOff;
     }
