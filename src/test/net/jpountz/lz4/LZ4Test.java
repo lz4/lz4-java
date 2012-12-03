@@ -39,7 +39,7 @@ public class LZ4Test extends RandomizedTest {
   private class RandomBytes {
     private final byte[] bytes;
     RandomBytes(int n) {
-      assert n >= 0 && n <= 256;
+      assert n > 0 && n <= 256;
       bytes = new byte[n];
       for (int i = 0; i < n; ++i) {
         bytes[i] = (byte) randomInt(255);
@@ -97,7 +97,7 @@ public class LZ4Test extends RandomizedTest {
 
   public void testUncompressWorstCase(LZ4Decompressor decompressor) {
     final int len = randomInt(100 * 1024);
-    final int max = randomInt(256);
+    final int max = randomInt(255);
     byte[] decompressed = randomArray(len, max);
     byte[] compressed = getCompressedWorstCase(decompressed);
     byte[] restored = new byte[decompressed.length];
@@ -115,7 +115,7 @@ public class LZ4Test extends RandomizedTest {
 
   public void testUncompressWorstCase(LZ4UnknownSizeDecompressor decompressor) {
     final int len = randomInt(100 * 1024);
-    final int max = randomInt(256);
+    final int max = randomIntBetween(1, 256);
     byte[] decompressed = randomArray(len, max);
     byte[] compressed = getCompressedWorstCase(decompressed);
     byte[] restored = new byte[decompressed.length];
