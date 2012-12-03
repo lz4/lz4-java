@@ -79,11 +79,9 @@ enum LZ4JavaUnsafeDecompressor implements LZ4Decompressor {
           }
         }
 
-        if (literalLen > 0) {
-          wildArraycopy(src, sOff, dest, dOff, literalLen);
-          sOff += literalLen;
-          dOff = literalCopyEnd;
-        }
+        wildArraycopy(src, sOff, dest, dOff, literalLen);
+        sOff += literalLen;
+        dOff = literalCopyEnd;
 
         // matchs
         final int matchDec = readShortLittleEndian(src, sOff);

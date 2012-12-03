@@ -46,6 +46,7 @@ enum LZ4JavaUnsafeUnknownSizeDecompressor implements LZ4UnknownSizeDecompressor 
       checkRange(dest, destOff);
 
       final int srcEnd = srcOff + srcLen;
+      final int destEnd = dest.length;
 
       int sOff = srcOff;
       int dOff = destOff;
@@ -64,8 +65,8 @@ enum LZ4JavaUnsafeUnknownSizeDecompressor implements LZ4UnknownSizeDecompressor 
         }
 
         final int literalCopyEnd = dOff + literalLen;
-        if (literalCopyEnd > dest.length - COPY_LENGTH || sOff + literalLen > srcEnd - COPY_LENGTH) {
-          if (literalCopyEnd > dest.length || sOff + literalLen > srcEnd) {
+        if (literalCopyEnd > destEnd - COPY_LENGTH || sOff + literalLen > srcEnd - COPY_LENGTH) {
+          if (literalCopyEnd > destEnd || sOff + literalLen > srcEnd) {
             throw new LZ4Exception("Malformed input at " + sOff);
           } else {
             safeArraycopy(src, sOff, dest, dOff, literalLen);
@@ -78,11 +79,9 @@ enum LZ4JavaUnsafeUnknownSizeDecompressor implements LZ4UnknownSizeDecompressor 
           }
         }
 
-        if (literalLen > 0) {
-          wildArraycopy(src, sOff, dest, dOff, literalLen);
-          sOff += literalLen;
-          dOff = literalCopyEnd;
-        }
+        wildArraycopy(src, sOff, dest, dOff, literalLen);
+        sOff += literalLen;
+        dOff = literalCopyEnd;
 
         // matchs
         final int matchDec = readShortLittleEndian(src, sOff);

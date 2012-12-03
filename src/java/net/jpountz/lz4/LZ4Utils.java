@@ -17,7 +17,6 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.util.Utils.checkRange;
 import static net.jpountz.util.Utils.readInt;
 
 enum LZ4Utils {
@@ -94,6 +93,7 @@ enum LZ4Utils {
   }
 
   static void safeIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
+    assert matchLen >= 4;
     if (dOff - matchOff >= matchLen) {
       safeArraycopy(dest, matchOff, dest, dOff, matchLen);
     } else {
@@ -102,14 +102,24 @@ enum LZ4Utils {
   }
 
   static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
-    if (matchLen <= 8) {
+    assert matchLen >= 4;
+    switch (matchLen) {
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
       for (int i = 0; i < 8; ++i) {
         dest[dOff++] = dest[matchOff++];
       }
-    } else if (dOff - matchOff >= matchLen) {
-      wildArraycopy(dest, matchOff, dest, dOff, matchLen);
-    } else {
-      naiveIncrementalCopy(dest, matchOff, dOff, matchLen);
+      break;
+    default:
+      if (dOff - matchOff >= matchLen) {
+        wildArraycopy(dest, matchOff, dest, dOff, matchLen);
+      } else {
+        naiveIncrementalCopy(dest, matchOff, dOff, matchLen);
+      }
+      break;
     }
   }
 
@@ -203,18 +213,6 @@ enum LZ4Utils {
     dOff += runLen;
 
     return dOff;
-  }
-
-  static int vIntLength(int n) {
-    if (n < 0) {
-      throw new IllegalArgumentException("Cannot encode negative integers");
-    }
-    int len = 0;
-    do {
-      ++len;
-      n >>>= 7;
-    } while (n > 0);
-    return len;
   }
 
   static int writeLen(int len, byte[] dest, int dOff) {
