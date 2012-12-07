@@ -30,7 +30,7 @@ which gives access to {@link net.jpountz.lz4.LZ4Compressor compressors} and
 <p>Sample usage:</p>
 
 <pre class="prettyprint">
-    LZ4Factory factory = LZ4Factory.defaultInstance();
+    LZ4Factory factory = LZ4Factory.fastestInstance();
 
     byte[] data = "12345345234572".getBytes("UTF-8");
     final int decompressedLength = data.length;

@@ -14,7 +14,7 @@ public class LZ4Example {
   }
 
   private static void example() throws UnsupportedEncodingException {
-    LZ4Factory factory = LZ4Factory.defaultInstance();
+    LZ4Factory factory = LZ4Factory.fastestInstance();
 
     byte[] data = "12345345234572".getBytes("UTF-8");
     final int decompressedLength = data.length;

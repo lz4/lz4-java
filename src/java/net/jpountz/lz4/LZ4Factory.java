@@ -28,6 +28,10 @@ package net.jpountz.lz4;
  * <li>an {@link #unsafeInstance() unsafe Java} instance which is a Java port
  * using the unofficial {@link sun.misc.Unsafe} API.</li>
  * </ul>
+ * <p>
+ * Not all instances may work on your host, as a consequence it is advised to
+ * use the {@link #fastestInstance()} method to pull a {@link LZ4Factory}
+ * instance.
  */
 public final class LZ4Factory {
 
@@ -61,23 +65,21 @@ public final class LZ4Factory {
     return instance("JavaUnsafe");
   }
 
-  /** Return a default {@link LZ4Factory} instance. This method tries to return
-   * the {@link #unsafeInstance()} and falls back on the {@link #safeInstance()}
-   * in case an error occurred while loading the {@link #unsafeInstance() unsafe}
-   * instance.
-   * <pre>
-   * try {
-   *   return unsafeInstance();
-   * } catch (Throwable t) {
-   *   return safeInstance();
-   * }
-   * </pre>
+  /**
+   * Return the fastest available {@link LZ4Factory} instance. This method
+   * will first try to load the native instance, then the unsafe java one and
+   * finally the safe java one if the JVM doesn't have {@link sun.misc.Unsafe}
+   * support.
    */
-  public static LZ4Factory defaultInstance() {
+  public static LZ4Factory fastestInstance() {
     try {
-      return unsafeInstance();
-    } catch (Throwable t) {
-      return safeInstance();
+      return nativeInstance();
+    } catch (Throwable t1) {
+      try {
+        return unsafeInstance();
+      } catch (Throwable t2) {
+        return safeInstance();
+      }
     }
   }
 

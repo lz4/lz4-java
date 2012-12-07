@@ -1,6 +1,7 @@
 package net.jpountz.xxhash;
 
 
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -49,23 +50,21 @@ public final class XXHashFactory {
     return instance("JavaUnsafe");
   }
 
-  /** Return a default {@link XXHashFactory} instance. This method tries to return
-   * the {@link #unsafeInstance()} and falls back on the {@link #safeInstance()}
-   * in case an error occurred while loading the {@link #unsafeInstance() unsafe}
-   * instance.
-   * <pre>
-   * try {
-   *   return unsafeInstance();
-   * } catch (Throwable t) {
-   *   return safeInstance();
-   * }
-   * </pre>
+  /**
+   * Return the fastest available {@link XXHashFactory} instance. This method
+   * will first try to load the native instance, then the unsafe java one and
+   * finally the safe java one if the JVM doesn't have {@link sun.misc.Unsafe}
+   * support.
    */
-  public static XXHashFactory defaultInstance() {
+  public static XXHashFactory fastestInstance() {
     try {
-      return unsafeInstance();
-    } catch (Throwable t) {
-      return safeInstance();
+      return nativeInstance();
+    } catch (Throwable t1) {
+      try {
+        return unsafeInstance();
+      } catch (Throwable t2) {
+        return safeInstance();
+      }
     }
   }
 
