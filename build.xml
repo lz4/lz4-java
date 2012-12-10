@@ -54,6 +54,7 @@
     <javac
       includeAntRuntime="false"
       srcdir="${src}/java"
+      target="1.6"
       encoding="UTF-8"
       debug="true"
       destdir="${build}/classes"/>
