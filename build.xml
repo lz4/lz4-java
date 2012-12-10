@@ -54,6 +54,7 @@
     <javac
       includeAntRuntime="false"
       srcdir="${src}/java"
+      source="1.6"
       target="1.6"
       encoding="UTF-8"
       debug="true"
@@ -76,6 +77,7 @@
     <mkdir dir="${build}/objects" />
     <mkdir dir="${build}/jni/${platform}/${os.arch}" />
     <cpptasks:cc
+      debug="true"
       optimize="speed"
       objdir="${build}/objects"
       outfile="${build}/jni/${platform}/${os.arch}/lz4-java"
