@@ -26,7 +26,7 @@ public enum Native {
   ;
 
   private enum OS {
-    WINDOWS("windows", "dll"), LINUX("linux", "so"), MAC("mac", "dylib");
+    WINDOWS("windows", "dll"), LINUX("linux", "so"), MAC("mac", "dylib"), SOLARIS("solaris", "so");
     public final String name, libExtension;
 
     private OS(String name, String libExtension) {
@@ -47,6 +47,8 @@ public enum Native {
       return OS.MAC;
     } else if (osName.contains("Windows")) {
       return OS.WINDOWS;
+    } else if (osName.contains("Solaris")) {
+      return OS.SOLARIS;
     } else {
       throw new UnsupportedOperationException("Unsupported operating system: "
           + osName);

@@ -36,6 +36,9 @@
   <condition property="platform" value="solaris">
    <os name="SunOS"/>
   </condition>
+  <condition property="platform" value="mac">
+   <os family="mac"/>
+  </condition>
 
   <target name="clean">
     <delete dir="${build}" />
