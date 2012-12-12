@@ -27,6 +27,7 @@ import static net.jpountz.util.UnsafeUtils.readInt;
 import static net.jpountz.util.UnsafeUtils.readLong;
 import static net.jpountz.util.UnsafeUtils.readShort;
 import static net.jpountz.util.UnsafeUtils.writeByte;
+import static net.jpountz.util.UnsafeUtils.writeInt;
 import static net.jpountz.util.UnsafeUtils.writeLong;
 import static net.jpountz.util.UnsafeUtils.writeShort;
 import static net.jpountz.util.Utils.NATIVE_BYTE_ORDER;
@@ -51,8 +52,41 @@ enum LZ4UnsafeUtils {
   }
 
   static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
-    // the i is here to make sure this loop ends when the stream is corrupted and matchOff == dOff
-    for (int i = 0; i < 8 && dOff - matchOff < COPY_LENGTH; ++i) {
+    if (dOff - matchOff < 4) {
+      for (int i = 0; i < 4; ++i) {
+        writeByte(dest, dOff+i, readByte(dest, matchOff+i));
+      }
+      dOff += 4;
+      matchOff += 4;
+      int dec = 0;
+      assert dOff >= matchOff && dOff - matchOff < 8;
+      switch (dOff - matchOff) {
+      case 1:
+        matchOff -= 3;
+        break;
+      case 2:
+        matchOff -= 2;
+        break;
+      case 3:
+        matchOff -= 3;
+        dec = -1;
+        break;
+      case 5:
+        dec = 1;
+        break;
+      case 6:
+        dec = 2;
+        break;
+      case 7:
+        dec = 3;
+        break;
+      default:
+        break;
+      }
+      writeInt(dest, dOff, readInt(dest, matchOff));
+      dOff += 4;
+      matchOff -= dec;
+    } else if (dOff - matchOff < COPY_LENGTH) {
       writeLong(dest, dOff, readLong(dest, matchOff));
       dOff += dOff - matchOff;
     }

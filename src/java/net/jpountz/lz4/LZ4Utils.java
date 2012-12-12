@@ -101,24 +101,23 @@ enum LZ4Utils {
     }
   }
 
-  static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
-    assert matchLen >= 4;
-    switch (matchLen) {
+  static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
+    switch (matchCopyEnd - dOff) {
     case 4:
     case 5:
     case 6:
     case 7:
     case 8:
       for (int i = 0; i < 8; ++i) {
-        dest[dOff++] = dest[matchOff++];
+        dest[dOff+i] = dest[matchOff+i];
       }
       break;
     default:
-      if (dOff - matchOff >= matchLen) {
-        wildArraycopy(dest, matchOff, dest, dOff, matchLen);
-      } else {
-        naiveIncrementalCopy(dest, matchOff, dOff, matchLen);
+      while (dOff - matchOff < matchCopyEnd - dOff) {
+        wildArraycopy(dest, matchOff, dest, dOff, dOff - matchOff);
+        dOff += dOff - matchOff;
       }
+      wildArraycopy(dest, matchOff, dest, dOff, matchCopyEnd - dOff);
       break;
     }
   }

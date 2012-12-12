@@ -106,7 +106,7 @@ enum LZ4JavaSafeDecompressor implements LZ4Decompressor {
           }
           safeIncrementalCopy(dest, matchOff, dOff, matchLen);
         } else {
-          wildIncrementalCopy(dest, matchOff, dOff, matchLen);
+          wildIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
         }
         dOff = matchCopyEnd;
       }

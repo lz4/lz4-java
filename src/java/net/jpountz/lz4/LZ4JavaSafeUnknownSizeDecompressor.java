@@ -106,7 +106,7 @@ enum LZ4JavaSafeUnknownSizeDecompressor implements LZ4UnknownSizeDecompressor {
           }
           safeIncrementalCopy(dest, matchOff, dOff, matchLen);
         } else {
-          wildIncrementalCopy(dest, matchOff, dOff, matchLen);
+          wildIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
         }
         dOff = matchCopyEnd;
       }
