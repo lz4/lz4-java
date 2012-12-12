@@ -1,5 +1,7 @@
 package net.jpountz.lz4;
 
+import java.util.Arrays;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -32,6 +34,10 @@ package net.jpountz.lz4;
  * Not all instances may work on your host, as a consequence it is advised to
  * use the {@link #fastestInstance()} method to pull a {@link LZ4Factory}
  * instance.
+ * <p>
+ * All methods from this class are very costly, so you should get an instance
+ * once, and then reuse it whenever possible. This is typically done by storing
+ * a {@link LZ4Factory} instance in a static field.
  */
 public final class LZ4Factory {
 
@@ -122,6 +128,25 @@ public final class LZ4Factory {
       throw new AssertionError();
     }
     unknownSizeDecompressor = unknownSizeDecompressors[0];
+
+    // quickly test that everything works as expected
+    final byte[] original = new byte[] {'a','b','c','d',' ',' ',' ',' ',' ',' ','a','b','c','d','e','f','g','h','i','j'};
+    for (LZ4Compressor compressor : Arrays.asList(fastCompressor, highCompressor)) {
+      final int maxCompressedLength = compressor.maxCompressedLength(original.length);
+      final byte[] compressed = new byte[maxCompressedLength];
+      final int compressedLength = compressor.compress(original, 0, original.length, compressed, 0, maxCompressedLength);
+      final byte[] restored = new byte[original.length];
+      decompressor.decompress(compressed, 0, restored, 0, original.length);
+      if (!Arrays.equals(original, restored)) {
+        throw new AssertionError();
+      }
+      Arrays.fill(restored, (byte) 0);
+      final int decompressedLength = unknownSizeDecompressor.decompress(compressed, 0, compressedLength, restored, 0);
+      if (decompressedLength != original.length || !Arrays.equals(original, restored)) {
+        throw new AssertionError();
+      }
+    }
+
   }
 
   /** Return a {@link LZ4Compressor} that uses a fast-scan method to compress
