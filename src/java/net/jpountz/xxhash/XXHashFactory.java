@@ -20,7 +20,7 @@ package net.jpountz.xxhash;
  */
 
 /**
- * Entry point to get {@link XXHash} instances.
+ * Entry point to get {@link XXHash32} instances.
  */
 public final class XXHashFactory {
 
@@ -32,19 +32,19 @@ public final class XXHashFactory {
     }
   }
 
-  /** Return a {@link XXHashFactory} that returns {@link XXHash} instances that
+  /** Return a {@link XXHashFactory} that returns {@link XXHash32} instances that
    *  are native bindings to the original C API. */
   public static XXHashFactory nativeInstance() {
     return instance("JNI");
   }
 
-  /** Return a {@link XXHashFactory} that returns {@link XXHash} instances that
+  /** Return a {@link XXHashFactory} that returns {@link XXHash32} instances that
    *  are written with Java's official API. */
   public static XXHashFactory safeInstance() {
     return instance("JavaSafe");
   }
 
-  /** Return a {@link XXHashFactory} that returns {@link XXHash} instances that
+  /** Return a {@link XXHashFactory} that returns {@link XXHash32} instances that
    *  may use {@link sun.misc.Unsafe} to speed up hashing. */
   public static XXHashFactory unsafeInstance() {
     return instance("JavaUnsafe");
@@ -68,31 +68,24 @@ public final class XXHashFactory {
     }
   }
 
-  private final XXHash fastHash;
-  private final XXHash strongHash;
+  private final XXHash32 hash32;
 
   private XXHashFactory(String impl) throws ClassNotFoundException {
-    final Class<?> xxHashEnum = Class.forName(XXHash.class.getName() + impl);
-    if (!XXHash.class.isAssignableFrom(xxHashEnum)) {
+    final Class<?> xxHashEnum = Class.forName(XXHash32.class.getName() + impl);
+    if (!XXHash32.class.isAssignableFrom(xxHashEnum)) {
       throw new AssertionError();
     }
     @SuppressWarnings("unchecked")
-    XXHash[] xxHashs = ((Class<? extends XXHash>) xxHashEnum).getEnumConstants();
-    if (xxHashs.length != 2) {
+    XXHash32[] xxHashs32 = ((Class<? extends XXHash32>) xxHashEnum).getEnumConstants();
+    if (xxHashs32.length != 1) {
       throw new AssertionError();
     }
-    this.fastHash = xxHashs[0];
-    this.strongHash = xxHashs[1];
+    this.hash32 = xxHashs32[0];
   }
 
-  /** Return a fast {@link XXHash} instance. */
-  public XXHash fastHash() {
-    return fastHash;
-  }
-
-  /** Return a strong {@link XXHash} instance. */
-  public XXHash strongHash() {
-    return strongHash;
+  /** Return a {@link XXHash32} instance. */
+  public XXHash32 hash32() {
+    return hash32;
   }
 
 }

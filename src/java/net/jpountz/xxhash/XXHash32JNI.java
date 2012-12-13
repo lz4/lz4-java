@@ -17,15 +17,32 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-/**
- * A hash.
- */
-public abstract interface XXHash {
+import static net.jpountz.util.Utils.checkRange;
+import net.jpountz.util.Native;
 
-  /**
-   * Compute the 32-bits hash of <code>buf[off:off+len]</code> using seed
-   * <code>seed</code>.
-   */
-  public abstract int hash(byte[] buf, int off, int len, int seed);
+enum XXHash32JNI implements XXHash32 {
+
+  INSTANCE {
+
+    @Override
+    public int hash(byte[] buf, int off, int len, int seed) {
+      checkRange(buf, off, len);
+      return XXH32(buf, off, len, seed);
+    }
+
+  };
+
+  static {
+    Native.load();
+    init();
+  }
+
+  private static native void init();
+  private static native int XXH32(byte[] input, int offset, int len, int seed);
+
+  @Override
+  public String toString() {
+    return getDeclaringClass().getSimpleName();
+  }
 
 }

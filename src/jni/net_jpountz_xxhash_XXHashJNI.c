@@ -16,7 +16,7 @@
  */
 
 #include "xxhash.h"
-#include "net_jpountz_xxhash_XXHashJNI.h"
+#include "net_jpountz_xxhash_XXHash32JNI.h"
 
 static jclass OutOfMemoryError;
 
@@ -25,7 +25,7 @@ static jclass OutOfMemoryError;
  * Method:    init
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_init
+JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHash32JNI_init
   (JNIEnv *env, jclass cls) {
   OutOfMemoryError = (*env)->FindClass(env, "java/lang/OutOfMemoryError");
 }
@@ -36,10 +36,10 @@ static void throw_OOM(JNIEnv *env) {
 
 /*
  * Class:     net_jpountz_xxhash_XXHashJNI
- * Method:    XXH_fast32
+ * Method:    XXH32
  * Signature: ([BIII)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH_1fast32
+JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHash32JNI_XXH32
   (JNIEnv *env, jclass cls, jbyteArray buf, jint off, jint len, jint seed) {
 
   char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, buf, 0);
@@ -48,22 +48,9 @@ JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH_1fast32
     return 0;
   }
 
-  return XXH_fast32(in + off, len, seed);
-}
+  jint h32 = XXH32(in + off, len, seed);
 
-/*
- * Class:     net_jpountz_xxhash_XXHashJNI
- * Method:    XXH_strong32
- * Signature: ([BIII)I
- */
-JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH_1strong32
-  (JNIEnv *env, jclass cls, jbyteArray buf, jint off, jint len, jint seed) {
+  (*env)->ReleasePrimitiveArrayCritical(env, buf, in, 0);
 
-  char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, buf, 0);
-  if (in == NULL) {
-    throw_OOM(env);
-    return 0;
-  }
-
-  return XXH_strong32(in + off, len, seed);
+  return h32;
 }

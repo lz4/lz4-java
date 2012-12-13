@@ -17,14 +17,15 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-import junit.framework.TestCase;
+/**
+ * A 32-bits hash.
+ */
+public abstract interface XXHash32 {
 
-public class XXHashFactoryTest extends TestCase {
-
-  public void test() {
-    assertEquals(XXHash32JNI.INSTANCE, XXHashFactory.nativeInstance().hash32());
-    assertEquals(XXHash32JavaUnsafe.INSTANCE, XXHashFactory.unsafeInstance().hash32());
-    assertEquals(XXHash32JavaSafe.INSTANCE, XXHashFactory.safeInstance().hash32());
-  }
+  /**
+   * Compute the 32-bits hash of <code>buf[off:off+len]</code> using seed
+   * <code>seed</code>.
+   */
+  public abstract int hash(byte[] buf, int off, int len, int seed);
 
 }
