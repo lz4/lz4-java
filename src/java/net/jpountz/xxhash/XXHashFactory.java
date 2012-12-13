@@ -81,6 +81,9 @@ public final class XXHashFactory {
       throw new AssertionError();
     }
     this.hash32 = xxHashs32[0];
+
+    // make sure it can run
+    hash32.hash(new byte[18], 0, 18, 42);
   }
 
   /** Return a {@link XXHash32} instance. */
