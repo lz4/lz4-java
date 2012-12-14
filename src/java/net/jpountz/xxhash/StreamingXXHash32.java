@@ -17,23 +17,45 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-import static net.jpountz.util.Utils.checkRange;
 
-enum XXHash32JNI implements XXHash32 {
+/**
+ * Streaming interface for {@link XXHash32}.
+ */
+public abstract class StreamingXXHash32 {
 
-  INSTANCE {
+  final int seed;
 
-    @Override
-    public int hash(byte[] buf, int off, int len, int seed) {
-      checkRange(buf, off, len);
-      return XXHashJNI.XXH32(buf, off, len, seed);
-    }
+  StreamingXXHash32(int seed) {
+    this.seed = seed;
+  }
 
-  };
+  /**
+   * Get the value of the checksum.
+   */
+  public abstract int getValue();
+
+  /**
+   * Update the value of the hash with buf[off:off+len].
+   */
+  public abstract void update(byte[] buf, int off, int len);
+
+  /**
+   * Reset this instance.
+   */
+  public abstract void reset();
+
+  /**
+   * Update the value of the hash with byte <code>b</code>.
+   */
+  public void update(int b) {
+    final byte[] bytes = new byte[1];
+    bytes[0] = (byte) b;
+    update(bytes, 0, 1);
+  }
 
   @Override
   public String toString() {
-    return getDeclaringClass().getSimpleName();
+    return getClass().getSimpleName() + "(seed=" + seed + ")";
   }
 
 }

@@ -72,7 +72,7 @@
         <pathelement location="${build}/classes/" />
       </classpath>
       <class name="net.jpountz.lz4.LZ4JNI" />
-      <class name="net.jpountz.xxhash.XXHash32JNI" />
+      <class name="net.jpountz.xxhash.XXHashJNI" />
     </javah>
   </target>
 

@@ -17,23 +17,20 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-import static net.jpountz.util.Utils.checkRange;
+import net.jpountz.util.Native;
 
-enum XXHash32JNI implements XXHash32 {
+enum XXHashJNI {
+  ;
 
-  INSTANCE {
-
-    @Override
-    public int hash(byte[] buf, int off, int len, int seed) {
-      checkRange(buf, off, len);
-      return XXHashJNI.XXH32(buf, off, len, seed);
-    }
-
-  };
-
-  @Override
-  public String toString() {
-    return getDeclaringClass().getSimpleName();
+  static {
+    Native.load();
+    init();
   }
+
+  private static native void init();
+  static native int XXH32(byte[] input, int offset, int len, int seed);
+  static native long XXH32_init(int seed);
+  static native void XXH32_feed(long state, byte[] input, int offset, int len);
+  static native int XXH32_result(long state);
 
 }

@@ -1,7 +1,5 @@
 package net.jpountz.xxhash;
 
-
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,8 +17,10 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
+import java.util.Random;
+
 /**
- * Entry point to get {@link XXHash32} instances.
+ * Entry point to get {@link XXHash32} and {@link StreamingXXHash32} instances.
  */
 public final class XXHashFactory {
 
@@ -69,6 +69,7 @@ public final class XXHashFactory {
   }
 
   private final XXHash32 hash32;
+  private final StreamingXXHash32Factory streamingHash32Factory;
 
   private XXHashFactory(String impl) throws ClassNotFoundException {
     final Class<?> xxHashEnum = Class.forName(XXHash32.class.getName() + impl);
@@ -82,13 +83,42 @@ public final class XXHashFactory {
     }
     this.hash32 = xxHashs32[0];
 
+    final Class<?> streamingXXHashFactoryEnum = Class.forName(StreamingXXHash32Factory.class.getName() + impl);
+    if (!StreamingXXHash32Factory.class.isAssignableFrom(streamingXXHashFactoryEnum)) {
+      throw new AssertionError();
+    }
+    @SuppressWarnings("unchecked")
+    StreamingXXHash32Factory[] streamingXXHash32Factories = ((Class<? extends StreamingXXHash32Factory>) streamingXXHashFactoryEnum).getEnumConstants();
+    if (streamingXXHash32Factories.length != 1) {
+      throw new AssertionError();
+    }
+    this.streamingHash32Factory = streamingXXHash32Factories[0];
+
     // make sure it can run
-    hash32.hash(new byte[18], 0, 18, 42);
+    final byte[] bytes = new byte[100];
+    final Random random = new Random();
+    random.nextBytes(bytes);
+    final int seed = random.nextInt();
+
+    final int h1 = hash32.hash(bytes, 0, bytes.length, seed);
+    final StreamingXXHash32 streamingHash32 = newStreamingHash32(seed);
+    streamingHash32.update(bytes, 0, bytes.length);
+    final int h2 = streamingHash32.getValue();
+    if (h1 != h2) {
+      throw new AssertionError();
+    }
   }
 
   /** Return a {@link XXHash32} instance. */
   public XXHash32 hash32() {
     return hash32;
+  }
+
+  /**
+   * Return a new {@link StreamingXXHash32} instance.
+   */
+  public StreamingXXHash32 newStreamingHash32(int seed) {
+    return streamingHash32Factory.newStreamingHash(seed);
   }
 
 }

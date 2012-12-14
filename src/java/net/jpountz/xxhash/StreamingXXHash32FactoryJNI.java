@@ -17,23 +17,15 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-import static net.jpountz.util.Utils.checkRange;
-
-enum XXHash32JNI implements XXHash32 {
+enum StreamingXXHash32FactoryJNI implements StreamingXXHash32Factory {
 
   INSTANCE {
 
     @Override
-    public int hash(byte[] buf, int off, int len, int seed) {
-      checkRange(buf, off, len);
-      return XXHashJNI.XXH32(buf, off, len, seed);
+    public StreamingXXHash32 newStreamingHash(int seed) {
+      return new StreamingXXHash32JNI(seed);
     }
 
-  };
-
-  @Override
-  public String toString() {
-    return getDeclaringClass().getSimpleName();
   }
 
 }

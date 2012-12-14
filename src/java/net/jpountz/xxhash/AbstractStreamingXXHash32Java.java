@@ -17,23 +17,29 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-import static net.jpountz.util.Utils.checkRange;
+import static net.jpountz.xxhash.XXHashUtils.PRIME1;
+import static net.jpountz.xxhash.XXHashUtils.PRIME2;
 
-enum XXHash32JNI implements XXHash32 {
+abstract class AbstractStreamingXXHash32Java extends StreamingXXHash32 {
 
-  INSTANCE {
+  int v1, v2, v3, v4, memSize;
+  long totalLen;
+  final byte[] memory;
 
-    @Override
-    public int hash(byte[] buf, int off, int len, int seed) {
-      checkRange(buf, off, len);
-      return XXHashJNI.XXH32(buf, off, len, seed);
-    }
-
-  };
+  AbstractStreamingXXHash32Java(int seed) {
+    super(seed);
+    memory = new byte[16];
+    reset();
+  }
 
   @Override
-  public String toString() {
-    return getDeclaringClass().getSimpleName();
+  public void reset() {
+    v1 = seed + PRIME1 + PRIME2;
+    v2 = seed + PRIME2;
+    v3 = seed + 0;
+    v4 = seed - PRIME1;
+    totalLen = 0;
+    memSize = 0;
   }
 
 }
