@@ -23,8 +23,11 @@ public class XXHashFactoryTest extends TestCase {
 
   public void test() {
     assertEquals(XXHash32JNI.INSTANCE, XXHashFactory.nativeInstance().hash32());
+    assertTrue(XXHashFactory.nativeInstance().newStreamingHash32(0) instanceof StreamingXXHash32JNI);
     assertEquals(XXHash32JavaUnsafe.INSTANCE, XXHashFactory.unsafeInstance().hash32());
+    assertTrue(XXHashFactory.unsafeInstance().newStreamingHash32(0) instanceof StreamingXXHash32JavaUnsafe);
     assertEquals(XXHash32JavaSafe.INSTANCE, XXHashFactory.safeInstance().hash32());
+    assertTrue(XXHashFactory.safeInstance().newStreamingHash32(0) instanceof StreamingXXHash32JavaSafe);
   }
 
 }
