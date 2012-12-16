@@ -32,6 +32,9 @@ public class XXHashTest extends RandomizedTest {
           --remainingPasses;
           off = originalOff;
         }
+        if (randomBoolean()) {
+          h.getValue();
+        }
       }
       return h.getValue();
     }
@@ -105,6 +108,29 @@ public class XXHashTest extends RandomizedTest {
     for (XXHash32 hash : INSTANCES) {
       final int h = hash.hash(buf, off, len, seed);
       assertEquals(hash.toString(), ref, h);
+    }
+  }
+
+  @Test
+  public void test4GB() {
+    byte[] bytes = new byte[randomIntBetween(1 << 22, 1 << 26)];
+    for (int i = 0; i < bytes.length; ++i) {
+      bytes[i] = randomByte();
+    }
+    final int off = randomInt(5);
+    final int len = randomIntBetween(bytes.length - off - 1024, bytes.length - off);
+    long totalLen = 0;
+    final int seed = randomInt();
+    StreamingXXHash32 hash1 = XXHashFactory.nativeInstance().newStreamingHash32(seed);
+    StreamingXXHash32 hash2 = XXHashFactory.unsafeInstance().newStreamingHash32(seed);
+    StreamingXXHash32 hash3 = XXHashFactory.safeInstance().newStreamingHash32(seed);
+    while (totalLen < (1L << 33)) {
+      hash1.update(bytes, off, len);
+      hash2.update(bytes, off, len);
+      hash3.update(bytes, off, len);
+      assertEquals(hash2.toString() + " " + totalLen, hash1.getValue(), hash2.getValue());
+      assertEquals(hash3.toString() + " " + totalLen, hash1.getValue(), hash3.getValue());
+      totalLen += len;
     }
   }
 

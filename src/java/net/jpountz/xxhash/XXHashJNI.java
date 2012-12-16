@@ -31,6 +31,7 @@ enum XXHashJNI {
   static native int XXH32(byte[] input, int offset, int len, int seed);
   static native long XXH32_init(int seed);
   static native void XXH32_feed(long state, byte[] input, int offset, int len);
+  static native int XXH32_getIntermediateResult(long state);
   static native int XXH32_result(long state);
 
 }

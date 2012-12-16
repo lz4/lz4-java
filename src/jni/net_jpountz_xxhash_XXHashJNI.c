@@ -89,6 +89,18 @@ JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1feed
 
 /*
  * Class:     net_jpountz_xxhash_XXHashJNI
+ * Method:    XXH32_getIntermediateResult
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1getIntermediateResult
+  (JNIEnv *env, jclass cls, jlong state) {
+
+  return XXH32_getIntermediateResult((void*) state);
+
+}
+
+/*
+ * Class:     net_jpountz_xxhash_XXHashJNI
  * Method:    XXH32_result
  * Signature: (J)I
  */
@@ -98,3 +110,4 @@ JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1result
   return XXH32_result((void*) state);
 
 }
+

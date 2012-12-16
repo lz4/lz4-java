@@ -19,7 +19,7 @@ package net.jpountz.xxhash;
 
 import static java.lang.Integer.rotateLeft;
 import static net.jpountz.util.Utils.checkRange;
-import static net.jpountz.util.Utils.readInt;
+import static net.jpountz.util.Utils.readIntLE;
 import static net.jpountz.xxhash.XXHashUtils.PRIME1;
 import static net.jpountz.xxhash.XXHashUtils.PRIME2;
 import static net.jpountz.xxhash.XXHashUtils.PRIME3;
@@ -41,11 +41,11 @@ class StreamingXXHash32JavaSafe extends AbstractStreamingXXHash32Java {
       h32 = seed + PRIME5;
     }
 
-    h32 += (int) totalLen;
+    h32 += totalLen;
 
     int off = 0;
     while (off <= memSize - 4) {
-      h32 += readInt(memory, off) * PRIME3;
+      h32 += readIntLE(memory, off) * PRIME3;
       h32 = rotateLeft(h32, 17) * PRIME4;
       off += 4;
     }
@@ -82,19 +82,19 @@ class StreamingXXHash32JavaSafe extends AbstractStreamingXXHash32Java {
     if (memSize > 0) { // data left from previous update
       System.arraycopy(buf, off, memory, memSize, 16 - memSize);
 
-      v1 += readInt(memory, 0) * PRIME2;
+      v1 += readIntLE(memory, 0) * PRIME2;
       v1 = rotateLeft(v1, 13);
       v1 *= PRIME1;
 
-      v2 += readInt(memory, 4) * PRIME2;
+      v2 += readIntLE(memory, 4) * PRIME2;
       v2 = rotateLeft(v2, 13);
       v2 *= PRIME1;
 
-      v3 += readInt(memory, 8) * PRIME2;
+      v3 += readIntLE(memory, 8) * PRIME2;
       v3 = rotateLeft(v3, 13);
       v3 *= PRIME1;
 
-      v4 += readInt(memory, 12) * PRIME2;
+      v4 += readIntLE(memory, 12) * PRIME2;
       v4 = rotateLeft(v4, 13);
       v4 *= PRIME1;
 
@@ -110,22 +110,22 @@ class StreamingXXHash32JavaSafe extends AbstractStreamingXXHash32Java {
       int v4 = this.v4;
 
       while (off <= limit) {
-        v1 += readInt(buf, off) * PRIME2;
+        v1 += readIntLE(buf, off) * PRIME2;
         v1 = rotateLeft(v1, 13);
         v1 *= PRIME1;
         off += 4;
 
-        v2 += readInt(buf, off) * PRIME2;
+        v2 += readIntLE(buf, off) * PRIME2;
         v2 = rotateLeft(v2, 13);
         v2 *= PRIME1;
         off += 4;
 
-        v3 += readInt(buf, off) * PRIME2;
+        v3 += readIntLE(buf, off) * PRIME2;
         v3 = rotateLeft(v3, 13);
         v3 *= PRIME1;
         off += 4;
 
-        v4 += readInt(buf, off) * PRIME2;
+        v4 += readIntLE(buf, off) * PRIME2;
         v4 = rotateLeft(v4, 13);
         v4 *= PRIME1;
         off += 4;

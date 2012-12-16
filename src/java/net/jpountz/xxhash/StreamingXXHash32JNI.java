@@ -24,33 +24,31 @@ final class StreamingXXHash32JNI extends StreamingXXHash32 {
 
   StreamingXXHash32JNI(int seed) {
     super(seed);
-    reset();
+    state = XXHashJNI.XXH32_init(seed);
+  }
+
+  private void checkState() {
+    if (state == 0) {
+      throw new AssertionError("Already finalized");
+    }
   }
 
   @Override
   public void reset() {
-    if (state != 0) {
-      XXHashJNI.XXH32_result(state);
-      state = 0;
-    }
+    checkState();
+    XXHashJNI.XXH32_result(state);
     state = XXHashJNI.XXH32_init(seed);
   }
 
   @Override
   public int getValue() {
-    if (state == 0) {
-      throw new IllegalStateException("getValue has already been called");
-    }
-    final int result = XXHashJNI.XXH32_result(state);
-    state = 0;
-    return result;
+    checkState();
+    return XXHashJNI.XXH32_getIntermediateResult(state);
   }
 
   @Override
   public void update(byte[] bytes, int off, int len) {
-    if (state == 0) {
-      throw new IllegalStateException("getValue has already been called");
-    }
+    checkState();
     XXHashJNI.XXH32_feed(state, bytes, off, len);
   }
 
@@ -59,9 +57,9 @@ final class StreamingXXHash32JNI extends StreamingXXHash32 {
     super.finalize();
     // free memory
     if (state != 0) {
-      getValue();
+      XXHashJNI.XXH32_result(state);
+      state = 0;
     }
-    assert state == 0;
   }
 
 }

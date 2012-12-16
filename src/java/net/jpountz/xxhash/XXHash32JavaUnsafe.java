@@ -19,7 +19,7 @@ package net.jpountz.xxhash;
 
 import static java.lang.Integer.rotateLeft;
 import static net.jpountz.util.UnsafeUtils.readByte;
-import static net.jpountz.util.UnsafeUtils.readInt;
+import static net.jpountz.util.UnsafeUtils.readIntLE;
 import static net.jpountz.util.Utils.checkRange;
 import static net.jpountz.xxhash.XXHashUtils.PRIME1;
 import static net.jpountz.xxhash.XXHashUtils.PRIME2;
@@ -48,22 +48,22 @@ enum XXHash32JavaUnsafe implements XXHash32 {
         int v3 = seed + 0;
         int v4 = seed - PRIME1;
         do {
-          v1 += readInt(buf, off) * PRIME2;
+          v1 += readIntLE(buf, off) * PRIME2;
           v1 = rotateLeft(v1, 13);
           v1 *= PRIME1;
           off += 4;
 
-          v2 += readInt(buf, off) * PRIME2;
+          v2 += readIntLE(buf, off) * PRIME2;
           v2 = rotateLeft(v2, 13);
           v2 *= PRIME1;
           off += 4;
 
-          v3 += readInt(buf, off) * PRIME2;
+          v3 += readIntLE(buf, off) * PRIME2;
           v3 = rotateLeft(v3, 13);
           v3 *= PRIME1;
           off += 4;
 
-          v4 += readInt(buf, off) * PRIME2;
+          v4 += readIntLE(buf, off) * PRIME2;
           v4 = rotateLeft(v4, 13);
           v4 *= PRIME1;
           off += 4;
@@ -77,7 +77,7 @@ enum XXHash32JavaUnsafe implements XXHash32 {
       h32 += len;
 
       while (off <= end - 4) {
-        h32 += readInt(buf, off) * PRIME3;
+        h32 += readIntLE(buf, off) * PRIME3;
         h32 = rotateLeft(h32, 17) * PRIME4;
         off += 4;
       }
