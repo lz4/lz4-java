@@ -36,7 +36,7 @@ final class StreamingXXHash32JNI extends StreamingXXHash32 {
   @Override
   public void reset() {
     checkState();
-    XXHashJNI.XXH32_result(state);
+    XXHashJNI.XXH32_free(state);
     state = XXHashJNI.XXH32_init(seed);
   }
 
@@ -56,10 +56,8 @@ final class StreamingXXHash32JNI extends StreamingXXHash32 {
   protected void finalize() throws Throwable {
     super.finalize();
     // free memory
-    if (state != 0) {
-      XXHashJNI.XXH32_result(state);
-      state = 0;
-    }
+    XXHashJNI.XXH32_free(state);
+    state = 0;
   }
 
 }

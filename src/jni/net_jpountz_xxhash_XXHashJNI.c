@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include <stdlib.h>
 #include "xxhash.h"
 #include "net_jpountz_xxhash_XXHashJNI.h"
 
@@ -108,6 +109,18 @@ JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1result
   (JNIEnv *env, jclass cls, jlong state) {
 
   return XXH32_result((void*) state);
+
+}
+
+/*
+ * Class:     net_jpountz_xxhash_XXHashJNI
+ * Method:    XXH32_free
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1free
+  (JNIEnv *env, jclass cls, jlong state) {
+
+  free((void*) state);
 
 }
 

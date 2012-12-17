@@ -44,10 +44,7 @@ http://code.google.com/p/xxhash/.
 Similarly to LZ4, 3 implementations are available: JNI bindings, pure Java port
 and pure Java port that uses sun.misc.Unsafe.
 
-Please note that the 3 implementations will return the same result for the same
-input on the same machine but the hash will differ on a machine of the opposite
-endianess.
-
+All implementations return the same result for the same input bytes.
 
 Build
 -----
