@@ -6,4 +6,4 @@ Version 1.0
   First release.
   Java ports and bindings of LZ4 and xxhash.
   LZ4 r85
-  xxhash r5
+  xxhash r6
