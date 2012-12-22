@@ -1,7 +1,5 @@
 package net.jpountz.lz4;
 
-import java.util.Arrays;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,6 +17,8 @@ import java.util.Arrays;
  * limitations under the License.
  */
 
+import java.util.Arrays;
+
 /**
  * Entry point for the LZ4 API.
  * <p>
@@ -31,8 +31,8 @@ import java.util.Arrays;
  * using the unofficial {@link sun.misc.Unsafe} API.</li>
  * </ul>
  * <p>
- * Not all instances may work on your host, as a consequence it is advised to
- * use the {@link #fastestInstance()} method to pull a {@link LZ4Factory}
+ * Not all instances may work on your computer, as a consequence it is advised
+ * to use the {@link #fastestInstance()} method to pull a {@link LZ4Factory}
  * instance.
  * <p>
  * All methods from this class are very costly, so you should get an instance
@@ -89,12 +89,14 @@ public final class LZ4Factory {
     }
   }
 
+  private final String impl;
   private final LZ4Compressor fastCompressor;
   private final LZ4Compressor highCompressor;
   private final LZ4Decompressor decompressor;
   private final LZ4UnknownSizeDecompressor unknownSizeDecompressor;
 
   private LZ4Factory(String impl) throws ClassNotFoundException {
+    this.impl = impl;
     final Class<?> compressorEnum = Class.forName("net.jpountz.lz4.LZ4" + impl + "Compressor");
     if (!LZ4Compressor.class.isAssignableFrom(compressorEnum)) {
       throw new AssertionError();
@@ -169,6 +171,16 @@ public final class LZ4Factory {
   /** Return a {@link LZ4UnknownSizeDecompressor} instance. */
   public LZ4UnknownSizeDecompressor unknwonSizeDecompressor() {
     return unknownSizeDecompressor;
+  }
+
+  /** Prints the fastest instance. */
+  public static void main(String[] args) {
+    System.out.println("Fastest instance is " + fastestInstance());
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + ":" + impl;
   }
 
 }

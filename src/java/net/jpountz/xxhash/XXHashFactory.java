@@ -68,10 +68,12 @@ public final class XXHashFactory {
     }
   }
 
+  private final String impl;
   private final XXHash32 hash32;
   private final StreamingXXHash32Factory streamingHash32Factory;
 
   private XXHashFactory(String impl) throws ClassNotFoundException {
+    this.impl = impl;
     final Class<?> xxHashEnum = Class.forName(XXHash32.class.getName() + impl);
     if (!XXHash32.class.isAssignableFrom(xxHashEnum)) {
       throw new AssertionError();
@@ -119,6 +121,16 @@ public final class XXHashFactory {
    */
   public StreamingXXHash32 newStreamingHash32(int seed) {
     return streamingHash32Factory.newStreamingHash(seed);
+  }
+
+  /** Prints the fastest instance. */
+  public static void main(String[] args) {
+    System.out.println("Fastest instance is " + fastestInstance());
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + ":" + impl;
   }
 
 }
