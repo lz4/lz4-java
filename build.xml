@@ -27,6 +27,12 @@
   <property name="dist"  location="dist"/>
   <property name="lib" location="lib" />
 
+  <property name="ivy.jar.version" value="2.2.0"/>
+  <property name="ivy.jar.name" value="ivy-${ivy.jar.version}.jar"/>
+
+  <property name="cpptasks.jar.version" value="1.0b5"/>
+  <property name="cpptasks.jar.name" value="cpptasks-${cpptasks.jar.version}.jar" />
+
   <condition property="platform" value="linux">
    <os name="Linux"/>
   </condition>
@@ -40,10 +46,32 @@
    <os family="mac"/>
   </condition>
 
-  <target name="clean">
+  <target name="clean" description="clean working copy">
     <delete dir="${build}" />
     <delete dir="${dist}" />
     <delete dir="${lib}" />
+  </target>
+
+  <target name="ivy-bootstrap" description="install ivy" unless="ivy.available">
+    <condition property="ivy.available">
+      <typefound uri="antlib:org.apache.ivy.ant" name="configure" />
+    </condition>
+    <antcall target="-ivy-install" />
+  </target>
+
+  <target name="-ivy-install" unless="ivy.available">
+    <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.jar.version}/${ivy.jar.name}" dest="${user.home}/.ant/lib/${ivy.jar.name}"/>
+  </target>
+
+  <target name="cpptasks-bootstrap" description="install cpptasks" unless="cpptasks.available">
+    <condition property="cpptasks.available">
+      <typefound uri="antlib:net.sf.antcontrib.cpptasks" name="cc" />
+    </condition>
+    <antcall target="-cpptasks-install" />
+  </target>
+
+  <target name="-cpptasks-install" unless="cpptasks.available">
+    <get src="http://repo1.maven.org/maven2/ant-contrib/cpptasks/${cpptasks.jar.version}/${cpptasks.jar.name}" dest="${user.home}/.ant/lib/${cpptasks.jar.name}"/>
   </target>
 
   <target name="init">
@@ -122,7 +150,7 @@
     </taskdef>
   </target>
 
-  <target name="test" depends="compile-tests, install-junit4-taskdef">
+  <target name="test" description="run tests" depends="compile-tests, install-junit4-taskdef">
     <junit4:junit4
       dir="${java.io.tmpdir}"
       maxmemory="100m"
@@ -159,7 +187,7 @@
     </junit4:junit4>
   </target>
 
-  <target name="docs">
+  <target name="docs" description="generate javadocs">
     <mkdir dir="${dist}/docs" />
     <javadoc
         overview="${src}/java/overview.html"
@@ -172,7 +200,7 @@
     </javadoc>
   </target>
 
-  <target name="dist" depends="compile">
+  <target name="dist" description="generate JAR" depends="compile">
     <mkdir dir="${dist}" />
     <jar
       destfile="${dist}/lz4-java.jar">
