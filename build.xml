@@ -153,6 +153,7 @@
   </target>
 
   <target name="test" description="run tests" depends="compile-tests, install-junit4-taskdef">
+    <mkdir dir="${build}/tests" />
     <junit4:junit4
       dir="${java.io.tmpdir}"
       maxmemory="100m"
@@ -185,6 +186,8 @@
           useSimpleNames="true"
           maxClassNameColumns="80"
           timestamps="true" />
+        <!-- For enkins -->
+        <junit4:report-ant-xml dir="${build}/tests" />
       </listeners>
     </junit4:junit4>
   </target>
