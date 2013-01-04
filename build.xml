@@ -60,6 +60,7 @@
   </target>
 
   <target name="-ivy-install" unless="ivy.available">
+    <mkdir dir="${user.home}/.ant/lib" />
     <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.jar.version}/${ivy.jar.name}" dest="${user.home}/.ant/lib/${ivy.jar.name}"/>
   </target>
 
@@ -71,6 +72,7 @@
   </target>
 
   <target name="-cpptasks-install" unless="cpptasks.available">
+    <mkdir dir="${user.home}/.ant/lib" />
     <get src="http://repo1.maven.org/maven2/ant-contrib/cpptasks/${cpptasks.jar.version}/${cpptasks.jar.name}" dest="${user.home}/.ant/lib/${cpptasks.jar.name}"/>
   </target>
 
