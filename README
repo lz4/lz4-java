@@ -53,7 +53,11 @@ Requirements
  - JDK version 6 or newer,
  - ant,
  - ivy,
- - ant-cpp-tasks.
+ - cpptasks.
+
+If ivy and/or cpptasks are not installed yet, ant can take care of it for you,
+just run `ant ivy-bootstrap cpptasks-bootstrap`. Both libraries will be
+installed under ${user.home}/.ant/lib.
 
 Then run `ant`. It will compile C and Java code and generate a self-contained
 JAR file under the dist directory.

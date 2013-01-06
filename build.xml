@@ -17,7 +17,7 @@
    under the License.
 -->
 
-<project name="lz4-java" default="dist" basedir="."
+<project name="lz4" default="dist" basedir="."
     xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks"
     xmlns:ivy="antlib:org.apache.ivy.ant"
     xmlns:junit4="antlib:com.carrotsearch.junit4">
@@ -192,36 +192,51 @@
     </junit4:junit4>
   </target>
 
+  <target name="sources" description="package sources">
+    <mkdir dir="${dist}" />
+    <jar
+      destfile="${dist}/${ivy.module}-${ivy.revision}-sources.jar">
+      <fileset dir="${src}/java" />
+    </jar>
+  </target>
+
   <target name="docs" description="generate javadocs">
-    <mkdir dir="${dist}/docs" />
+    <mkdir dir="${build}/docs" />
     <javadoc
         overview="${src}/java/overview.html"
         packagenames="net.jpountz.lz4,net.jpountz.xxhash"
         windowtitle="LZ4 - Java API"
-        destDir="${dist}/docs">
+        destDir="${build}/docs">
       <sourcepath>
         <pathelement location="${src}/java"/>
       </sourcepath>
     </javadoc>
-  </target>
-
-  <target name="dist" description="generate JAR" depends="compile">
     <mkdir dir="${dist}" />
     <jar
-      destfile="${dist}/lz4-java.jar">
+      destfile="${dist}/${ivy.module}-${ivy.revision}-javadoc.jar">
+      <fileset dir="${build}/docs" />
+    </jar>
+  </target>
+
+  <target name="jar" description="generate JAR" depends="compile">
+    <mkdir dir="${dist}" />
+    <jar
+      destfile="${dist}/${ivy.module}-${ivy.revision}.jar">
       <fileset dir="${build}/classes" />
       <fileset dir="${build}/jni" erroronmissingdir="false" />
     </jar>
   </target>
 
-  <target name="makepom">
+  <target name="makepom" description="generate a pom file">
     <ivy:makepom
         ivyfile="${basedir}/ivy.xml"
-        pomfile="${dist}/lz4.pom"
+        pomfile="${dist}/${ivy.module}-${ivy.revision}.pom"
         templatefile="${src}/build/pom.template">
       <mapping conf="default" scope="compile" />
       <mapping conf="test" scope="test" />
     </ivy:makepom>
   </target>
+
+  <target name="dist" description="package" depends="jar,docs,sources,makepom" />
 
 </project>
