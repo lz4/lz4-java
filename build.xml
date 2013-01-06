@@ -205,7 +205,7 @@
     <javadoc
         overview="${src}/java/overview.html"
         packagenames="net.jpountz.lz4,net.jpountz.xxhash"
-        windowtitle="LZ4 - Java API"
+        windowtitle="LZ4 - Java &amp; XXHash - Java APIs"
         destDir="${build}/docs">
       <sourcepath>
         <pathelement location="${src}/java"/>

@@ -21,9 +21,9 @@ public class LZ4Example {
 
     // compress data
     LZ4Compressor compressor = factory.fastCompressor();
-    int maxCompressedLength = compressor.maxCompressedLength(data.length);
+    int maxCompressedLength = compressor.maxCompressedLength(decompressedLength);
     byte[] compressed = new byte[maxCompressedLength];
-    int compressedLength = compressor.compress(data, 0, data.length, compressed, 0, maxCompressedLength);
+    int compressedLength = compressor.compress(data, 0, decompressedLength, compressed, 0, maxCompressedLength);
 
     // decompress data
     // - method 1: when the decompressed length is known

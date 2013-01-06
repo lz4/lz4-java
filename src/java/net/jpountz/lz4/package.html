@@ -20,10 +20,9 @@
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
 <body>
-<p>LZ4 compression.</p>
-
-<p>The entry point of the API is the {@link net.jpountz.lz4.LZ4Factory} class,
-which gives access to {@link net.jpountz.lz4.LZ4Compressor compressors} and
+<p>LZ4 compression. The entry point of the API is the
+{@link net.jpountz.lz4.LZ4Factory} class, which gives access to
+{@link net.jpountz.lz4.LZ4Compressor compressors} and
 {@link net.jpountz.lz4.LZ4Decompressor decompressors}.</p>
 
 
@@ -37,9 +36,9 @@ which gives access to {@link net.jpountz.lz4.LZ4Compressor compressors} and
 
     // compress data
     LZ4Compressor compressor = factory.fastCompressor();
-    int maxCompressedLength = compressor.maxCompressedLength(data.length);
+    int maxCompressedLength = compressor.maxCompressedLength(decompressedLength);
     byte[] compressed = new byte[maxCompressedLength];
-    int compressedLength = compressor.compress(data, 0, data.length, compressed, 0, maxCompressedLength);
+    int compressedLength = compressor.compress(data, 0, decompressedLength, compressed, 0, maxCompressedLength);
 
     // decompress data
     // - method 1: when the decompressed length is known
