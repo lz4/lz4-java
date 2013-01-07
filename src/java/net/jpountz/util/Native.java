@@ -26,7 +26,7 @@ public enum Native {
   ;
 
   private enum OS {
-    WINDOWS("windows", "dll"), LINUX("linux", "so"), MAC("mac", "dylib"), SOLARIS("solaris", "so");
+    WINDOWS("win32", "dll"), LINUX("linux", "so"), MAC("mac", "dylib"), SOLARIS("solaris", "so");
     public final String name, libExtension;
 
     private OS(String name, String libExtension) {
