@@ -26,7 +26,8 @@ public enum Native {
   ;
 
   private enum OS {
-    WINDOWS("win32", "dll"), LINUX("linux", "so"), MAC("mac", "dylib"), SOLARIS("solaris", "so");
+    // Even on Windows, the default compiler from cpptasks (gcc) uses .so as a shared lib extension
+    WINDOWS("win32", "so"), LINUX("linux", "so"), MAC("mac", "dylib"), SOLARIS("solaris", "so");
     public final String name, libExtension;
 
     private OS(String name, String libExtension) {
