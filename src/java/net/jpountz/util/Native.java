@@ -101,6 +101,14 @@ public enum Native {
         } catch (IOException e) {
           // ignore
         }
+        if (tempLib != null && tempLib.exists()) {
+          if (!loaded) {
+            tempLib.delete();
+          } else {
+            // try to delete on exit, does it work on Windows?
+            tempLib.deleteOnExit();
+          }
+        }
       }
     } catch (IOException e) {
         throw new ExceptionInInitializerError("Cannot unpack liblz4-java");
