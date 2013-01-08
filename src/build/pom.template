@@ -24,6 +24,7 @@
 
   <name>LZ4 and xxHash</name>
   <description>Java ports and bindings of the LZ4 compression algorithm and the xxHash hashing algorithm</description>
+  <url>https://github.com/jpountz/lz4-java</url>
   <modelVersion>4.0.0</modelVersion>
   <groupId>${ivy.pom.groupId}</groupId>
   <artifactId>${ivy.pom.artifactId}</artifactId>
