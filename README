@@ -1,5 +1,4 @@
-LZ4 Java
-========
+# LZ4 Java
 
 LZ4 compression for Java, based on Yann Collet's work available at
 http://code.google.com/p/lz4/.
@@ -35,8 +34,7 @@ way as the C implementation (meaning that the resulting arrays are identical).
 However, similarly to the C implementation, compression might return different
 compressed arrays on a machine of the opposite endianness.
 
-xxhash Java
-===========
+# xxhash Java
 
 xxhash hashing for Java, based on Yann Collet's work available at
 http://code.google.com/p/xxhash/.
@@ -46,10 +44,10 @@ and pure Java port that uses sun.misc.Unsafe.
 
 All implementations return the same result for the same input bytes.
 
-Build
------
+# Build
 
-Requirements
+## Requirements
+
  - JDK version 6 or newer,
  - ant,
  - ivy,
@@ -58,6 +56,8 @@ Requirements
 If ivy and/or cpptasks are not installed yet, ant can take care of it for you,
 just run `ant ivy-bootstrap cpptasks-bootstrap`. Both libraries will be
 installed under ${user.home}/.ant/lib.
+
+## Instructions
 
 Then run `ant`. It will compile C and Java code and generate a self-contained
 JAR file under the dist directory.
