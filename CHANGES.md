@@ -1,5 +1,9 @@
 # Change log.
 
+## 1.1.0
+
+ - lz4 r88
+
 ## 1.0.0
 
  - First release.

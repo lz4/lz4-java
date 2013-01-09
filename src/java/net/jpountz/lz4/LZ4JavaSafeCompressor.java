@@ -351,12 +351,34 @@ enum LZ4JavaSafeCompressor implements LZ4Compressor {
         insert(off, buf);
 
         int ref = hashPointer(buf, off);
+
+        if (ref >= off - 4 && ref >= base) { // potential repetition
+          if (readIntEquals(buf, ref, off)) { // confirmed
+            final int delta = off - ref;
+            int ptr = off;
+            match.len = MIN_MATCH + commonBytes(buf, ref + MIN_MATCH, off + MIN_MATCH, matchLimit);
+            final int end = off + match.len - (MIN_MATCH - 1);
+            while (ptr < end - delta) {
+              chainTable[ptr & MASK] = (short) delta; // pre load
+              ++ptr;
+            }
+            do {
+              chainTable[ptr & MASK] = (short) delta;
+              hashTable[hashHC(readInt(buf, ptr))] = ptr - base; // head of table
+              ++ptr;
+            } while (ptr < end);
+            nextToUpdate = end;
+            match.ref = ref;
+          }
+          ref = next(ref);
+        }
+
         for (int i = 0; i < MAX_ATTEMPTS; ++i) {
           if (ref < Math.max(base, off - MAX_DISTANCE + 1)) {
             break;
           }
           if (buf[ref + match.len] == buf[off + match.len] && readIntEquals(buf, ref, off)) {
-            final int matchLen = 4 + commonBytes(buf, ref + MIN_MATCH, off + MIN_MATCH, matchLimit);
+            final int matchLen = MIN_MATCH + commonBytes(buf, ref + MIN_MATCH, off + MIN_MATCH, matchLimit);
             if (matchLen > match.len) {
               match.ref = ref;
               match.len = matchLen;
