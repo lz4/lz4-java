@@ -110,7 +110,7 @@
       destdir="${build}/classes"/>
   </target>
 
-  <target name="generate-header" depends="compile-java">
+  <target name="generate-headers" depends="compile-java" unless="${skip.jni}">
     <mkdir dir="${build}/jni-headers" />
     <javah
       destDir="${build}/jni-headers">
@@ -122,7 +122,7 @@
     </javah>
   </target>
 
-  <target name="compile-jni" depends="generate-header" unless="${skip.jni}">
+  <target name="compile-jni" depends="generate-headers" unless="${skip.jni}">
     <mkdir dir="${build}/objects" />
     <mkdir dir="${build}/jni/${platform}/${os.arch}" />
     <cpptasks:cc
