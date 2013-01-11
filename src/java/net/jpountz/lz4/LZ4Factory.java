@@ -1,12 +1,9 @@
 package net.jpountz.lz4;
 
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -26,16 +23,16 @@ import net.jpountz.util.Native;
  * <p>
  * This class has 3 instances<ul>
  * <li>a {@link #nativeInstance() native} instance which is a JNI binding to
- * the original LZ4 implementation.</li>
+ * <a href="http://code.google.com/p/lz4/">the original LZ4 C implementation</a>.
  * <li>a {@link #safeInstance() safe Java} instance which is a pure Java port
  * of the original C library,</li>
  * <li>an {@link #unsafeInstance() unsafe Java} instance which is a Java port
- * using the unofficial {@link sun.misc.Unsafe} API.</li>
+ * using the unofficial {@link sun.misc.Unsafe} API.
  * </ul>
  * <p>
- * Not all instances may work on your computer, as a consequence it is advised
- * to use the {@link #fastestInstance()} method to pull a {@link LZ4Factory}
- * instance.
+ * Only the {@link #safeInstance() safe instance} is guaranteed to work on your
+ * JVM, as a consequence it is advised to use the {@link #fastestInstance()} or
+ * {@link #fastestJavaInstance()} to pull a {@link LZ4Factory} instance.
  * <p>
  * All methods from this class are very costly, so you should get an instance
  * once, and then reuse it whenever possible. This is typically done by storing
@@ -210,6 +207,7 @@ public final class LZ4Factory {
   /** Prints the fastest instance. */
   public static void main(String[] args) {
     System.out.println("Fastest instance is " + fastestInstance());
+    System.out.println("Fastest Java instance is " + fastestJavaInstance());
   }
 
   @Override

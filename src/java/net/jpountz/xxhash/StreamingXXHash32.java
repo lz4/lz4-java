@@ -1,12 +1,9 @@
 package net.jpountz.xxhash;
 
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -20,6 +17,23 @@ package net.jpountz.xxhash;
 
 /**
  * Streaming interface for {@link XXHash32}.
+ * <p>
+ * This API is compatible with the {@link XXHash32 block API} and the following
+ * code samples are equivalent:
+ * <pre class="prettyprint">
+ *   int hash(XXHashFactory xxhashFactory, byte[] buf, int off, int len, int seed) {
+ *     return xxhashFactory.hash32().hash(buf, off, len, seed);
+ *   }
+ * </pre>
+ * <pre class="prettyprint">
+ *   int hash(XXHashFactory xxhashFactory, byte[] buf, int off, int len, int seed) {
+ *     StreamingXXHash32 sh32 = xxhashFactory.newStreamingHash32(seed);
+ *     sh32.update(buf, off, len);
+ *     return sh32.getValue();
+ *   }
+ * </pre>
+ * <p>
+ * Instances of this class are <b>not</b> thread-safe.
  */
 public abstract class StreamingXXHash32 {
 
@@ -40,18 +54,10 @@ public abstract class StreamingXXHash32 {
   public abstract void update(byte[] buf, int off, int len);
 
   /**
-   * Reset this instance.
+   * Reset this instance to the state it had right after instantiation. The
+   * seed remains unchanged.
    */
   public abstract void reset();
-
-  /**
-   * Update the value of the hash with byte <code>b</code>.
-   */
-  public void update(int b) {
-    final byte[] bytes = new byte[1];
-    bytes[0] = (byte) b;
-    update(bytes, 0, 1);
-  }
 
   @Override
   public String toString() {
