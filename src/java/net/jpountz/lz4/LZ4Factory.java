@@ -207,6 +207,7 @@ public final class LZ4Factory {
   /** Prints the fastest instance. */
   public static void main(String[] args) {
     System.out.println("Fastest instance is " + fastestInstance());
+    System.out.println("Fastest Java instance is " + fastestJavaInstance());
   }
 
   @Override
