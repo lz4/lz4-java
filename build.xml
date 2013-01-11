@@ -178,6 +178,7 @@
         <enable package="net.jpountz.lz4"/>
       </assertions>
       <classpath>
+        <path location="${src}/resources" />
         <path location="${src}/test-resources" />
         <path location="${build}/classes" />
         <path location="${build}/test-classes" />
@@ -238,6 +239,7 @@
     <mkdir dir="${dist}" />
     <jar
       destfile="${dist}/${ivy.module}-${ivy.revision}.jar">
+      <fileset dir="${src}/resources" />
       <fileset dir="${build}/classes" />
       <fileset dir="${build}/jni" erroronmissingdir="false" />
     </jar>
