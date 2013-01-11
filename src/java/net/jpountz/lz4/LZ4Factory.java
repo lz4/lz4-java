@@ -19,6 +19,8 @@ package net.jpountz.lz4;
 
 import java.util.Arrays;
 
+import net.jpountz.util.Native;
+
 /**
  * Entry point for the LZ4 API.
  * <p>
@@ -49,11 +51,24 @@ public final class LZ4Factory {
     }
   }
 
-  /** Return a {@link LZ4Factory} instance that returns compressors and
-   *  decompressors that are native bindings to the original C API.<p>
-   *  Although this instance is likely to be slightly faster on large inputs,
-   *  beware that the JNI overhead might make it much slower than its
-   *  Java counterparts on small inputs. */
+  /**
+   * Return a {@link LZ4Factory} instance that returns compressors and
+   * decompressors that are native bindings to the original C library.
+   * <p>
+   * Please note that this instance has some traps you should be aware of:<ol>
+   * <li>Upon loading this instance, files will be written to the temporary
+   * directory of the system. Although these files are supposed to be deleted
+   * when the JVM exits, they might remain on systems that don't support
+   * removal of files being used such as Windows.
+   * <li>The instance can only be loaded once per JVM. This can be a problem
+   * if your application uses multiple class loaders (such as most servlet
+   * containers): this instance will only be available to the children of the
+   * class loader which has loaded it. As a consequence, it is advised to
+   * either not use this instance in webapps or to put this library in the lib
+   * directory of your servlet container so that it is loaded by the system
+   * class loader.
+   * </ol>
+   */
   public static LZ4Factory nativeInstance() {
     return instance("JNI");
   }
@@ -72,20 +87,40 @@ public final class LZ4Factory {
   }
 
   /**
-   * Return the fastest available {@link LZ4Factory} instance. This method
-   * will first try to load the native instance, then the unsafe java one and
-   * finally the safe java one if the JVM doesn't have {@link sun.misc.Unsafe}
-   * support.
+   * Return the fastest available {@link LZ4Factory} instance which does not
+   * rely on JNI bindings. It first tries to load the
+   * {@link #unsafeInstance() unsafe instance}, and then the
+   * {@link #safeInstance() safe Java instance} if the JVM doesn't have a
+   * working {@link sun.misc.Unsafe}.
+   */
+  public static LZ4Factory fastestJavaInstance() {
+    try {
+      return unsafeInstance();
+    } catch (Throwable t) {
+      return safeInstance();
+    }
+  }
+
+  /**
+   * Return the fastest available {@link LZ4Factory} instance. If the class
+   * loader is the system class loader and if the
+   * {@link #nativeInstance() native instance} loads successfully, then the
+   * {@link #nativeInstance() native instance} is returned, otherwise the
+   * {@link #fastestJavaInstance() fastest Java instance} is returned.
+   * <p>
+   * Please read {@link #nativeInstance() javadocs of nativeInstance()} before
+   * using this method.
    */
   public static LZ4Factory fastestInstance() {
-    try {
-      return nativeInstance();
-    } catch (Throwable t1) {
+    if (Native.isLoaded()
+        || Native.class.getClassLoader() == ClassLoader.getSystemClassLoader()) {
       try {
-        return unsafeInstance();
-      } catch (Throwable t2) {
-        return safeInstance();
+        return nativeInstance();
+      } catch (Throwable t) {
+        return fastestJavaInstance();
       }
+    } else {
+      return fastestJavaInstance();
     }
   }
 
@@ -151,14 +186,13 @@ public final class LZ4Factory {
 
   }
 
-  /** Return a {@link LZ4Compressor} that uses a fast-scan method to compress
-   *  data. */
+  /** Return a blazing fast {@link LZ4Compressor}. */
   public LZ4Compressor fastCompressor() {
     return fastCompressor;
   }
 
-  /** Return a {@link LZ4Compressor} that uses more CPU and memory to compress
-   *  data in order to improve the compression ratio. */
+  /** Return a {@link LZ4Compressor} which requires more memory than
+   * {@link #fastCompressor()} and is slower but compresses more efficiently. */
   public LZ4Compressor highCompressor() {
     return highCompressor;
   }

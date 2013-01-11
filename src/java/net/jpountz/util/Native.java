@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/** FOR INTERNAL USE ONLY */
 public enum Native {
   ;
 
@@ -62,6 +63,10 @@ public enum Native {
   }
 
   private static boolean loaded = false;
+
+  public static synchronized boolean isLoaded() {
+    return loaded;
+  }
 
   public static synchronized void load() {
     if (loaded) {
