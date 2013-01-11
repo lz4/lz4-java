@@ -4,6 +4,11 @@
 
  - lz4 r88
 
+ - [#7](http://github.com/jpountz/lz4-java/issues/7)
+   LZ4Factory.fastestInstance() only tries to use the native bindings if:
+   - they have already been loaded by the current class loader,
+   - or if the current class loader is the system class loader.
+
 ## 1.0.0
 
  - First release.
