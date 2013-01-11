@@ -16,8 +16,27 @@ package net.jpountz.xxhash;
 
 import java.util.Random;
 
+import net.jpountz.util.Native;
+
 /**
  * Entry point to get {@link XXHash32} and {@link StreamingXXHash32} instances.
+ * <p>
+ * This class has 3 instances<ul>
+ * <li>a {@link #nativeInstance() native} instance which is a JNI binding to
+ * <a href="http://code.google.com/p/xxhash/">the original LZ4 C implementation</a>.
+ * <li>a {@link #safeInstance() safe Java} instance which is a pure Java port
+ * of the original C library,</li>
+ * <li>an {@link #unsafeInstance() unsafe Java} instance which is a Java port
+ * using the unofficial {@link sun.misc.Unsafe} API.
+ * </ul>
+ * <p>
+ * Only the {@link #safeInstance() safe instance} is guaranteed to work on your
+ * JVM, as a consequence it is advised to use the {@link #fastestInstance()} or
+ * {@link #fastestJavaInstance()} to pull a {@link XXhashFactory} instance.
+ * <p>
+ * All methods from this class are very costly, so you should get an instance
+ * once, and then reuse it whenever possible. This is typically done by storing
+ * a {@link XXHashFactory} instance in a static field.
  */
 public final class XXHashFactory {
 
@@ -48,20 +67,40 @@ public final class XXHashFactory {
   }
 
   /**
-   * Return the fastest available {@link XXHashFactory} instance. This method
-   * will first try to load the native instance, then the unsafe java one and
-   * finally the safe java one if the JVM doesn't have {@link sun.misc.Unsafe}
-   * support.
+   * Return the fastest available {@link XXHashFactory} instance which does not
+   * rely on JNI bindings. It first tries to load the
+   * {@link #unsafeInstance() unsafe instance}, and then the
+   * {@link #safeInstance() safe Java instance} if the JVM doesn't have a
+   * working {@link sun.misc.Unsafe}.
+   */
+  public static XXHashFactory fastestJavaInstance() {
+    try {
+      return unsafeInstance();
+    } catch (Throwable t) {
+      return safeInstance();
+    }
+  }
+
+  /**
+   * Return the fastest available {@link XXHashFactory} instance. If the class
+   * loader is the system class loader and if the
+   * {@link #nativeInstance() native instance} loads successfully, then the
+   * {@link #nativeInstance() native instance} is returned, otherwise the
+   * {@link #fastestJavaInstance() fastest Java instance} is returned.
+   * <p>
+   * Please read {@link #nativeInstance() javadocs of nativeInstance()} before
+   * using this method.
    */
   public static XXHashFactory fastestInstance() {
-    try {
-      return nativeInstance();
-    } catch (Throwable t1) {
+    if (Native.isLoaded()
+        || Native.class.getClassLoader() == ClassLoader.getSystemClassLoader()) {
       try {
-        return unsafeInstance();
-      } catch (Throwable t2) {
-        return safeInstance();
+        return nativeInstance();
+      } catch (Throwable t) {
+        return fastestJavaInstance();
       }
+    } else {
+      return fastestJavaInstance();
     }
   }
 

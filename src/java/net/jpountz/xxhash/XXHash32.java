@@ -16,6 +16,8 @@ package net.jpountz.xxhash;
 
 /**
  * A 32-bits hash.
+ * <p>
+ * Instances of this class are thread-safe.
  */
 public abstract interface XXHash32 {
 

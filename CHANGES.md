@@ -9,6 +9,8 @@
    - they have already been loaded by the current class loader,
    - or if the current class loader is the system class loader.
 
+ - Added LZ4Factory.fastestJavaInstance() and XXHash.fastestJavaInstance().
+
  - Removed StreamingXXHash32.update(int).
 
 ## 1.0.0

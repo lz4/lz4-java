@@ -16,6 +16,8 @@ package net.jpountz.lz4;
 
 /**
  * LZ4 compressor.
+ * <p>
+ * Instances of this class are thread-safe.
  */
 public interface LZ4Compressor {
 

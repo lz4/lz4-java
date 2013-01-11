@@ -17,6 +17,23 @@ package net.jpountz.xxhash;
 
 /**
  * Streaming interface for {@link XXHash32}.
+ * <p>
+ * This API is compatible with the {@link XXHash32 block API} and the following
+ * code samples are equivalent:
+ * <pre class="prettyprint">
+ *   int hash(XXHashFactory xxhashFactory, byte[] buf, int off, int len, int seed) {
+ *     return xxhashFactory.hash32().hash(buf, off, len, seed);
+ *   }
+ * </pre>
+ * <pre class="prettyprint">
+ *   int hash(XXHashFactory xxhashFactory, byte[] buf, int off, int len, int seed) {
+ *     StreamingXXHash32 sh32 = xxhashFactory.newStreamingHash32(seed);
+ *     sh32.update(buf, off, len);
+ *     return sh32.getValue();
+ *   }
+ * </pre>
+ * <p>
+ * Instances of this class are <b>not</b> thread-safe.
  */
 public abstract class StreamingXXHash32 {
 
@@ -37,7 +54,8 @@ public abstract class StreamingXXHash32 {
   public abstract void update(byte[] buf, int off, int len);
 
   /**
-   * Reset this instance.
+   * Reset this instance to the state it had right after instantiation. The
+   * seed remains unchanged.
    */
   public abstract void reset();
 
