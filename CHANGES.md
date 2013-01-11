@@ -9,6 +9,8 @@
    - they have already been loaded by the current class loader,
    - or if the current class loader is the system class loader.
 
+ - Removed StreamingXXHash32.update(int).
+
 ## 1.0.0
 
  - First release.

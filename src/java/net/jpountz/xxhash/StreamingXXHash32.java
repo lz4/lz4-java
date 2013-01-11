@@ -44,15 +44,6 @@ public abstract class StreamingXXHash32 {
    */
   public abstract void reset();
 
-  /**
-   * Update the value of the hash with byte <code>b</code>.
-   */
-  public void update(int b) {
-    final byte[] bytes = new byte[1];
-    bytes[0] = (byte) b;
-    update(bytes, 0, 1);
-  }
-
   @Override
   public String toString() {
     return getClass().getSimpleName() + "(seed=" + seed + ")";
