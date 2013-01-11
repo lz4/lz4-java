@@ -212,12 +212,12 @@
     </jar>
   </target>
 
-  <target name="docs" description="generate javadocs">
+  <target name="docs" description="generate javadocs" depends="init">
     <mkdir dir="${build}/docs" />
     <javadoc
         overview="${src}/java/overview.html"
         packagenames="net.jpountz.lz4,net.jpountz.xxhash"
-        windowtitle="LZ4 - Java &amp; XXHash - Java APIs"
+        windowtitle="lz4 / xxhash - Java API ${ivy.revision}"
         destDir="${build}/docs">
       <sourcepath>
         <pathelement location="${src}/java"/>

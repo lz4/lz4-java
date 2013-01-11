@@ -32,7 +32,7 @@ import net.jpountz.util.Native;
  * <p>
  * Only the {@link #safeInstance() safe instance} is guaranteed to work on your
  * JVM, as a consequence it is advised to use the {@link #fastestInstance()} or
- * {@link #fastestJavaInstance()} to pull a {@link XXhashFactory} instance.
+ * {@link #fastestJavaInstance()} to pull a {@link XXHashFactory} instance.
  * <p>
  * All methods from this class are very costly, so you should get an instance
  * once, and then reuse it whenever possible. This is typically done by storing
