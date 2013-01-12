@@ -48,7 +48,7 @@ All implementations return the same result for the same input bytes.
 
  - [lz4](http://jpountz.github.com/lz4-java/1.0.0/docs/net/jpountz/lz4/package-summary.html)
  - [xxhash](http://jpountz.github.com/lz4-java/1.0.0/docs/net/jpountz/xxhash/package-summary.html)
- - [changelog](http://github.com/jpountz/lz4-java/blob/master/CHANGES.txt)
+ - [changelog](http://github.com/jpountz/lz4-java/blob/master/CHANGES.md)
 
 # Build
 
