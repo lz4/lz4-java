@@ -29,93 +29,86 @@ import static net.jpountz.util.Utils.checkRange;
  * Decompressor written in pure Java without using the unofficial
  * sun.misc.Unsafe API.
  */
-enum LZ4JavaSafeUnknownSizeDecompressor implements LZ4UnknownSizeDecompressor {
+final class LZ4JavaSafeUnknownSizeDecompressor extends LZ4UnknownSizeDecompressor {
 
-  INSTANCE {
-
-    @Override
-    public int decompress(byte[] src, int srcOff, int srcLen,
-        byte[] dest, int destOff) {
-      checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff);
-
-      final int srcEnd = srcOff + srcLen;
-      final int destEnd = dest.length;
-
-      int sOff = srcOff;
-      int dOff = destOff;
-
-      while (sOff < srcEnd) {
-      final int token = src[sOff++] & 0xFF;
-
-      // literals
-      int literalLen = token >>> ML_BITS;
-        if (literalLen == RUN_MASK) {
-            byte len;
-            while ((len = src[sOff++]) == (byte) 0xFF) {
-              literalLen += 0xFF;
-            }
-            literalLen += len & 0xFF;
-        }
-
-        final int literalCopyEnd = dOff + literalLen;
-        if (literalCopyEnd > destEnd - COPY_LENGTH || sOff + literalLen > srcEnd - COPY_LENGTH) {
-          if (literalCopyEnd > destEnd || sOff + literalLen > srcEnd) {
-            throw new LZ4Exception("Malformed input at " + sOff);
-          } else {
-            safeArraycopy(src, sOff, dest, dOff, literalLen);
-            sOff += literalLen;
-            dOff = literalCopyEnd;
-            if (sOff < srcEnd) {
-              throw new LZ4Exception("Malformed input at " + sOff);
-            }
-            break; // EOF
-          }
-        }
-
-        wildArraycopy(src, sOff, dest, dOff, literalLen);
-        sOff += literalLen;
-        dOff = literalCopyEnd;
-
-        // matchs
-        final int matchDec = (src[sOff++] & 0xFF) | ((src[sOff++] & 0xFF) << 8);
-        final int matchOff = dOff - matchDec;
-
-        if (matchOff < destOff) {
-          throw new LZ4Exception("Malformed input at " + sOff);
-        }
-
-        int matchLen = token & ML_MASK;
-        if (matchLen == ML_MASK) {
-          byte len;
-          while ((len = src[sOff++]) == (byte) 0xFF) {
-            matchLen += 0xFF;
-          }
-          matchLen += len & 0xFF;
-        }
-        matchLen += MIN_MATCH;
-
-        final int matchCopyEnd = dOff + matchLen;
-
-        if (matchCopyEnd > destEnd - COPY_LENGTH) {
-          if (matchCopyEnd > destEnd) {
-            throw new LZ4Exception("Malformed input at " + sOff);
-          }
-          safeIncrementalCopy(dest, matchOff, dOff, matchLen);
-        } else {
-          wildIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
-        }
-        dOff = matchCopyEnd;
-      }
-
-      return dOff - destOff;
-    }
-
-  };
+  public static final LZ4UnknownSizeDecompressor INSTANCE = new LZ4JavaSafeUnknownSizeDecompressor();
 
   @Override
-  public String toString() {
-    return getDeclaringClass().getSimpleName();
+  public int decompress(byte[] src, int srcOff, int srcLen,
+      byte[] dest, int destOff, int maxDestLen) {
+    checkRange(src, srcOff, srcLen);
+    checkRange(dest, destOff, maxDestLen);
+
+    final int srcEnd = srcOff + srcLen;
+    final int destEnd = destOff + maxDestLen;
+
+    int sOff = srcOff;
+    int dOff = destOff;
+
+    while (sOff < srcEnd) {
+    final int token = src[sOff++] & 0xFF;
+
+    // literals
+    int literalLen = token >>> ML_BITS;
+      if (literalLen == RUN_MASK) {
+          byte len;
+          while ((len = src[sOff++]) == (byte) 0xFF) {
+            literalLen += 0xFF;
+          }
+          literalLen += len & 0xFF;
+      }
+
+      final int literalCopyEnd = dOff + literalLen;
+      if (literalCopyEnd > destEnd - COPY_LENGTH || sOff + literalLen > srcEnd - COPY_LENGTH) {
+        if (literalCopyEnd > destEnd || sOff + literalLen > srcEnd) {
+          throw new LZ4Exception("Malformed input at " + sOff);
+        } else {
+          safeArraycopy(src, sOff, dest, dOff, literalLen);
+          sOff += literalLen;
+          dOff = literalCopyEnd;
+          if (sOff < srcEnd) {
+            throw new LZ4Exception("Malformed input at " + sOff);
+          }
+          break; // EOF
+        }
+      }
+
+      wildArraycopy(src, sOff, dest, dOff, literalLen);
+      sOff += literalLen;
+      dOff = literalCopyEnd;
+
+      // matchs
+      final int matchDec = (src[sOff++] & 0xFF) | ((src[sOff++] & 0xFF) << 8);
+      final int matchOff = dOff - matchDec;
+
+      if (matchOff < destOff) {
+        throw new LZ4Exception("Malformed input at " + sOff);
+      }
+
+      int matchLen = token & ML_MASK;
+      if (matchLen == ML_MASK) {
+        byte len;
+        while ((len = src[sOff++]) == (byte) 0xFF) {
+          matchLen += 0xFF;
+        }
+        matchLen += len & 0xFF;
+      }
+      matchLen += MIN_MATCH;
+
+      final int matchCopyEnd = dOff + matchLen;
+
+      if (matchCopyEnd > destEnd - COPY_LENGTH) {
+        if (matchCopyEnd > destEnd) {
+          throw new LZ4Exception("Malformed input at " + sOff);
+        }
+        safeIncrementalCopy(dest, matchOff, dOff, matchLen);
+      } else {
+        wildIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
+      }
+      dOff = matchCopyEnd;
+    }
+
+    return dOff - destOff;
   }
 
 }

@@ -14,15 +14,13 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-enum StreamingXXHash32FactoryJavaSafe implements StreamingXXHash32Factory {
+final class StreamingXXHash32FactoryJavaSafe implements StreamingXXHash32Factory {
 
-  INSTANCE {
+  public static final StreamingXXHash32Factory INSTANCE = new StreamingXXHash32FactoryJavaSafe();
 
-    @Override
-    public StreamingXXHash32 newStreamingHash(int seed) {
-      return new StreamingXXHash32JavaSafe(seed);
-    }
-
+  @Override
+  public StreamingXXHash32 newStreamingHash(int seed) {
+    return new StreamingXXHash32JavaSafe(seed);
   }
 
 }

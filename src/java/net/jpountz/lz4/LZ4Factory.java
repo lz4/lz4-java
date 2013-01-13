@@ -14,6 +14,7 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import net.jpountz.util.Native;
@@ -43,7 +44,7 @@ public final class LZ4Factory {
   private static LZ4Factory instance(String impl) {
     try {
       return new LZ4Factory(impl);
-    } catch (ClassNotFoundException e) {
+    } catch (Exception e) {
       throw new AssertionError(e);
     }
   }
@@ -121,47 +122,25 @@ public final class LZ4Factory {
     }
   }
 
+  @SuppressWarnings("unchecked")
+  private static <T> T classInstance(String cls) throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+    final Class<?> c = Class.forName(cls);
+    Field f = c.getField("INSTANCE");
+    return (T) f.get(null);
+  }
+
   private final String impl;
   private final LZ4Compressor fastCompressor;
   private final LZ4Compressor highCompressor;
   private final LZ4Decompressor decompressor;
   private final LZ4UnknownSizeDecompressor unknownSizeDecompressor;
 
-  private LZ4Factory(String impl) throws ClassNotFoundException {
+  private LZ4Factory(String impl) throws ClassNotFoundException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
     this.impl = impl;
-    final Class<?> compressorEnum = Class.forName("net.jpountz.lz4.LZ4" + impl + "Compressor");
-    if (!LZ4Compressor.class.isAssignableFrom(compressorEnum)) {
-      throw new AssertionError();
-    }
-    @SuppressWarnings("unchecked")
-    LZ4Compressor[] compressors = ((Class<? extends LZ4Compressor>) compressorEnum).getEnumConstants();
-    if (compressors.length != 2) {
-      throw new AssertionError();
-    }
-    fastCompressor = compressors[0];
-    highCompressor = compressors[1];
-
-    final Class<?> decompressorEnum = Class.forName("net.jpountz.lz4.LZ4" + impl + "Decompressor");
-    if (!LZ4Decompressor.class.isAssignableFrom(decompressorEnum)) {
-      throw new AssertionError();
-    }
-    @SuppressWarnings("unchecked")
-    LZ4Decompressor[] decompressors = ((Class<? extends LZ4Decompressor>) decompressorEnum).getEnumConstants();
-    if (decompressors.length != 1) {
-      throw new AssertionError();
-    }
-    decompressor = decompressors[0];
-
-    final Class<?> unknownSizeDecompressorEnum = Class.forName("net.jpountz.lz4.LZ4" + impl + "UnknownSizeDecompressor");
-    if (!LZ4UnknownSizeDecompressor.class.isAssignableFrom(unknownSizeDecompressorEnum)) {
-      throw new AssertionError();
-    }
-    @SuppressWarnings("unchecked")
-    LZ4UnknownSizeDecompressor[] unknownSizeDecompressors = ((Class<? extends LZ4UnknownSizeDecompressor>) unknownSizeDecompressorEnum).getEnumConstants();
-    if (decompressors.length != 1) {
-      throw new AssertionError();
-    }
-    unknownSizeDecompressor = unknownSizeDecompressors[0];
+    fastCompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "Compressor");
+    highCompressor = classInstance("net.jpountz.lz4.LZ4HC" + impl + "Compressor");
+    decompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "Decompressor");
+    unknownSizeDecompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "UnknownSizeDecompressor");
 
     // quickly test that everything works as expected
     final byte[] original = new byte[] {'a','b','c','d',' ',' ',' ',' ',' ',' ','a','b','c','d','e','f','g','h','i','j'};

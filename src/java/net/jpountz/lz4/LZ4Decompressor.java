@@ -21,7 +21,7 @@ package net.jpountz.lz4;
  * <p>
  * Instances of this class are thread-safe.
  */
-public interface LZ4Decompressor {
+public abstract class LZ4Decompressor {
 
   /** Uncompress <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>
    * and return the number of bytes read from <code>src</code>.
@@ -30,6 +30,11 @@ public interface LZ4Decompressor {
    * @param destLen the <b>exact</b> size of the original input
    * @return the number of bytes read to restore the original input
    */
-  int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
+  public abstract int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 
 }

@@ -20,29 +20,46 @@ The streams produced by those 2 compression algorithms use the same compression
 format, are very fast to decompress and can be decompressed by the same
 decompressor instance.
 
+## Implementations
+
 For LZ4 compressors, LZ4 HC compressors and decompressors, 3 implementations are
 available:
  - JNI bindings to the original C implementation by Yann Collet,
  - a pure Java port of the compression and decompression algorithms,
  - a Java port that uses the sun.misc.Unsafe API in order to achieve compression
-   and decompression speeds similar to the C implementation.
+   and decompression speeds close to the C implementation.
 
-Please have a look at LZ4Factory for more information.
+Have a look at LZ4Factory for more information.
 
-On 64-bits platforms, the Java compressor implementations compress data the same
-way as the C implementation (meaning that the resulting arrays are identical).
-However, similarly to the C implementation, compression might return different
-compressed arrays on a machine of the opposite endianness.
+## Compatibility notes
+
+ - Compressors and decompressors are interchangeable: it is perfectly correct
+   to compress with the JNI bindings and to decompress with a Java port, or the
+   other way around.
+
+ - Compressors might not generate the same compressed streams on all platforms,
+   especially if CPU endianness differs, but the compressed streams can be
+   safely decompressed by any decompressor implementation on any platform.
 
 # xxhash Java
 
 xxhash hashing for Java, based on Yann Collet's work available at
-http://code.google.com/p/xxhash/.
+http://code.google.com/p/xxhash/. xxhash is a non-cryptographic, extremly fast
+and high-quality ([SMHasher](http://code.google.com/p/smhasher/wiki/SMHasher)
+score of 10) hash function.
+
+## Implementations
 
 Similarly to LZ4, 3 implementations are available: JNI bindings, pure Java port
 and pure Java port that uses sun.misc.Unsafe.
 
-All implementations return the same result for the same input bytes.
+Have a look at XXHashFactory for more information.
+
+## Compatibility notes
+
+ - All implementation return the same hash for the same input bytes:
+   - on any JVM,
+   - on any platform (even if the endianness or integer size differs).
 
 # Documentation
 

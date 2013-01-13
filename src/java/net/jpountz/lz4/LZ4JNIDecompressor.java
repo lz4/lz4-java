@@ -20,25 +20,18 @@ import static net.jpountz.util.Utils.checkRange;
  * {@link LZ4Decompressor} implemented with JNI bindings to the original C
  * implementation of LZ4.
  */
-enum LZ4JNIDecompressor implements LZ4Decompressor {
+final class LZ4JNIDecompressor extends LZ4Decompressor {
 
-  INSTANCE {
+  public static final LZ4JNIDecompressor INSTANCE = new LZ4JNIDecompressor();
 
-    public final int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen) {
-      checkRange(src, srcOff);
-      checkRange(dest, destOff, destLen);
-      final int result = LZ4JNI.LZ4_decompress(src, srcOff, dest, destOff, destLen);
-      if (result < 0) {
-        throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
-      }
-      return result;
+  public final int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen) {
+    checkRange(src, srcOff);
+    checkRange(dest, destOff, destLen);
+    final int result = LZ4JNI.LZ4_decompress(src, srcOff, dest, destOff, destLen);
+    if (result < 0) {
+      throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
     }
- 
-  };
-
-  @Override
-  public String toString() {
-    return getDeclaringClass().getSimpleName();
+    return result;
   }
 
 }

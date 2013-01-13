@@ -14,6 +14,7 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
+import java.lang.reflect.Field;
 import java.util.Random;
 
 import net.jpountz.util.Native;
@@ -43,7 +44,7 @@ public final class XXHashFactory {
   private static XXHashFactory instance(String impl) {
     try {
       return new XXHashFactory(impl);
-    } catch (ClassNotFoundException e) {
+    } catch (Exception e) {
       throw new AssertionError(e);
     }
   }
@@ -104,33 +105,21 @@ public final class XXHashFactory {
     }
   }
 
+  @SuppressWarnings("unchecked")
+  private static <T> T classInstance(String cls) throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+    final Class<?> c = Class.forName(cls);
+    Field f = c.getField("INSTANCE");
+    return (T) f.get(null);
+  }
+
   private final String impl;
   private final XXHash32 hash32;
   private final StreamingXXHash32Factory streamingHash32Factory;
 
-  private XXHashFactory(String impl) throws ClassNotFoundException {
+  private XXHashFactory(String impl) throws ClassNotFoundException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
     this.impl = impl;
-    final Class<?> xxHashEnum = Class.forName(XXHash32.class.getName() + impl);
-    if (!XXHash32.class.isAssignableFrom(xxHashEnum)) {
-      throw new AssertionError();
-    }
-    @SuppressWarnings("unchecked")
-    XXHash32[] xxHashs32 = ((Class<? extends XXHash32>) xxHashEnum).getEnumConstants();
-    if (xxHashs32.length != 1) {
-      throw new AssertionError();
-    }
-    this.hash32 = xxHashs32[0];
-
-    final Class<?> streamingXXHashFactoryEnum = Class.forName(StreamingXXHash32Factory.class.getName() + impl);
-    if (!StreamingXXHash32Factory.class.isAssignableFrom(streamingXXHashFactoryEnum)) {
-      throw new AssertionError();
-    }
-    @SuppressWarnings("unchecked")
-    StreamingXXHash32Factory[] streamingXXHash32Factories = ((Class<? extends StreamingXXHash32Factory>) streamingXXHashFactoryEnum).getEnumConstants();
-    if (streamingXXHash32Factories.length != 1) {
-      throw new AssertionError();
-    }
-    this.streamingHash32Factory = streamingXXHash32Factories[0];
+    hash32 = classInstance("net.jpountz.xxhash.XXHash32" + impl);
+    streamingHash32Factory = classInstance("net.jpountz.xxhash.StreamingXXHash32Factory" + impl);
 
     // make sure it can run
     final byte[] bytes = new byte[100];

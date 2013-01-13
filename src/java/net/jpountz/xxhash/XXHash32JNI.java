@@ -16,21 +16,14 @@ package net.jpountz.xxhash;
 
 import static net.jpountz.util.Utils.checkRange;
 
-enum XXHash32JNI implements XXHash32 {
+final class XXHash32JNI extends XXHash32 {
 
-  INSTANCE {
-
-    @Override
-    public int hash(byte[] buf, int off, int len, int seed) {
-      checkRange(buf, off, len);
-      return XXHashJNI.XXH32(buf, off, len, seed);
-    }
-
-  };
+  public static final XXHash32 INSTANCE = new XXHash32JNI();
 
   @Override
-  public String toString() {
-    return getDeclaringClass().getSimpleName();
+  public int hash(byte[] buf, int off, int len, int seed) {
+    checkRange(buf, off, len);
+    return XXHashJNI.XXH32(buf, off, len, seed);
   }
 
 }

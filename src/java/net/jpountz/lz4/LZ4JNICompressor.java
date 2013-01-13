@@ -17,47 +17,20 @@ package net.jpountz.lz4;
 import static net.jpountz.util.Utils.checkRange;
 
 /**
- * {@link LZ4Compressor}s implemented with JNI bindings to the original C
+ * Fast {@link LZ4Compressor}s implemented with JNI bindings to the original C
  * implementation of LZ4.
  */
-enum LZ4JNICompressor implements LZ4Compressor {
-  FAST {
-    public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
-      checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff, maxDestLen);
-      final int result = LZ4JNI.LZ4_compress_limitedOutput(src, srcOff, srcLen, dest, destOff, maxDestLen);
-      if (result <= 0) {
-        throw new LZ4Exception("maxDestLen is too small");
-      }
-      return result;
-    }
-  },
+final class LZ4JNICompressor extends LZ4Compressor {
 
-  HIGH_COMPRESSION {
-    public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
-      checkRange(src, srcOff, srcLen);
-      checkRange(dest, destOff, maxDestLen);
-      if (maxDestLen < maxCompressedLength(srcLen)) {
-        throw new IllegalArgumentException("This compressor does not support output buffers whose size is < maxCompressedLength(srcLen)");
-      }
-      final int result = LZ4JNI.LZ4_compressHC(src, srcOff, srcLen, dest, destOff);
-      if (result <= 0) {
-        throw new LZ4Exception();
-      }
-      return result;
-    }
-  };
+  public static final LZ4Compressor INSTANCE = new LZ4JNICompressor();
 
-  public final int maxCompressedLength(int length) {
-    if (length < 0) {
-      throw new IllegalArgumentException("length must be >= 0, got " + length);
+  public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
+    checkRange(src, srcOff, srcLen);
+    checkRange(dest, destOff, maxDestLen);
+    final int result = LZ4JNI.LZ4_compress_limitedOutput(src, srcOff, srcLen, dest, destOff, maxDestLen);
+    if (result <= 0) {
+      throw new LZ4Exception("maxDestLen is too small");
     }
-    return LZ4JNI.LZ4_compressBound(length);
+    return result;
   }
-
-  @Override
-  public String toString() {
-    return getDeclaringClass().getSimpleName() + "-" + super.toString();
-  }
-
 }
