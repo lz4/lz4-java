@@ -19,12 +19,12 @@ import junit.framework.TestCase;
 public class LZ4FactoryTest extends TestCase {
 
   public void test() {
-    assertEquals(LZ4JNICompressor.FAST, LZ4Factory.nativeInstance().fastCompressor());
-    assertEquals(LZ4JNICompressor.HIGH_COMPRESSION, LZ4Factory.nativeInstance().highCompressor());
-    assertEquals(LZ4JavaUnsafeCompressor.FAST, LZ4Factory.unsafeInstance().fastCompressor());
-    assertEquals(LZ4JavaUnsafeCompressor.HIGH_COMPRESSION, LZ4Factory.unsafeInstance().highCompressor());
-    assertEquals(LZ4JavaSafeCompressor.FAST, LZ4Factory.safeInstance().fastCompressor());
-    assertEquals(LZ4JavaSafeCompressor.HIGH_COMPRESSION, LZ4Factory.safeInstance().highCompressor());
+    assertEquals(LZ4JNICompressor.INSTANCE, LZ4Factory.nativeInstance().fastCompressor());
+    assertEquals(LZ4HCJNICompressor.INSTANCE, LZ4Factory.nativeInstance().highCompressor());
+    assertEquals(LZ4JavaUnsafeCompressor.INSTANCE, LZ4Factory.unsafeInstance().fastCompressor());
+    assertEquals(LZ4HCJavaUnsafeCompressor.INSTANCE, LZ4Factory.unsafeInstance().highCompressor());
+    assertEquals(LZ4JavaSafeCompressor.INSTANCE, LZ4Factory.safeInstance().fastCompressor());
+    assertEquals(LZ4HCJavaSafeCompressor.INSTANCE, LZ4Factory.safeInstance().highCompressor());
 
     assertEquals(LZ4JNIDecompressor.INSTANCE, LZ4Factory.nativeInstance().decompressor());
     assertEquals(LZ4JavaUnsafeDecompressor.INSTANCE, LZ4Factory.unsafeInstance().decompressor());

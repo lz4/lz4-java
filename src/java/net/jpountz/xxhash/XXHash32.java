@@ -19,12 +19,17 @@ package net.jpountz.xxhash;
  * <p>
  * Instances of this class are thread-safe.
  */
-public abstract interface XXHash32 {
+public abstract class XXHash32 {
 
   /**
    * Compute the 32-bits hash of <code>buf[off:off+len]</code> using seed
    * <code>seed</code>.
    */
   public abstract int hash(byte[] buf, int off, int len, int seed);
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 
 }

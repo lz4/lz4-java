@@ -17,20 +17,24 @@ package net.jpountz.lz4;
 import static net.jpountz.util.Utils.checkRange;
 
 /**
- * {@link LZ4Decompressor} implemented with JNI bindings to the original C
- * implementation of LZ4.
+ * High compression {@link LZ4Compressor}s implemented with JNI bindings to the
+ * original C implementation of LZ4.
  */
-final class LZ4JNIUnknownSizeDecompressor extends LZ4UnknownSizeDecompressor {
+final class LZ4HCJNICompressor extends LZ4Compressor {
 
-  public static final LZ4UnknownSizeDecompressor INSTANCE = new LZ4JNIUnknownSizeDecompressor();
+  public static final LZ4Compressor INSTANCE = new LZ4HCJNICompressor();
 
-  public final int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
+  public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);
-    final int result = LZ4JNI.LZ4_decompress_unknownOutputSize(src, srcOff, srcLen, dest, destOff, maxDestLen);
-    if (result < 0) {
-      throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
+    if (maxDestLen < maxCompressedLength(srcLen)) {
+      throw new IllegalArgumentException("This compressor does not support output buffers whose size is < maxCompressedLength(srcLen)");
+    }
+    final int result = LZ4JNI.LZ4_compressHC(src, srcOff, srcLen, dest, destOff);
+    if (result <= 0) {
+      throw new LZ4Exception();
     }
     return result;
   }
+
 }

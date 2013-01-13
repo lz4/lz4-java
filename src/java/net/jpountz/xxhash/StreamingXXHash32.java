@@ -15,6 +15,7 @@ package net.jpountz.xxhash;
  */
 
 
+
 /**
  * Streaming interface for {@link XXHash32}.
  * <p>

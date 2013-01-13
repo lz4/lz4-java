@@ -160,14 +160,14 @@ public class LZ4Test extends RandomizedTest {
 
     // try to compress with the exact compressed size
     final byte[] compressed2 = new byte[compressedLen];
-    if (compressor != LZ4JNICompressor.HIGH_COMPRESSION) { // TODO: remove this test when the compressor is fixed
+    if (compressor != LZ4HCJNICompressor.INSTANCE) { // TODO: remove this test when the compressor is fixed
       final int compressedLen2 = compressor.compress(data, off, len, compressed2, 0, compressed2.length);
       assertEquals(compressedLen, compressedLen2);
       assertArrayEquals(Arrays.copyOf(compressed, compressedLen), compressed2);
     }
 
     // make sure it fails if the dest is not large enough
-    if (compressor != LZ4JNICompressor.HIGH_COMPRESSION) { // TODO: remove this test when the compressor is fixed
+    if (compressor != LZ4HCJNICompressor.INSTANCE) { // TODO: remove this test when the compressor is fixed
       final byte[] compressed3 = new byte[compressedLen-1];
       try {
         compressor.compress(data, off, len, compressed3, 0, compressed3.length);

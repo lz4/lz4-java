@@ -19,10 +19,12 @@ package net.jpountz.lz4;
  * <p>
  * Instances of this class are thread-safe.
  */
-public interface LZ4Compressor {
+public abstract class LZ4Compressor {
 
   /** Return the maximum compressed length for an input of size <code>length</code>. */
-  int maxCompressedLength(int length);
+  public final int maxCompressedLength(int length) {
+    return LZ4Utils.maxCompressedLength(length);
+  }
 
   /**
    * Compress <code>src[srcOff:srcOff+srcLen]</code> into
@@ -37,6 +39,20 @@ public interface LZ4Compressor {
    * @throws LZ4Exception if maxDestLen is too small
    * @return the compressed size
    */
-  int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
+  public abstract int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
+
+  /**
+   * Convenience method. Equivalent to calling
+   * {@link #compress(byte[], int, int, byte[], int, int)} with
+   * <code>destLen = dest.length - destOff</code>.
+   */
+  public final int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
+    return compress(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 
 }
