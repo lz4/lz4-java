@@ -83,39 +83,23 @@ enum LZ4Utils {
     return buf[i] == buf[j] && buf[i+1] == buf[j+1] && buf[i+2] == buf[j+2] && buf[i+3] == buf[j+3];
   }
 
-  static void naiveIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
-    for (int i = 0; i < matchLen; ++i) {
-      dest[dOff++] = dest[matchOff++];
-    }
-  }
-
   static void safeIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
-    assert matchLen >= 4;
-    if (dOff - matchOff >= matchLen) {
-      safeArraycopy(dest, matchOff, dest, dOff, matchLen);
-    } else {
-      naiveIncrementalCopy(dest, matchOff, dOff, matchLen);
+    for (int i = 0; i < matchLen; ++i) {
+      dest[dOff + i] = dest[matchOff + i];
     }
   }
 
   static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
-    switch (matchCopyEnd - dOff) {
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-      for (int i = 0; i < 8; ++i) {
-        dest[dOff+i] = dest[matchOff+i];
-      }
-      break;
-    default:
-      while (dOff - matchOff < matchCopyEnd - dOff) {
-        wildArraycopy(dest, matchOff, dest, dOff, dOff - matchOff);
-        dOff += dOff - matchOff;
-      }
-      wildArraycopy(dest, matchOff, dest, dOff, matchCopyEnd - dOff);
-      break;
+    do {
+      copy8Bytes(dest, matchOff, dest, dOff);
+      matchOff += 8;
+      dOff += 8;
+    } while (dOff < matchCopyEnd);
+  }
+
+  static void copy8Bytes(byte[] src, int sOff, byte[] dest, int dOff) {
+    for (int i = 0; i < 8; ++i) {
+      dest[dOff + i] = src[sOff + i];
     }
   }
 
@@ -140,12 +124,12 @@ enum LZ4Utils {
   }
 
   static void wildArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
-    // can make decompression 10% faster
-    final int fastLen = ((len - 1) & 0xFFFFFFF8) + COPY_LENGTH;
     try {
-      System.arraycopy(src, sOff, dest, dOff, fastLen);
+      for (int i = 0; i < len; i += 8) {
+        copy8Bytes(src, sOff + i, dest, dOff + i);
+      }
     } catch (ArrayIndexOutOfBoundsException e) {
-      throw new LZ4Exception("Malformed input at " + sOff);
+      throw new LZ4Exception("Malformed input at offset " + sOff);
     }
   }
 

@@ -23,7 +23,7 @@ import static net.jpountz.lz4.LZ4Utils.MIN_MATCH;
 import static net.jpountz.lz4.LZ4Utils.ML_BITS;
 import static net.jpountz.lz4.LZ4Utils.ML_MASK;
 import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
-import static net.jpountz.lz4.LZ4Utils.naiveIncrementalCopy;
+import static net.jpountz.lz4.LZ4Utils.safeIncrementalCopy;
 import static net.jpountz.util.UnsafeUtils.readByte;
 import static net.jpountz.util.Utils.checkRange;
 
@@ -105,7 +105,7 @@ final class LZ4JavaUnsafeUnknownSizeDecompressor extends LZ4UnknownSizeDecompres
         if (matchCopyEnd > destEnd) {
           throw new LZ4Exception("Malformed input at " + sOff);
         }
-        naiveIncrementalCopy(dest, matchOff, dOff, matchLen);
+        safeIncrementalCopy(dest, matchOff, dOff, matchLen);
       } else {
         wildIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
       }
