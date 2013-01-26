@@ -49,6 +49,10 @@ public final class LZ4Factory {
     }
   }
 
+  private static LZ4Factory NATIVE_INSTANCE,
+                            JAVA_UNSAFE_INSTANCE,
+                            JAVA_SAFE_INSTANCE;
+
   /**
    * Return a {@link LZ4Factory} instance that returns compressors and
    * decompressors that are native bindings to the original C library.
@@ -67,21 +71,30 @@ public final class LZ4Factory {
    * class loader.
    * </ol>
    */
-  public static LZ4Factory nativeInstance() {
-    return instance("JNI");
+  public static synchronized LZ4Factory nativeInstance() {
+    if (NATIVE_INSTANCE == null) {
+      NATIVE_INSTANCE = instance("JNI");
+    }
+    return NATIVE_INSTANCE;
   }
 
   /** Return a {@link LZ4Factory} instance that returns compressors and
    *  decompressors that are written with Java's official API. */
-  public static LZ4Factory safeInstance() {
-    return instance("JavaSafe");
+  public static synchronized LZ4Factory safeInstance() {
+    if (JAVA_SAFE_INSTANCE == null) {
+      JAVA_SAFE_INSTANCE = instance("JavaSafe");
+    }
+    return JAVA_SAFE_INSTANCE;
   }
 
   /** Return a {@link LZ4Factory} instance that returns compressors and
    *  decompressors that may use {@link sun.misc.Unsafe} to speed up compression
    *  and decompression. */
-  public static LZ4Factory unsafeInstance() {
-    return instance("JavaUnsafe");
+  public static synchronized LZ4Factory unsafeInstance() {
+    if (JAVA_UNSAFE_INSTANCE == null) {
+      JAVA_UNSAFE_INSTANCE = instance("JavaUnsafe");
+    }
+    return JAVA_UNSAFE_INSTANCE;
   }
 
   /**

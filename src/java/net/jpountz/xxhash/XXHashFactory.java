@@ -49,22 +49,35 @@ public final class XXHashFactory {
     }
   }
 
+  private static XXHashFactory NATIVE_INSTANCE,
+                               JAVA_UNSAFE_INSTANCE,
+                               JAVA_SAFE_INSTANCE;
+
   /** Return a {@link XXHashFactory} that returns {@link XXHash32} instances that
    *  are native bindings to the original C API. */
-  public static XXHashFactory nativeInstance() {
-    return instance("JNI");
+  public static synchronized XXHashFactory nativeInstance() {
+    if (NATIVE_INSTANCE == null) {
+      NATIVE_INSTANCE = instance("JNI");
+    }
+    return NATIVE_INSTANCE;
   }
 
   /** Return a {@link XXHashFactory} that returns {@link XXHash32} instances that
    *  are written with Java's official API. */
-  public static XXHashFactory safeInstance() {
-    return instance("JavaSafe");
+  public static synchronized XXHashFactory safeInstance() {
+    if (JAVA_SAFE_INSTANCE == null) {
+      JAVA_SAFE_INSTANCE = instance("JavaSafe");
+    }
+    return JAVA_SAFE_INSTANCE;
   }
 
   /** Return a {@link XXHashFactory} that returns {@link XXHash32} instances that
    *  may use {@link sun.misc.Unsafe} to speed up hashing. */
-  public static XXHashFactory unsafeInstance() {
-    return instance("JavaUnsafe");
+  public static synchronized XXHashFactory unsafeInstance() {
+    if (JAVA_UNSAFE_INSTANCE == null) {
+      JAVA_UNSAFE_INSTANCE = instance("JavaUnsafe");
+    }
+    return JAVA_UNSAFE_INSTANCE;
   }
 
   /**
