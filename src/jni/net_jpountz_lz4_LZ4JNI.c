@@ -143,3 +143,14 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1unknownOutpu
 
 }
 
+/*
+ * Class:     net_jpountz_lz4_LZ4JNI
+ * Method:    LZ4_compressBound
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressBound
+  (JNIEnv *env, jclass cls, jint len) {
+
+  return LZ4_compressBound(len);
+
+}

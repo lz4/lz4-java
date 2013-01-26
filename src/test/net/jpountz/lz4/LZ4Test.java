@@ -49,12 +49,11 @@ public class LZ4Test extends RandomizedTest {
   }
 
   @Test
-  @Repeat(iterations=20)
+  @Repeat(iterations=50)
   public void testMaxCompressedLength() {
     final int len = randomBoolean() ? randomInt(16) : randomInt(1 << 30);
-    final LZ4Compressor refCompressor = LZ4Factory.nativeInstance().fastCompressor();
     for (LZ4Compressor compressor : COMPRESSORS) {
-      assertEquals(refCompressor.maxCompressedLength(len), compressor.maxCompressedLength(len));
+      assertEquals(LZ4JNI.LZ4_compressBound(len), compressor.maxCompressedLength(len));
     }
   }
 
@@ -380,7 +379,7 @@ public class LZ4Test extends RandomizedTest {
   @Repeat(iterations=10)
   public void testCompressedArrayEqualsJNI() {
     final int n = randomIntBetween(1, 15);
-    final int len = randomBoolean() ? randomInt(1 << 16) : randomInt(1 << 21);
+    final int len = randomBoolean() ? randomInt(1 << 16) : randomInt(1 << 20);
     final byte[] data = randomArray(len, n);
     testRoundTrip(data);
   }
