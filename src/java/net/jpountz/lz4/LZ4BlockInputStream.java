@@ -21,6 +21,7 @@ import static net.jpountz.lz4.LZ4BlockOutputStream.DEFAULT_SEED;
 import static net.jpountz.lz4.LZ4BlockOutputStream.HEADER_LENGTH;
 import static net.jpountz.lz4.LZ4BlockOutputStream.MAGIC;
 import static net.jpountz.lz4.LZ4BlockOutputStream.MAGIC_LENGTH;
+import static net.jpountz.lz4.LZ4BlockOutputStream.MIN_BLOCK_SIZE;
 
 import java.io.EOFException;
 import java.io.FilterInputStream;
@@ -35,10 +36,12 @@ import net.jpountz.xxhash.XXHashFactory;
 
 /**
  * {@link InputStream} implementation to decode data written with
- * {@link LZ4BlockOutputStream}.
+ * {@link LZ4BlockOutputStream}. This class is not thread-safe.
  * @see LZ4BlockOutputStream
  */
 public final class LZ4BlockInputStream extends FilterInputStream {
+
+  private static final byte[] EMPTY = new byte[0];
 
   private final LZ4Decompressor decompressor;
   private final Checksum checksum;
@@ -48,14 +51,20 @@ public final class LZ4BlockInputStream extends FilterInputStream {
   private int o;
   private boolean finished;
 
+  // for mark / reset
+  private byte[] markBuffer;
+  private int markOriginalLen, markO;
+  private boolean markFinished;
+
   /**
    * Create a new {@link InputStream}.
    *
    * @param in            the {@link InputStream} to poll
-   * @param decompressor  the decompressor instance to use
-   * @param checksum      the checksum instance to use, must be of the same class
-   *                      and instantiated with the same parameters as the one
-   *                      which has been used to write the stream
+   * @param decompressor  the {@link LZ4Decompressor decompressor} instance to
+   *                      use
+   * @param checksum      the {@link Checksum} instance to use, must be
+   *                      equivalent to the instance which has been used to
+   *                      write the stream
    */
   public LZ4BlockInputStream(InputStream in, LZ4Decompressor decompressor, Checksum checksum) {
     super(in);
@@ -63,7 +72,7 @@ public final class LZ4BlockInputStream extends FilterInputStream {
     this.checksum = checksum;
     this.buffer = new byte[0];
     this.compressedBuffer = new byte[HEADER_LENGTH];
-    o = 0;
+    o = originalLen = 0;
     finished = false;
   }
 
@@ -217,6 +226,58 @@ public final class LZ4BlockInputStream extends FilterInputStream {
       read += r;
     }
     assert len == read;
+  }
+
+  @Override
+  public boolean markSupported() {
+    return in.markSupported();
+  }
+
+  @Override
+  public void mark(int readlimit) {
+    readlimit = Math.max(readlimit, 0);
+    // worst-case compression ratio is when all blocks are MIN_BLOCK_SIZE bytes
+    // and incompressible
+    long compressedReadLimit =
+        (long) (MIN_BLOCK_SIZE + HEADER_LENGTH) // max compressed size of a single block
+        * (readlimit + MIN_BLOCK_SIZE - 1) / MIN_BLOCK_SIZE; // number of blocks
+    if (compressedReadLimit > Integer.MAX_VALUE) {
+      // overflow: try to do our best, this might not work if the input is incompressible
+      // and if the underlying InputStream actually buffers data when mark is called (if
+      // it does not support seeking)
+      compressedReadLimit = Integer.MAX_VALUE;
+    }
+    in.mark((int) compressedReadLimit);
+    markFinished = finished;
+    markO = o;
+    markOriginalLen = originalLen;
+    if (o < originalLen) {
+      if (markBuffer == null) {
+        markBuffer = new byte[originalLen];
+      } else if (markBuffer.length < originalLen - o) {
+        markBuffer = new byte[Math.max(markBuffer.length + markBuffer.length >>> 1, originalLen)];
+      }
+      System.arraycopy(buffer, o, markBuffer, 0, originalLen - o);
+    } else if (markBuffer == null) {
+      markBuffer = EMPTY;
+    }
+    assert markBuffer != null;
+  }
+
+  @Override
+  public void reset() throws IOException {
+    if (markBuffer == null) {
+      throw new IOException("Call mark first");
+    }
+    in.reset();
+    finished = markFinished;
+    o = markO;
+    originalLen = markOriginalLen;
+    assert o <= originalLen;
+    if (o < originalLen) {
+      assert buffer.length >= originalLen; // block has alread been decompressed
+      System.arraycopy(markBuffer, 0, buffer, o, originalLen - o);
+    }
   }
 
   @Override
