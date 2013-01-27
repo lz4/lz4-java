@@ -27,34 +27,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
 @RunWith(RandomizedRunner.class)
-public class LZ4Test extends RandomizedTest {
-
-  private class RandomBytes {
-    private final byte[] bytes;
-    RandomBytes(int n) {
-      assert n > 0 && n <= 256;
-      bytes = new byte[n];
-      for (int i = 0; i < n; ++i) {
-        bytes[i] = (byte) randomInt(255);
-      }
-    }
-    byte next() {
-      final int i = randomInt(bytes.length - 1);
-      return bytes[i];
-    }
-  }
+public class LZ4Test extends AbstractLZ4Test {
 
   @Test
-  @Repeat(iterations=20)
+  @Repeat(iterations=50)
   public void testMaxCompressedLength() {
     final int len = randomBoolean() ? randomInt(16) : randomInt(1 << 30);
-    final LZ4Compressor refCompressor = LZ4Factory.nativeInstance().fastCompressor();
     for (LZ4Compressor compressor : COMPRESSORS) {
-      assertEquals(refCompressor.maxCompressedLength(len), compressor.maxCompressedLength(len));
+      assertEquals(LZ4JNI.LZ4_compressBound(len), compressor.maxCompressedLength(len));
     }
   }
 
@@ -76,15 +59,6 @@ public class LZ4Test extends RandomizedTest {
       throw new AssertionError();
     }
     return baos.toByteArray();
-  }
-
-  private byte[] randomArray(int len, int n) {
-    byte[] result = new byte[len];
-    RandomBytes randomBytes = new RandomBytes(n);
-    for (int i = 0; i < result.length; ++i) {
-      result[i] = randomBytes.next();
-    }
-    return result;
   }
 
   @Test
@@ -380,7 +354,7 @@ public class LZ4Test extends RandomizedTest {
   @Repeat(iterations=10)
   public void testCompressedArrayEqualsJNI() {
     final int n = randomIntBetween(1, 15);
-    final int len = randomBoolean() ? randomInt(1 << 16) : randomInt(1 << 21);
+    final int len = randomBoolean() ? randomInt(1 << 16) : randomInt(1 << 20);
     final byte[] data = randomArray(len, n);
     testRoundTrip(data);
   }
