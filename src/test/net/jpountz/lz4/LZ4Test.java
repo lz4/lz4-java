@@ -27,26 +27,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
 @RunWith(RandomizedRunner.class)
-public class LZ4Test extends RandomizedTest {
-
-  private class RandomBytes {
-    private final byte[] bytes;
-    RandomBytes(int n) {
-      assert n > 0 && n <= 256;
-      bytes = new byte[n];
-      for (int i = 0; i < n; ++i) {
-        bytes[i] = (byte) randomInt(255);
-      }
-    }
-    byte next() {
-      final int i = randomInt(bytes.length - 1);
-      return bytes[i];
-    }
-  }
+public class LZ4Test extends AbstractLZ4Test {
 
   @Test
   @Repeat(iterations=50)
@@ -75,15 +59,6 @@ public class LZ4Test extends RandomizedTest {
       throw new AssertionError();
     }
     return baos.toByteArray();
-  }
-
-  private byte[] randomArray(int len, int n) {
-    byte[] result = new byte[len];
-    RandomBytes randomBytes = new RandomBytes(n);
-    for (int i = 0; i < result.length; ++i) {
-      result[i] = randomBytes.next();
-    }
-    return result;
   }
 
   @Test

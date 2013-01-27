@@ -183,6 +183,7 @@
       <fileset dir="${build}/test-classes/">
         <include name="**/*Test.class" />
         <exclude name="**/*$*" />
+        <exclude name="**/Abstract*" />
       </fileset>
       <listeners>
         <junit4:report-text
