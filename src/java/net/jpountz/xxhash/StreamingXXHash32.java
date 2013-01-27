@@ -1,5 +1,7 @@
 package net.jpountz.xxhash;
 
+import java.util.zip.Checksum;
+
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +65,41 @@ public abstract class StreamingXXHash32 {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "(seed=" + seed + ")";
+  }
+
+  /**
+   * Return a {@link Checksum} view of this instance. Modifications to the view
+   * will modify this instance too and vice-versa.
+   */
+  public final Checksum asChecksum() {
+    return new Checksum() {
+
+      @Override
+      public long getValue() {
+        return StreamingXXHash32.this.getValue() & 0xFFFFFFFL;
+      }
+
+      @Override
+      public void reset() {
+        StreamingXXHash32.this.reset();
+      }
+
+      @Override
+      public void update(int b) {
+        StreamingXXHash32.this.update(new byte[] {(byte) b}, 0, 1);
+      }
+
+      @Override
+      public void update(byte[] b, int off, int len) {
+        StreamingXXHash32.this.update(b, off, len);
+      }
+
+      @Override
+      public String toString() {
+        return StreamingXXHash32.this.toString();
+      }
+
+    };
   }
 
 }
