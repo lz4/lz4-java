@@ -27,7 +27,8 @@ import net.jpountz.xxhash.XXHashFactory;
 /**
  * Streaming LZ4.
  * <p>
- * This class compresses data into fixed-size blocks of compressed data.
+ * This class compresses data into fixed-size blocks of compressed data and is
+ * NOT thread-safe.
  * @see LZ4BlockInputStream
  */
 public final class LZ4BlockOutputStream extends FilterOutputStream {
@@ -43,6 +44,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
       + 4;         // checksum
 
   static final int COMPRESSION_LEVEL_BASE = 10;
+  static final int MIN_BLOCK_SIZE = 64;
   static final int MAX_BLOCK_SIZE = 1 << (COMPRESSION_LEVEL_BASE + 0x0F);
 
   static final int COMPRESSION_METHOD_RAW = 0x10;
@@ -52,7 +54,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
 
   private static int compressionLevel(int blockSize) {
     if (blockSize < 64) {
-      throw new IllegalArgumentException("blockSize must be >= 64, got " + blockSize);
+      throw new IllegalArgumentException("blockSize must be >= " + MIN_BLOCK_SIZE + ", got " + blockSize);
     } else if (blockSize > MAX_BLOCK_SIZE) {
       throw new IllegalArgumentException("blockSize must be <= " + MAX_BLOCK_SIZE + ", got " + blockSize);
     }
@@ -78,7 +80,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
    *
    * @param out         the {@link OutputStream} to feed
    * @param blockSize   the maximum number of bytes to try to compress at once,
-   *                    must be >= 64 and < 32 M
+   *                    must be >= 64 and <= 32 M
    * @param compressor  the {@link LZ4Compressor} instance to use to compress
    *                    data
    * @param checksum    the {@link Checksum} instance to use to check data for

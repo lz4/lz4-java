@@ -17,6 +17,7 @@ package net.jpountz.lz4;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,8 +61,14 @@ public class LZ4BlockStreamingTest extends AbstractLZ4Test {
     }
     final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
     final LZ4BlockInputStream is = new LZ4BlockInputStream(bais);
+    assertTrue(is.markSupported());
     final byte[] restored = new byte[data.length];
     int read = 0;
+    int markPosition = -1;
+    if (randomBoolean()) {
+      is.mark(data.length);
+      markPosition = 0;
+    }
     while (read < data.length) {
       final int r;
       if (randomBoolean()) {
@@ -74,11 +81,29 @@ public class LZ4BlockStreamingTest extends AbstractLZ4Test {
         r = 1;
       }
       read += r;
+      if (randomFloat() < 0.01f) {
+        is.mark(data.length - read);
+        markPosition = read;
+      }
     }
-    is.close();
     assertEquals(-1, is.read());
     assertEquals(-1, is.read(restored));
     assertArrayEquals(data, restored);
+    if (markPosition >= 0) {
+      // a position has been marked, try to reset
+      Arrays.fill(restored, markPosition, restored.length, (byte) 0);
+      is.reset();
+      read = markPosition;
+      while (read < data.length) {
+        final int r = is.read(restored, read, randomInt(data.length - read));
+        assertTrue("" + read + " " + data.length, r >= 0);
+        read += r;
+      }
+      assertEquals(-1, is.read());
+      assertEquals(-1, is.read(restored));
+      assertArrayEquals(data, restored);
+    }
+    is.close();
   }
 
 }
