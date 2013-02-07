@@ -41,7 +41,7 @@
   <condition property="platform" value="solaris">
    <os name="SunOS"/>
   </condition>
-  <condition property="platform" value="mac">
+  <condition property="platform" value="darwin">
    <os family="mac"/>
   </condition>
 

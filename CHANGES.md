@@ -30,6 +30,13 @@
  - [#5](http://github.com/jpountz/lz4-java/issues/5)
    Fixed Windows build. (Rui Gonçalves)
 
+ - Fixed Mac build. (Adrien Maglo)
+
+ - [#8](http://github.com/jpountz/lz4-java/issues/5)
+   Provided pre-built JNI bindings for some major platforms: Windows/64,
+   Linux/32, Linux/64 and Mac Intel/64. (Rui Gonçalves, Adrien Maglo,
+   Adrien Grand)
+
 ## 1.0.0
 
  - lz4 r87
