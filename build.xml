@@ -294,13 +294,13 @@
     </sequential>
   </macrodef>
 
-  <target name="deploy" description="deploy snapshot to snapshot repo">
+  <target name="deploy" description="deploy snapshot to snapshot repo" depends="install-maven-ant-tasks">
     <property name="skip.jni" value="true" />
     <antcall target="-deploy" />
   </target>
 
   <target name="-deploy" depends="clean,dist">
-    <deploy repositoryid="sonatype-nexus-snapshots" repositoryurl="https://oss.sonatype.org/content/repositories/snapshots/" />
+    <deploy repositoryid="sonatype-nexus-snapshots" repositoryurl="https://oss.sonatype.org/content/repositories/snapshots" />
   </target>
 
   <!-- before this, update project version from SNAPSHOT to RELEASE -->
@@ -310,7 +310,7 @@
   </target>
 
   <target name="-stage" depends="clean,dist">
-    <deploy repositoryid="sonatype-nexus-staging" repositoryurl="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
+    <deploy repositoryid="sonatype-nexus-staging" repositoryurl="https://oss.sonatype.org/service/local/staging/deploy/maven2" />
   </target>
 
 </project>
