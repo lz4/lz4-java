@@ -23,14 +23,11 @@
   <property name="dist"  location="dist"/>
   <property name="lib" location="lib" />
 
+  <property name="javac.source" value="1.6" />
+  <property name="javac.target" value="1.6" />
+
   <property name="ivy.jar.version" value="2.2.0"/>
   <property name="ivy.jar.name" value="ivy-${ivy.jar.version}.jar"/>
-
-  <property name="cpptasks.jar.version" value="1.0b5"/>
-  <property name="cpptasks.jar.name" value="cpptasks-${cpptasks.jar.version}.jar" />
-
-  <property name="maven-ant-tasks.jar.version" value="2.1.3" />
-  <property name="maven-ant-tasks.jar.name" value="maven-ant-tasks-${maven-ant-tasks.jar.version}.jar" />
 
   <condition property="platform" value="linux">
    <os name="Linux"/>
@@ -63,28 +60,25 @@
     <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.jar.version}/${ivy.jar.name}" dest="${user.home}/.ant/lib/${ivy.jar.name}"/>
   </target>
 
-  <target name="cpptasks-bootstrap" description="install cpptasks" unless="cpptasks.available">
-    <condition property="cpptasks.available">
-      <typefound uri="antlib:net.sf.antcontrib.cpptasks" name="cc" />
-    </condition>
-    <antcall target="-cpptasks-install" />
+  <target name="install-cpptasks" unless="cpptasks.available">
+    <ivy:cachepath organisation="ant-contrib" module="cpptasks" revision="1.0b5"
+      inline="true" conf="default" transitive="true" pathid="cpptasks.classpath"/>
+    <taskdef uri="antlib:net.sf.antcontrib.cpptasks" resource="net/sf/antcontrib/cpptasks/antlib.xml" classpathref="cpptasks.classpath"/>
+    <property name="cpptasks.available" value="true"/>
   </target>
 
-  <target name="-cpptasks-install" unless="cpptasks.available">
-    <mkdir dir="${user.home}/.ant/lib" />
-    <get src="http://repo1.maven.org/maven2/ant-contrib/cpptasks/${cpptasks.jar.version}/${cpptasks.jar.name}" dest="${user.home}/.ant/lib/${cpptasks.jar.name}"/>
+  <target name="install-maven-ant-tasks" unless="maven-ant-tasks.available">
+    <ivy:cachepath organisation="org.apache.maven" module="maven-ant-tasks" revision="2.1.3"
+      inline="true" conf="default" transitive="true" pathid="maven-ant-tasks.classpath"/>
+    <taskdef uri="antlib:org.apache.maven.artifact.ant" resource="org/apache/maven/artifact/ant/antlib.xml" classpathref="maven-ant-tasks.classpath"/>
+    <property name="maven-ant-tasks.available" value="true"/>
   </target>
 
-  <target name="maven-ant-tasks-bootstrap" description="install maven-ant-tasks" unless="maven-ant-tasks.available">
-    <condition property="maven-ant-tasks.available">
-      <typefound uri="antlib:org.apache.maven.artifact.ant" name="mvn" />
-    </condition>
-    <antcall target="-maven-ant-tasks-install" />
-  </target>
-
-  <target name="-maven-ant-tasks-install" unless="maven-ant-tasks.available">
-    <mkdir dir="${user.home}/.ant/lib" />
-    <get src="http://repo1.maven.org/maven2/org/apache/maven/maven-ant-tasks/${maven-ant-tasks.jar.version}/${maven-ant-tasks.jar.name}" dest="${user.home}/.ant/lib/${maven-ant-tasks.jar.name}" />
+  <target name="install-forbidden-apis" unless="forbidden-apis.available">
+    <ivy:cachepath organisation="de.thetaphi" module="forbiddenapis" revision="1.0"
+      inline="true" conf="default" transitive="true" pathid="forbidden-apis.classpath"/>
+    <taskdef name="forbidden-apis" classname="de.thetaphi.forbiddenapis.AntTask" classpathref="forbidden-apis.classpath"/>
+    <property name="forbidden-apis.available" value="true"/>
   </target>
 
   <target name="init">
@@ -93,16 +87,35 @@
     <ivy:retrieve />
   </target>
 
+  <target name="install-junit4" depends="init" unless="junit4.available">
+    <taskdef uri="antlib:com.carrotsearch.junit4">
+      <classpath>
+        <fileset dir="${lib}" includes="*.jar" />
+      </classpath>
+    </taskdef>
+    <property name="junit4.available" value="true" />
+  </target>
+
   <target name="compile-java" depends="init">
     <mkdir dir="${build}/classes" />
     <javac
       includeAntRuntime="false"
       srcdir="${src}/java"
-      source="1.6"
-      target="1.6"
+      source="${javac.source}"
+      target="${javac.target}"
       encoding="UTF-8"
       debug="true"
       destdir="${build}/classes"/>
+    <mkdir dir="${build}/unsafe-classes" />
+    <javac
+      includeAntRuntime="false"
+      srcdir="${src}/java-unsafe"
+      source="${javac.source}"
+      target="${javac.target}"
+      encoding="UTF-8"
+      debug="true"
+      classpath="${build}/classes"
+      destdir="${build}/unsafe-classes"/>
   </target>
 
   <target name="generate-headers" depends="compile-java" unless="${skip.jni}">
@@ -117,7 +130,7 @@
     </javah>
   </target>
 
-  <target name="compile-jni" depends="generate-headers" unless="${skip.jni}">
+  <target name="compile-jni" depends="install-cpptasks,generate-headers" unless="${skip.jni}">
     <mkdir dir="${build}/objects" />
     <mkdir dir="${build}/jni/${platform}/${os.arch}" />
     <cpptasks:cc
@@ -150,20 +163,13 @@
       destdir="${build}/test-classes">
       <classpath>
         <path location="${build}/classes" />
+        <path location="${build}/unsafe-classes" />
         <fileset dir="lib" includes="*.jar" />
       </classpath>
     </javac>
   </target>
 
-  <target name="install-junit4-taskdef" depends="init">
-    <taskdef uri="antlib:com.carrotsearch.junit4">
-      <classpath>
-        <fileset dir="${lib}" includes="*.jar" />
-      </classpath>
-    </taskdef>
-  </target>
-
-  <target name="test" description="run tests" depends="compile-tests, install-junit4-taskdef">
+  <target name="test" description="run tests" depends="compile-tests, install-junit4">
     <mkdir dir="${build}/tests" />
     <junit4:junit4
       dir="${java.io.tmpdir}"
@@ -176,6 +182,7 @@
         <path location="${src}/resources" />
         <path location="${src}/test-resources" />
         <path location="${build}/classes" />
+        <path location="${build}/unsafe-classes" />
         <path location="${build}/test-classes" />
         <path location="${build}/jni" />
         <fileset dir="${lib}" includes="*.jar" />
@@ -210,6 +217,7 @@
     <jar
       destfile="${dist}/${ivy.module}-${ivy.revision}-sources.jar">
       <fileset dir="${src}/java" />
+      <fileset dir="${src}/java-unsafe" />
     </jar>
   </target>
 
@@ -237,6 +245,7 @@
       destfile="${dist}/${ivy.module}-${ivy.revision}.jar">
       <fileset dir="${src}/resources" />
       <fileset dir="${build}/classes" />
+      <fileset dir="${build}/unsafe-classes" />
       <fileset dir="${build}/jni" erroronmissingdir="false" />
     </jar>
   </target>
@@ -252,6 +261,20 @@
   </target>
 
   <target name="dist" description="package" depends="jar,docs,sources,makepom" />
+
+  <target name="forbidden-apis" description="check API usage" depends="install-forbidden-apis,compile">
+    <forbidden-apis internalRuntimeForbidden="true" classpathref="forbidden-apis.classpath">
+      <bundledSignatures name="jdk-unsafe-${javac.target}"/>
+      <bundledSignatures name="jdk-deprecated-${javac.target}"/>
+      <fileset dir="${build}/classes" includes="**/*.class" />
+    </forbidden-apis>
+    <forbidden-apis classpathref="forbidden-apis.classpath">
+      <bundledSignatures name="jdk-unsafe-${javac.target}"/>
+      <bundledSignatures name="jdk-deprecated-${javac.target}"/>
+      <fileset dir="${build}/classes" includes="**/*.class" />
+      <fileset dir="${build}/unsafe-classes" includes="**/*.class" />
+    </forbidden-apis>
+  </target>
 
   <macrodef name="deploy">
     <attribute name="repositoryid" />
@@ -281,7 +304,7 @@
   </target>
 
   <!-- before this, update project version from SNAPSHOT to RELEASE -->
-  <target name="stage" description="deploy snapshot to snapshot repo">
+  <target name="stage" description="deploy snapshot to snapshot repo" depends="install-maven-ant-tasks,test,forbidden-apis">
     <property name="skip.jni" value="true" />
     <antcall target="-stage" />
   </target>
