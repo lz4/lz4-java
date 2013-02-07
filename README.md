@@ -73,12 +73,10 @@ Have a look at XXHashFactory for more information.
 
  - JDK version 6 or newer,
  - ant,
- - ivy,
- - cpptasks.
+ - ivy.
 
-If ivy and/or cpptasks are not installed yet, ant can take care of it for you,
-just run `ant ivy-bootstrap cpptasks-bootstrap`. Both libraries will be
-installed under ${user.home}/.ant/lib.
+If ivy is not installed yet, ant can take care of it for you, just run
+`ant ivy-bootstrap`. The library will be installed under ${user.home}/.ant/lib.
 
 ## Instructions
 
