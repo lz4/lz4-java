@@ -54,7 +54,22 @@ public final class XXHashFactory {
                                JAVA_SAFE_INSTANCE;
 
   /** Return a {@link XXHashFactory} that returns {@link XXHash32} instances that
-   *  are native bindings to the original C API. */
+   *  are native bindings to the original C API.
+   * <p>
+   * Please note that this instance has some traps you should be aware of:<ol>
+   * <li>Upon loading this instance, files will be written to the temporary
+   * directory of the system. Although these files are supposed to be deleted
+   * when the JVM exits, they might remain on systems that don't support
+   * removal of files being used such as Windows.
+   * <li>The instance can only be loaded once per JVM. This can be a problem
+   * if your application uses multiple class loaders (such as most servlet
+   * containers): this instance will only be available to the children of the
+   * class loader which has loaded it. As a consequence, it is advised to
+   * either not use this instance in webapps or to put this library in the lib
+   * directory of your servlet container so that it is loaded by the system
+   * class loader.
+   * </ol>
+   */
   public static synchronized XXHashFactory nativeInstance() {
     if (NATIVE_INSTANCE == null) {
       NATIVE_INSTANCE = instance("JNI");

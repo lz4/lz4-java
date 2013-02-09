@@ -228,6 +228,7 @@
         packagenames="net.jpountz.lz4,net.jpountz.xxhash"
         windowtitle="lz4 / xxhash - Java API ${ivy.revision}"
         destDir="${build}/docs">
+      <link href="http://download.oracle.com/javase/6/docs/api/" />
       <sourcepath>
         <pathelement location="${src}/java"/>
       </sourcepath>

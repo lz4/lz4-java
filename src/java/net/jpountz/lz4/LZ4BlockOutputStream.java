@@ -27,8 +27,7 @@ import net.jpountz.xxhash.XXHashFactory;
 /**
  * Streaming LZ4.
  * <p>
- * This class compresses data into fixed-size blocks of compressed data and is
- * NOT thread-safe.
+ * This class compresses data into fixed-size blocks of compressed data.
  * @see LZ4BlockInputStream
  */
 public final class LZ4BlockOutputStream extends FilterOutputStream {
@@ -84,9 +83,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
    * @param compressor  the {@link LZ4Compressor} instance to use to compress
    *                    data
    * @param checksum    the {@link Checksum} instance to use to check data for
-   *                    integrity. The matching {@link LZ4BlockInputStream}
-   *                    instance must be instantiated with an instance of the
-   *                    same class and with the same parameters.
+   *                    integrity.
    */
   public LZ4BlockOutputStream(OutputStream out, int blockSize, LZ4Compressor compressor, Checksum checksum) {
     super(out);
@@ -121,7 +118,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
   }
 
   /**
-   * Create a new instance which compresses into blocks of 65 KB.
+   * Create a new instance which compresses into blocks of 64 KB.
    * @see #LZ4BlockOutputStream(OutputStream, int)
    */
   public LZ4BlockOutputStream(OutputStream out) {
@@ -203,6 +200,10 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
     o = 0;
   }
 
+  /**
+   * Same as {@link #close()} except that it doesn't close the underlying stream.
+   * This can be useful if you want to keep on using the underlying stream.
+   */
   public void finish() throws IOException {
     ensureNotFinished();
     flush();
