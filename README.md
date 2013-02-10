@@ -61,6 +61,10 @@ Have a look at XXHashFactory for more information.
    - on any JVM,
    - on any platform (even if the endianness or integer size differs).
 
+# Download
+
+You can download released artifacts from [Maven Central](http://repo1.maven.org/maven2/net/jpountz/lz4/lz4/).
+
 # Documentation
 
  - [lz4](http://jpountz.github.com/lz4-java/1.1.0/docs/net/jpountz/lz4/package-summary.html)
