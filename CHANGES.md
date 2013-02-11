@@ -1,5 +1,10 @@
 # Change log
 
+## 1.1.1
+
+ - [#11](http://github.com/jpountz/lz4-java/issues/11)
+   Fixed bug in LZ4BlockOutputStream.write(int).
+
 ## 1.1.0
 
  - lz4 r88

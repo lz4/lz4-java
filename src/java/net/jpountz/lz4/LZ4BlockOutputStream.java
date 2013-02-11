@@ -136,9 +136,8 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
     ensureNotFinished();
     if (o == blockSize) {
       flush();
-    } else {
-      buffer[o++] = (byte) b;
     }
+    buffer[o++] = (byte) b;
   }
 
   @Override
@@ -148,7 +147,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
     if (len < 0) {
       throw new IllegalArgumentException("len must be >= 0");
     }
-    while (o + len >= blockSize) {
+    while (o + len > blockSize) {
       final int l = blockSize - o;
       System.arraycopy(b, off, buffer, o, blockSize - o);
       o = blockSize;

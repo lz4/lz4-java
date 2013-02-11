@@ -38,17 +38,16 @@ public class LZ4BlockStreamingTest extends AbstractLZ4Test {
     final byte[] data = randomArray(size, randomBoolean() ? randomIntBetween(1, 5) : randomIntBetween(6, 100));
     int written = 0;
     while (written < data.length) {
-      final int w;
+      final int w = randomInt(data.length - written);
       if (randomBoolean()) {
-        w = randomInt(data.length - written);
         os.write(data, written, w);
-        os.flush();
       } else {
-        os.write(data[written]);
-        if (randomBoolean()) {
-          os.flush();
+        for (int i = 0; i < w; ++i) {
+          os.write(data[written + i]);
         }
-        w = 1;
+      }
+      if (rarely()) {
+        os.flush();
       }
       written += w;
     }
