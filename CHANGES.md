@@ -3,7 +3,7 @@
 ## 1.1.1
 
  - [#11](http://github.com/jpountz/lz4-java/issues/11)
-   Fixed bug in LZ4BlockOutputStream.write(int).
+   Fixed bug in LZ4BlockOutputStream.write(int). (Adrien Grand, Brian Moore)
 
 ## 1.1.0
 
