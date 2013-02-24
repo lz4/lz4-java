@@ -1,5 +1,15 @@
 # Change log
 
+## 1.1.2
+
+ - lz4 r89
+
+ - LZ4BlockInputStream does not support mark/reset anymore. (Adrien Grand)
+
+ - LZ4BlockOutputStream supports a new syncFlush parameter to configure whether
+   the flush method should flush pending data or just flush the underlying
+   stream. (Adrien Grand)
+
 ## 1.1.1
 
  - [#11](http://github.com/jpountz/lz4-java/issues/11)

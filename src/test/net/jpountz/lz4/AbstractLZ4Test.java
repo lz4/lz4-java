@@ -14,6 +14,10 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 
 abstract class AbstractLZ4Test extends RandomizedTest {
@@ -31,6 +35,27 @@ abstract class AbstractLZ4Test extends RandomizedTest {
       final int i = randomInt(bytes.length - 1);
       return bytes[i];
     }
+  }
+
+  protected static byte[] readResource(String resource) throws IOException {
+    InputStream is = LZ4Test.class.getResourceAsStream(resource);
+    if (is == null) {
+      throw new IllegalStateException("Cannot find " + resource);
+    }
+    byte[] buf = new byte[4096];
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try {
+      while (true) {
+        final int read = is.read(buf);
+        if (read == -1) {
+          break;
+        }
+        baos.write(buf, 0, read);
+      }
+    } finally {
+      is.close();
+    }
+    return baos.toByteArray();
   }
 
   protected byte[] randomArray(int len, int n) {

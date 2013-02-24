@@ -20,7 +20,6 @@ import static net.jpountz.lz4.Instances.UNCOMPRESSORS2;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -100,27 +99,6 @@ public class LZ4Test extends AbstractLZ4Test {
     for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
       testUncompressWorstCase(decompressor);
     }
-  }
-
-  private static byte[] readResource(String resource) throws IOException {
-    InputStream is = LZ4Test.class.getResourceAsStream(resource);
-    if (is == null) {
-      throw new IllegalStateException("Cannot find " + resource);
-    }
-    byte[] buf = new byte[4096];
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    try {
-      while (true) {
-        final int read = is.read(buf);
-        if (read == -1) {
-          break;
-        }
-        baos.write(buf, 0, read);
-      }
-    } finally {
-      is.close();
-    }
-    return baos.toByteArray();
   }
 
   public void testRoundTrip(byte[] data, int off, int len,

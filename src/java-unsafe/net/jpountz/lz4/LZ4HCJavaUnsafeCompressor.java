@@ -233,20 +233,7 @@ final class LZ4HCJavaUnsafeCompressor extends LZ4Compressor {
               || !ht.insertAndFindWiderMatch(src, match2.end() - 3, match2.start, matchLimit, match2.len, match3)) {
             // no better match -> 2 sequences to encode
             if (match2.start < match1.end()) {
-              if (match2.start - match1.start < OPTIMAL_ML) {
-                if (match1.len > OPTIMAL_ML) {
-                  match1.len = OPTIMAL_ML;
-                }
-                if (match1.end() > match2.end() - MIN_MATCH) {
-                  match1.len = match2.end() - match1.start - MIN_MATCH;
-                }
-                final int correction = match1.len - (match2.start - match1.start);
-                if (correction > 0) {
-                  match2.fix(correction);
-                }
-              } else {
-                match1.len = match2.start - match1.start;
-              }
+              match1.len = match2.start - match1.start;
             }
             // encode seq 1
             dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);

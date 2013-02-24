@@ -36,7 +36,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
   static final int MAGIC_LENGTH = MAGIC.length;
 
   static final int HEADER_LENGTH =
-      MAGIC.length // magic bytes
+      MAGIC_LENGTH // magic bytes
       + 1          // token
       + 4          // compressed length
       + 4          // decompressed length
@@ -52,12 +52,12 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
   static final int DEFAULT_SEED = 0x9747b28c;
 
   private static int compressionLevel(int blockSize) {
-    if (blockSize < 64) {
+    if (blockSize < MIN_BLOCK_SIZE) {
       throw new IllegalArgumentException("blockSize must be >= " + MIN_BLOCK_SIZE + ", got " + blockSize);
     } else if (blockSize > MAX_BLOCK_SIZE) {
       throw new IllegalArgumentException("blockSize must be <= " + MAX_BLOCK_SIZE + ", got " + blockSize);
     }
-    int compressionLevel = 32 - Integer.numberOfLeadingZeros(blockSize - 1);
+    int compressionLevel = 32 - Integer.numberOfLeadingZeros(blockSize - 1); // ceil of log2
     assert (1 << compressionLevel) >= blockSize;
     assert blockSize * 2 > (1 << compressionLevel);
     compressionLevel = Math.max(0, compressionLevel - COMPRESSION_LEVEL_BASE);
@@ -71,11 +71,14 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
   private final Checksum checksum;
   private final byte[] buffer;
   private final byte[] compressedBuffer;
+  private final boolean syncFlush;
   private boolean finished;
   private int o;
 
   /**
-   * Create a new {@link OutputStream}.
+   * Create a new {@link OutputStream} with configurable block size. Large
+   * blocks require more memory at compression and decompression time but
+   * should improve the compression ratio.
    *
    * @param out         the {@link OutputStream} to feed
    * @param blockSize   the maximum number of bytes to try to compress at once,
@@ -84,8 +87,9 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
    *                    data
    * @param checksum    the {@link Checksum} instance to use to check data for
    *                    integrity.
+   * @param syncFlush   true if pending data should also be flushed on {@link #flush()}
    */
-  public LZ4BlockOutputStream(OutputStream out, int blockSize, LZ4Compressor compressor, Checksum checksum) {
+  public LZ4BlockOutputStream(OutputStream out, int blockSize, LZ4Compressor compressor, Checksum checksum, boolean syncFlush) {
     super(out);
     this.blockSize = blockSize;
     this.compressor = compressor;
@@ -93,18 +97,20 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
     this.compressionLevel = compressionLevel(blockSize);
     this.buffer = new byte[blockSize];
     this.compressedBuffer = new byte[HEADER_LENGTH + compressor.maxCompressedLength(blockSize)];
+    this.syncFlush = syncFlush;
     o = 0;
     finished = false;
     System.arraycopy(MAGIC, 0, compressedBuffer, 0, MAGIC_LENGTH);
   }
 
   /**
-   * Create a new instance which checks stream integrity using {@link XXHash32}.
+   * Create a new instance which checks stream integrity using
+   * {@link StreamingXXHash32} and doesn't sync flush.
    * @see #LZ4BlockOutputStream(OutputStream, int, LZ4Compressor, Checksum)
    * @see StreamingXXHash32#asChecksum()
    */
   public LZ4BlockOutputStream(OutputStream out, int blockSize, LZ4Compressor compressor) {
-    this(out, blockSize, compressor, XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum());
+    this(out, blockSize, compressor, XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum(), false);
   }
 
   /**
@@ -135,7 +141,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
   public void write(int b) throws IOException {
     ensureNotFinished();
     if (o == blockSize) {
-      flush();
+      flushBufferedData();
     }
     buffer[o++] = (byte) b;
   }
@@ -144,14 +150,12 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
   public void write(byte[] b, int off, int len) throws IOException {
     Utils.checkRange(b, off, len);
     ensureNotFinished();
-    if (len < 0) {
-      throw new IllegalArgumentException("len must be >= 0");
-    }
+
     while (o + len > blockSize) {
       final int l = blockSize - o;
       System.arraycopy(b, off, buffer, o, blockSize - o);
       o = blockSize;
-      flush();
+      flushBufferedData();
       off += l;
       len -= l;
     }
@@ -172,8 +176,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
     out.close();
   }
 
-  @Override
-  public void flush() throws IOException {
+  private void flushBufferedData() throws IOException {
     if (o == 0) {
       return;
     }
@@ -200,12 +203,30 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
   }
 
   /**
+   * Flush this compressed {@link OutputStream}.
+   *
+   * If the stream has been created with <code>syncFlush=true</code>, pending
+   * data will be compressed and appended to the underlying {@link OutputStream}
+   * before calling {@link OutputStream#flush()} on the underlying stream.
+   * Otherwise, this method just flushes the underlying stream, so pending
+   * data might not be available for reading until {@link #finish()} or
+   * {@link #close()} is called.
+   */
+  @Override
+  public void flush() throws IOException {
+    if (syncFlush) {
+      flushBufferedData();
+    }
+    out.flush();
+  }
+
+  /**
    * Same as {@link #close()} except that it doesn't close the underlying stream.
    * This can be useful if you want to keep on using the underlying stream.
    */
   public void finish() throws IOException {
     ensureNotFinished();
-    flush();
+    flushBufferedData();
     compressedBuffer[MAGIC_LENGTH] = (byte) (COMPRESSION_METHOD_RAW | compressionLevel);
     writeIntLE(0, compressedBuffer, MAGIC_LENGTH + 1);
     writeIntLE(0, compressedBuffer, MAGIC_LENGTH + 5);
@@ -213,6 +234,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
     assert MAGIC_LENGTH + 13 == HEADER_LENGTH;
     out.write(compressedBuffer, 0, HEADER_LENGTH);
     finished = true;
+    out.flush();
   }
 
   private static void writeIntLE(int i, byte[] buf, int off) {
