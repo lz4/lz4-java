@@ -24,6 +24,7 @@ final class LZ4JNIDecompressor extends LZ4Decompressor {
 
   public static final LZ4JNIDecompressor INSTANCE = new LZ4JNIDecompressor();
 
+  @Override
   public final int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen) {
     checkRange(src, srcOff);
     checkRange(dest, destOff, destLen);

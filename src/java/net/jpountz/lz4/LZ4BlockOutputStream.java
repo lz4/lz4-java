@@ -21,7 +21,6 @@ import java.util.zip.Checksum;
 
 import net.jpountz.util.Utils;
 import net.jpountz.xxhash.StreamingXXHash32;
-import net.jpountz.xxhash.XXHash32;
 import net.jpountz.xxhash.XXHashFactory;
 
 /**

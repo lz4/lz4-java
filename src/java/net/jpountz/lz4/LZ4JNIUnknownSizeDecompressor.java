@@ -24,6 +24,7 @@ final class LZ4JNIUnknownSizeDecompressor extends LZ4UnknownSizeDecompressor {
 
   public static final LZ4UnknownSizeDecompressor INSTANCE = new LZ4JNIUnknownSizeDecompressor();
 
+  @Override
   public final int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);

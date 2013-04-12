@@ -33,6 +33,7 @@ final class LZ4JavaSafeDecompressor extends LZ4Decompressor {
 
   public static final LZ4Decompressor INSTANCE = new LZ4JavaSafeDecompressor();
 
+  @Override
   public int decompress(byte[] src, final int srcOff, byte[] dest, final int destOff, int destLen) {
     checkRange(src, srcOff);
     checkRange(dest, destOff, destLen);

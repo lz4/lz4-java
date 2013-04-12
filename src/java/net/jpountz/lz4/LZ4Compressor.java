@@ -22,6 +22,7 @@ package net.jpountz.lz4;
 public abstract class LZ4Compressor {
 
   /** Return the maximum compressed length for an input of size <code>length</code>. */
+  @SuppressWarnings("static-method")
   public final int maxCompressedLength(int length) {
     return LZ4Utils.maxCompressedLength(length);
   }

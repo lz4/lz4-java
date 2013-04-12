@@ -46,7 +46,7 @@ final class LZ4JavaSafeCompressor extends LZ4Compressor {
 
   public static final LZ4Compressor INSTANCE = new LZ4JavaSafeCompressor();
 
-  private int compress64k(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int destEnd) {
+  static int compress64k(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int destEnd) {
     final int srcEnd = srcOff + srcLen;
     final int srcLimit = srcEnd - LAST_LITERALS;
     final int mflimit = srcEnd - MF_LIMIT;

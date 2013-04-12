@@ -24,6 +24,7 @@ final class LZ4HCJNICompressor extends LZ4Compressor {
 
   public static final LZ4Compressor INSTANCE = new LZ4HCJNICompressor();
 
+  @Override
   public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);

@@ -226,11 +226,13 @@ public final class LZ4BlockInputStream extends FilterInputStream {
     return false;
   }
 
+  @SuppressWarnings("sync-override")
   @Override
   public void mark(int readlimit) {
     // unsupported
   }
 
+  @SuppressWarnings("sync-override")
   @Override
   public void reset() throws IOException {
     throw new IOException("mark/reset not supported");
