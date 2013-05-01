@@ -303,7 +303,7 @@
   </target>
 
   <!-- before this, update project version from SNAPSHOT to RELEASE -->
-  <target name="stage" description="deploy snapshot to snapshot repo" depends="install-maven-ant-tasks,test,forbidden-apis">
+  <target name="stage" description="deploy to release repo" depends="install-maven-ant-tasks,test,forbidden-apis">
     <property name="skip.jni" value="true" />
     <antcall target="-stage" />
   </target>
