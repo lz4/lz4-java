@@ -8,6 +8,12 @@
    the flush method should flush pending data or just flush the underlying
    stream. (Adrien Grand)
 
+ - [#14](http://github.com/jpountz/lz4-java/issues/14)
+   Fixed misspelled API. (Brian S. O'Neill)
+
+ - [#13](http://github.com/jpountz/lz4-java/issues/13)
+   Header must be fully read. (Gabriel Ki)
+
 ## 1.1.1
 
  - [#11](http://github.com/jpountz/lz4-java/issues/11)
