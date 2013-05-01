@@ -34,9 +34,9 @@ enum Instances {
   };
 
   static LZ4UnknownSizeDecompressor[] UNCOMPRESSORS2 = new LZ4UnknownSizeDecompressor[] {
-    LZ4Factory.nativeInstance().unknwonSizeDecompressor(),
-    LZ4Factory.unsafeInstance().unknwonSizeDecompressor(),
-    LZ4Factory.safeInstance().unknwonSizeDecompressor()
+    LZ4Factory.nativeInstance().unknownSizeDecompressor(),
+    LZ4Factory.unsafeInstance().unknownSizeDecompressor(),
+    LZ4Factory.safeInstance().unknownSizeDecompressor()
   };
 
 }

@@ -192,7 +192,7 @@ public final class LZ4Factory {
   }
 
   /** Return a {@link LZ4UnknownSizeDecompressor} instance. */
-  public LZ4UnknownSizeDecompressor unknwonSizeDecompressor() {
+  public LZ4UnknownSizeDecompressor unknownSizeDecompressor() {
     return unknownSizeDecompressor;
   }
 

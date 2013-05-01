@@ -199,7 +199,7 @@ public class LZ4Test extends AbstractLZ4Test {
   public void testRoundTrip(byte[] data, int off, int len, LZ4Factory lz4) {
     for (LZ4Compressor compressor : Arrays.asList(
         lz4.fastCompressor(), lz4.highCompressor())) {
-      testRoundTrip(data, off, len, compressor, lz4.decompressor(), lz4.unknwonSizeDecompressor());
+      testRoundTrip(data, off, len, compressor, lz4.decompressor(), lz4.unknownSizeDecompressor());
     }
   }
 
