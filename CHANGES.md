@@ -2,8 +2,6 @@
 
 ## 1.1.2
 
- - lz4 r89
-
  - LZ4BlockInputStream does not support mark/reset anymore. (Adrien Grand)
 
  - LZ4BlockOutputStream supports a new syncFlush parameter to configure whether
