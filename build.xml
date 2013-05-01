@@ -173,7 +173,7 @@
     <mkdir dir="${build}/tests" />
     <junit4:junit4
       dir="${java.io.tmpdir}"
-      maxmemory="100m"
+      maxmemory="300m"
       parallelism="auto">
       <assertions>
         <enable package="net.jpountz.lz4"/>
@@ -194,18 +194,16 @@
       </fileset>
       <listeners>
         <junit4:report-text
-          showThrowable="true"
-          showStackTraces="true"
-          showOutputStream="true"
-          showErrorStream="true"
-          showStatusOk="true"
-          showStatusError="true"
-          showStatusFailure="true"
-          showStatusIgnored="true"
-          showSuiteSummary="true"
-          useSimpleNames="true"
-          maxClassNameColumns="80"
-          timestamps="true" />
+        showThrowable="true"
+        showStackTraces="true"
+        showOutput="never"
+
+        showStatusOk="true"
+        showStatusError="true"
+        showStatusFailure="true"
+        showStatusIgnored="true"
+
+        showSuiteSummary="false" />
         <!-- For enkins -->
         <junit4:report-ant-xml dir="${build}/tests" />
       </listeners>

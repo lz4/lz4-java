@@ -21,6 +21,6 @@
   </configurations>
 
   <dependencies>
-    <dependency org="com.carrotsearch.randomizedtesting" name="junit4-ant" rev="1.6.0" transitive="true" conf="test->*,!sources,!javadoc" />
+    <dependency org="com.carrotsearch.randomizedtesting" name="junit4-ant" rev="2.0.9" transitive="true" conf="test->*,!sources,!javadoc" />
   </dependencies>
 </ivy-module>

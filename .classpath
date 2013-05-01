@@ -8,6 +8,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/hamcrest-core-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.10.jar"/>
-	<classpathentry kind="lib" path="lib/randomizedtesting-runner-1.6.0.jar"/>
+	<classpathentry kind="lib" path="lib/randomizedtesting-runner-2.0.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

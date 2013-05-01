@@ -95,7 +95,8 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
     this.checksum = checksum;
     this.compressionLevel = compressionLevel(blockSize);
     this.buffer = new byte[blockSize];
-    this.compressedBuffer = new byte[HEADER_LENGTH + compressor.maxCompressedLength(blockSize)];
+    final int compressedBlockSize = HEADER_LENGTH + compressor.maxCompressedLength(blockSize);
+    this.compressedBuffer = new byte[compressedBlockSize];
     this.syncFlush = syncFlush;
     o = 0;
     finished = false;
