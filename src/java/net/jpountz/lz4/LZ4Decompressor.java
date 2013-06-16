@@ -15,26 +15,11 @@ package net.jpountz.lz4;
  */
 
 /**
- * LZ4 decompressor that requires the size of the original input to be known.
- * Use {@link LZ4UnknownSizeDecompressor} if you only know the size of the
- * compressed stream.
- * <p>
- * Instances of this class are thread-safe.
+ * @deprecated Use {@link LZ4FastDecompressor} instead.
  */
-public abstract class LZ4Decompressor {
+@Deprecated
+public interface LZ4Decompressor {
 
-  /** Uncompress <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>
-   * and return the number of bytes read from <code>src</code>.
-   * <code>destLen</code> must be exactly the size of the decompressed data.
-   *
-   * @param destLen the <b>exact</b> size of the original input
-   * @return the number of bytes read to restore the original input
-   */
-  public abstract int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
+  int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
 
 }

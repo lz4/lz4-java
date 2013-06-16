@@ -145,15 +145,15 @@ public final class LZ4Factory {
   private final String impl;
   private final LZ4Compressor fastCompressor;
   private final LZ4Compressor highCompressor;
-  private final LZ4Decompressor decompressor;
-  private final LZ4UnknownSizeDecompressor unknownSizeDecompressor;
+  private final LZ4FastDecompressor fastDecompressor;
+  private final LZ4SafeDecompressor safeDecompressor;
 
   private LZ4Factory(String impl) throws ClassNotFoundException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
     this.impl = impl;
     fastCompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "Compressor");
     highCompressor = classInstance("net.jpountz.lz4.LZ4HC" + impl + "Compressor");
-    decompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "Decompressor");
-    unknownSizeDecompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "UnknownSizeDecompressor");
+    fastDecompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "FastDecompressor");
+    safeDecompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "SafeDecompressor");
 
     // quickly test that everything works as expected
     final byte[] original = new byte[] {'a','b','c','d',' ',' ',' ',' ',' ',' ','a','b','c','d','e','f','g','h','i','j'};
@@ -162,12 +162,12 @@ public final class LZ4Factory {
       final byte[] compressed = new byte[maxCompressedLength];
       final int compressedLength = compressor.compress(original, 0, original.length, compressed, 0, maxCompressedLength);
       final byte[] restored = new byte[original.length];
-      decompressor.decompress(compressed, 0, restored, 0, original.length);
+      fastDecompressor.decompress(compressed, 0, restored, 0, original.length);
       if (!Arrays.equals(original, restored)) {
         throw new AssertionError();
       }
       Arrays.fill(restored, (byte) 0);
-      final int decompressedLength = unknownSizeDecompressor.decompress(compressed, 0, compressedLength, restored, 0);
+      final int decompressedLength = safeDecompressor.decompress(compressed, 0, compressedLength, restored, 0);
       if (decompressedLength != original.length || !Arrays.equals(original, restored)) {
         throw new AssertionError();
       }
@@ -186,14 +186,14 @@ public final class LZ4Factory {
     return highCompressor;
   }
 
-  /** Return a {@link LZ4Decompressor} instance. */
-  public LZ4Decompressor decompressor() {
-    return decompressor;
+  /** Return a {@link LZ4FastDecompressor} instance. */
+  public LZ4FastDecompressor fastDecompressor() {
+    return fastDecompressor;
   }
 
-  /** Return a {@link LZ4UnknownSizeDecompressor} instance. */
-  public LZ4UnknownSizeDecompressor unknownSizeDecompressor() {
-    return unknownSizeDecompressor;
+  /** Return a {@link LZ4SafeDecompressor} instance. */
+  public LZ4SafeDecompressor safeDecompressor() {
+    return safeDecompressor;
   }
 
   /** Prints the fastest instance. */

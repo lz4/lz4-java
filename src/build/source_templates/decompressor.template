@@ -20,8 +20,8 @@ final class LZ4Java@{type}${size}Decompressor extends LZ4${size}Decompressor {
   public static final LZ4${size}Decompressor INSTANCE = new LZ4Java${type}${size}Decompressor();
 
   @Override
-  public int decompress(byte[] src, final int srcOff@if{ size != "" }, final int srcLen @end{}, byte[] dest, final int destOff, int destLen) {
-@if{ size != "" }
+  public int decompress(byte[] src, final int srcOff@if{ size == "Safe" }, final int srcLen @end{}, byte[] dest, final int destOff, int destLen) {
+@if{ size == "Safe" }
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, destLen);
 
@@ -43,7 +43,7 @@ final class LZ4Java@{type}${size}Decompressor extends LZ4${size}Decompressor {
     int sOff = srcOff;
     int dOff = destOff;
 
-@if{ size == "" }
+@if{ size == "Fast" }
     while (true) {
 @else{}
     while (sOff < srcEnd) {
@@ -55,14 +55,14 @@ final class LZ4Java@{type}${size}Decompressor extends LZ4${size}Decompressor {
       int literalLen = token >>> ML_BITS;
       if (literalLen == RUN_MASK) {
         byte len = (byte) 0xFF;
-        while (@if{ size != "" }sOff < srcEnd &&@end{}(len = src[sOff++]) == (byte) 0xFF) {
+        while (@if{ size == "Safe" }sOff < srcEnd &&@end{}(len = src[sOff++]) == (byte) 0xFF) {
           literalLen += 0xFF;
         }
         literalLen += len & 0xFF;
       }
 
       final int literalCopyEnd = dOff + literalLen;
-@if{ size == "" }
+@if{ size == "Fast" }
       if (literalCopyEnd > destEnd - COPY_LENGTH) {
         if (literalCopyEnd != destEnd) {
           throw new LZ4Exception("Malformed input at " + sOff);
@@ -97,7 +97,7 @@ final class LZ4Java@{type}${size}Decompressor extends LZ4${size}Decompressor {
       int matchLen = token & ML_MASK;
       if (matchLen == ML_MASK) {
         byte len = (byte) 0xFF;
-        while (@if{ size != "" }sOff < srcEnd &&@end{}(len = src[sOff++]) == (byte) 0xFF) {
+        while (@if{ size == "Safe" }sOff < srcEnd &&@end{}(len = src[sOff++]) == (byte) 0xFF) {
           matchLen += 0xFF;
         }
         matchLen += len & 0xFF;
@@ -117,7 +117,7 @@ final class LZ4Java@{type}${size}Decompressor extends LZ4${size}Decompressor {
       dOff = matchCopyEnd;
     }
 
-@if{ size == "" }
+@if{ size == "Fast" }
     return sOff - srcOff;
 @else{}
     return dOff - destOff;

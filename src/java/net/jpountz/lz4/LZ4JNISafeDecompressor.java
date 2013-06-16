@@ -17,12 +17,12 @@ package net.jpountz.lz4;
 import static net.jpountz.util.Utils.checkRange;
 
 /**
- * {@link LZ4Decompressor} implemented with JNI bindings to the original C
+ * {@link LZ4SafeDecompressor} implemented with JNI bindings to the original C
  * implementation of LZ4.
  */
-final class LZ4JNIUnknownSizeDecompressor extends LZ4UnknownSizeDecompressor {
+final class LZ4JNISafeDecompressor extends LZ4SafeDecompressor {
 
-  public static final LZ4UnknownSizeDecompressor INSTANCE = new LZ4JNIUnknownSizeDecompressor();
+  public static final LZ4SafeDecompressor INSTANCE = new LZ4JNISafeDecompressor();
 
   @Override
   public final int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {

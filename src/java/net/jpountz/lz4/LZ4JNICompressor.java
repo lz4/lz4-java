@@ -17,7 +17,7 @@ package net.jpountz.lz4;
 import static net.jpountz.util.Utils.checkRange;
 
 /**
- * Fast {@link LZ4Compressor}s implemented with JNI bindings to the original C
+ * Fast {@link LZ4FastCompressor}s implemented with JNI bindings to the original C
  * implementation of LZ4.
  */
 final class LZ4JNICompressor extends LZ4Compressor {

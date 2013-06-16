@@ -15,14 +15,13 @@ package net.jpountz.lz4;
  */
 
 import static net.jpountz.lz4.Instances.COMPRESSORS;
-import static net.jpountz.lz4.Instances.UNCOMPRESSORS;
-import static net.jpountz.lz4.Instances.UNCOMPRESSORS2;
+import static net.jpountz.lz4.Instances.FAST_DECOMPRESSORS;
+import static net.jpountz.lz4.Instances.SAFE_DECOMPRESSORS;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -66,7 +65,7 @@ public class LZ4Test extends AbstractLZ4Test {
     testRoundTrip(new byte[0]);
   }
 
-  public void testUncompressWorstCase(LZ4Decompressor decompressor) {
+  public void testUncompressWorstCase(LZ4FastDecompressor decompressor) {
     final int len = randomInt(100 * 1024);
     final int max = randomInt(255);
     byte[] decompressed = randomArray(len, max);
@@ -79,12 +78,12 @@ public class LZ4Test extends AbstractLZ4Test {
 
   @Test
   public void testUncompressWorstCase() {
-    for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
+    for (LZ4FastDecompressor decompressor : FAST_DECOMPRESSORS) {
       testUncompressWorstCase(decompressor);
     }
   }
 
-  public void testUncompressWorstCase(LZ4UnknownSizeDecompressor decompressor) {
+  public void testUncompressWorstCase(LZ4SafeDecompressor decompressor) {
     final int len = randomInt(100 * 1024);
     final int max = randomIntBetween(1, 256);
     byte[] decompressed = randomArray(len, max);
@@ -96,16 +95,16 @@ public class LZ4Test extends AbstractLZ4Test {
   }
 
   @Test
-  public void testUncompressUnknownSizeWorstCase() {
-    for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
+  public void testUncompressSafeWorstCase() {
+    for (LZ4SafeDecompressor decompressor : SAFE_DECOMPRESSORS) {
       testUncompressWorstCase(decompressor);
     }
   }
 
   public void testRoundTrip(byte[] data, int off, int len,
       LZ4Compressor compressor,
-      LZ4Decompressor decompressor,
-      LZ4UnknownSizeDecompressor decompressor2) {
+      LZ4FastDecompressor decompressor,
+      LZ4SafeDecompressor decompressor2) {
     final byte[] compressed = new byte[LZ4Utils.maxCompressedLength(len)];
     final int compressedLen = compressor.compress(
         data, off, len,
@@ -174,7 +173,7 @@ public class LZ4Test extends AbstractLZ4Test {
     // under-estimated compressed length
     try {
       final int decompressedLen = decompressor2.decompress(compressed, 0, compressedLen - 1, new byte[len + 100], 0);
-      if (!(decompressor2 instanceof LZ4JNIUnknownSizeDecompressor)) {
+      if (!(decompressor2 instanceof LZ4JNISafeDecompressor)) {
         fail("decompressedLen=" + decompressedLen);
       }
     } catch (LZ4Exception e) {
@@ -202,7 +201,7 @@ public class LZ4Test extends AbstractLZ4Test {
   public void testRoundTrip(byte[] data, int off, int len, LZ4Factory lz4) {
     for (LZ4Compressor compressor : Arrays.asList(
         lz4.fastCompressor(), lz4.highCompressor())) {
-      testRoundTrip(data, off, len, compressor, lz4.decompressor(), lz4.unknownSizeDecompressor());
+      testRoundTrip(data, off, len, compressor, lz4.fastDecompressor(), lz4.safeDecompressor());
     }
   }
 
@@ -244,10 +243,10 @@ public class LZ4Test extends AbstractLZ4Test {
     // 1 literal, 4 matchs with matchDec=0, 8 literals
     final byte[] invalid = new byte[] { 16, 42, 0, 0, (byte) 128, 42, 42, 42, 42, 42, 42, 42, 42 };
     // decompression should neither throw an exception nor loop indefinitely
-    for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
+    for (LZ4FastDecompressor decompressor : FAST_DECOMPRESSORS) {
       decompressor.decompress(invalid, 0, new byte[13], 0, 13);
     }
-    for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
+    for (LZ4SafeDecompressor decompressor : SAFE_DECOMPRESSORS) {
       decompressor.decompress(invalid, 0, invalid.length, new byte[20], 0);
     }
   }
@@ -258,7 +257,7 @@ public class LZ4Test extends AbstractLZ4Test {
     final byte[] invalid = new byte[] { 96, 42, 43, 44, 45, 46, 47, 5, 0 };
     final int decompressedLength = 10;
 
-    for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
+    for (LZ4FastDecompressor decompressor : FAST_DECOMPRESSORS) {
       try {
         // it is invalid to end with a match, should be at least 5 literals
         decompressor.decompress(invalid, 0, new byte[decompressedLength], 0, decompressedLength);
@@ -268,7 +267,7 @@ public class LZ4Test extends AbstractLZ4Test {
       }
     }
 
-    for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
+    for (LZ4SafeDecompressor decompressor : SAFE_DECOMPRESSORS) {
       try {
         // it is invalid to end with a match, should be at least 5 literals
         decompressor.decompress(invalid, 0, invalid.length, new byte[20], 0);
@@ -288,7 +287,7 @@ public class LZ4Test extends AbstractLZ4Test {
       final byte[] invalid = Arrays.copyOf(invalidBase, invalidBase.length + 1 + i);
       invalid[invalidBase.length] = (byte) (i << 4); // i literals at the end
 
-      for (LZ4Decompressor decompressor : UNCOMPRESSORS) {
+      for (LZ4FastDecompressor decompressor : FAST_DECOMPRESSORS) {
         try {
           // it is invalid to end with a match, should be at least 5 literals
           decompressor.decompress(invalid, 0, new byte[20], 0, 20);
@@ -298,7 +297,7 @@ public class LZ4Test extends AbstractLZ4Test {
         }
       }
 
-      for (LZ4UnknownSizeDecompressor decompressor : UNCOMPRESSORS2) {
+      for (LZ4SafeDecompressor decompressor : SAFE_DECOMPRESSORS) {
         try {
           // it is invalid to end with a match, should be at least 5 literals
           decompressor.decompress(invalid, 0, invalid.length, new byte[20], 0);

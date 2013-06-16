@@ -27,16 +27,16 @@ enum Instances {
     LZ4Factory.safeInstance().highCompressor()
   };
 
-  static LZ4Decompressor[] UNCOMPRESSORS = new LZ4Decompressor[] {
-    LZ4Factory.nativeInstance().decompressor(),
-    LZ4Factory.unsafeInstance().decompressor(),
-    LZ4Factory.safeInstance().decompressor()
+  static LZ4FastDecompressor[] FAST_DECOMPRESSORS = new LZ4FastDecompressor[] {
+    LZ4Factory.nativeInstance().fastDecompressor(),
+    LZ4Factory.unsafeInstance().fastDecompressor(),
+    LZ4Factory.safeInstance().fastDecompressor()
   };
 
-  static LZ4UnknownSizeDecompressor[] UNCOMPRESSORS2 = new LZ4UnknownSizeDecompressor[] {
-    LZ4Factory.nativeInstance().unknownSizeDecompressor(),
-    LZ4Factory.unsafeInstance().unknownSizeDecompressor(),
-    LZ4Factory.safeInstance().unknownSizeDecompressor()
+  static LZ4SafeDecompressor[] SAFE_DECOMPRESSORS = new LZ4SafeDecompressor[] {
+    LZ4Factory.nativeInstance().safeDecompressor(),
+    LZ4Factory.unsafeInstance().safeDecompressor(),
+    LZ4Factory.safeInstance().safeDecompressor()
   };
 
 }

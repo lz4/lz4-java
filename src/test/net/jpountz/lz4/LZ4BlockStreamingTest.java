@@ -205,7 +205,7 @@ public class LZ4BlockStreamingTest extends AbstractLZ4Test {
     }
     os.close();
 
-    final LZ4Decompressor decompressor = LZ4Factory.fastestInstance().decompressor();
+    final LZ4FastDecompressor decompressor = LZ4Factory.fastestInstance().fastDecompressor();
     InputStream is = new LZ4BlockInputStream(open(compressed.toByteArray()), decompressor, checksum);
     assertFalse(is.markSupported());
     try {

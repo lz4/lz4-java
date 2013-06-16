@@ -25,7 +25,7 @@ def dest_file(path) {
 def generate_decompressors() {
   compiledTemplate = get_template("decompressor.template");
   for (type : ["Safe", "Unsafe"]) {
-    for (size : ["", "UnknownSize"]) {
+    for (size : ["Fast", "Safe"]) {
       dest = dest_file("lz4/LZ4Java" + type + size + "Decompressor.java");
       args = new HashMap();
       args.put("type", type);

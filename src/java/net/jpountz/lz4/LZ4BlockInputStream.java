@@ -41,7 +41,7 @@ import net.jpountz.xxhash.XXHashFactory;
  */
 public final class LZ4BlockInputStream extends FilterInputStream {
 
-  private final LZ4Decompressor decompressor;
+  private final LZ4FastDecompressor decompressor;
   private final Checksum checksum;
   private byte[] buffer;
   private byte[] compressedBuffer;
@@ -53,13 +53,13 @@ public final class LZ4BlockInputStream extends FilterInputStream {
    * Create a new {@link InputStream}.
    *
    * @param in            the {@link InputStream} to poll
-   * @param decompressor  the {@link LZ4Decompressor decompressor} instance to
+   * @param decompressor  the {@link LZ4FastDecompressor decompressor} instance to
    *                      use
    * @param checksum      the {@link Checksum} instance to use, must be
    *                      equivalent to the instance which has been used to
    *                      write the stream
    */
-  public LZ4BlockInputStream(InputStream in, LZ4Decompressor decompressor, Checksum checksum) {
+  public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor, Checksum checksum) {
     super(in);
     this.decompressor = decompressor;
     this.checksum = checksum;
@@ -71,20 +71,20 @@ public final class LZ4BlockInputStream extends FilterInputStream {
 
   /**
    * Create a new instance using {@link XXHash32} for checksuming.
-   * @see #LZ4BlockInputStream(InputStream, LZ4Decompressor, Checksum)
+   * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum)
    * @see StreamingXXHash32#asChecksum()
    */
-  public LZ4BlockInputStream(InputStream in, LZ4Decompressor decompressor) {
+  public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor) {
     this(in, decompressor, XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum());
   }
 
   /**
-   * Create a new instance which uses the fastest {@link LZ4Decompressor} available.
+   * Create a new instance which uses the fastest {@link LZ4FastDecompressor} available.
    * @see LZ4Factory#fastestInstance()
-   * @see #LZ4BlockInputStream(InputStream, LZ4Decompressor)
+   * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor)
    */
   public LZ4BlockInputStream(InputStream in) {
-    this(in, LZ4Factory.fastestInstance().decompressor());
+    this(in, LZ4Factory.fastestInstance().fastDecompressor());
   }
 
   @Override
