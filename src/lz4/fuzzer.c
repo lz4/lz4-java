@@ -1,8 +1,8 @@
 /*
     fuzzer.c - Fuzzer test tool for LZ4
-    Copyright (C) Andrew Mahone - Yann Collet 2012
-	Original code by Andrew Mahone / Modified by Yann Collet
-	GPL v2 License
+    Copyright (C) Yann Collet - Andrew Mahone 2012-2013
+    Code started by Andrew Mahone, modified by Yann Collet
+    GPL v2 License
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-	You can contact the author at :
-	- LZ4 homepage : http://fastcompression.blogspot.com/p/lz4.html
-	- LZ4 source repository : http://code.google.com/p/lz4/
+    You can contact the author at :
+    - LZ4 homepage : http://fastcompression.blogspot.com/p/lz4.html
+    - LZ4 source repository : http://code.google.com/p/lz4/
 */
 
 //**************************************
@@ -36,12 +36,13 @@
 #include <stdio.h>      // fgets, sscanf
 #include <sys/timeb.h>  // timeb
 #include "lz4.h"
+#include "lz4hc.h"
 
 
 //**************************************
 // Constants
 //**************************************
-#define NB_ATTEMPTS (1<<18)
+#define NB_ATTEMPTS (1<<17)
 #define LEN ((1<<15))
 #define SEQ_POW 2
 #define NUM_SEQ (1 << SEQ_POW)
@@ -55,42 +56,44 @@
 #define PRIME3   3266489917U
 
 
-
 //*********************************************************
 //  Functions
 //*********************************************************
 static int FUZ_GetMilliStart()
 {
-  struct timeb tb;
-  int nCount;
-  ftime( &tb );
-  nCount = (int) (tb.millitm + (tb.time & 0xfffff) * 1000);
-  return nCount;
+   struct timeb tb;
+   int nCount;
+   ftime( &tb );
+   nCount = (int) (tb.millitm + (tb.time & 0xfffff) * 1000);
+   return nCount;
 }
+
 
 static int FUZ_GetMilliSpan( int nTimeStart )
 {
-  int nSpan = FUZ_GetMilliStart() - nTimeStart;
-  if ( nSpan < 0 )
-    nSpan += 0x100000 * 1000;
-  return nSpan;
+   int nSpan = FUZ_GetMilliStart() - nTimeStart;
+   if ( nSpan < 0 )
+      nSpan += 0x100000 * 1000;
+   return nSpan;
 }
 
 
 unsigned int FUZ_rand(unsigned int* src)
 {
-	*src =  ((*src) * PRIME1) + PRIME2;
-	return *src;
+    *src =  ((*src) * PRIME1) + PRIME2;
+    return *src;
 }
 
 
-int test_canary(unsigned char *buf) {
-        int i;
-        for (i = 0; i < 2048; i++)
-                if (buf[i] != buf[i + 2048])
-                        return 0;
-        return 1;
+int test_canary(unsigned char *buf)
+{
+    int i;
+    for (i = 0; i < 2048; i++)
+        if (buf[i] != buf[i + 2048])
+            return 0;
+    return 1;
 }
+
 
 int FUZ_SecurityTest()
 {
@@ -98,7 +101,7 @@ int FUZ_SecurityTest()
   char* input;
   int i, r;
 
-  printf("Starting security tests...");
+  printf("Overflow test (issue 52)...");
   input = (char*) malloc (20<<20);
   output = (char*) malloc (20<<20);
   input[0] = 0x0F;
@@ -106,11 +109,11 @@ int FUZ_SecurityTest()
   input[2] = 0x00;
   for(i = 3; i < 16840000; i++)
     input[i] = 0xff;
-  r = LZ4_uncompress(input, output, 20<<20);
+  r = LZ4_decompress_fast(input, output, 20<<20);
 
   free(input);
   free(output);
-  printf(" Completed (r=%i)\n",r);
+  printf(" Passed (return = %i < 0)\n",r);
   return 0;
 }
 
@@ -119,108 +122,138 @@ int FUZ_SecurityTest()
 int main() {
         unsigned long long bytes = 0;
         unsigned long long cbytes = 0;
+        unsigned long long hcbytes = 0;
         unsigned char buf[LEN];
         unsigned char testOut[LEN+1];
 #       define FUZ_max   LZ4_COMPRESSBOUND(LEN)
 #       define FUZ_avail ROUND_PAGE(FUZ_max)
         const int off_full = FUZ_avail - FUZ_max;
         unsigned char cbuf[FUZ_avail + PAGE_SIZE];
-		unsigned int seed, cur_seq=PRIME3, seeds[NUM_SEQ], timestamp=FUZ_GetMilliStart();
-        int i, j, k, ret, len;
-		char userInput[30] = {0};
+        unsigned int seed, randState, cur_seq=PRIME3, seeds[NUM_SEQ], timestamp=FUZ_GetMilliStart();
+        int i, j, k, ret, len, lenHC, attemptNb;
+        char userInput[30] = {0};
+#       define FUZ_CHECKTEST(cond, message) testNb++; if (cond) { printf("Test %i : %s : seed %u, cycle %u \n", testNb, message, seed, attemptNb); goto _output_error; }
 
-		printf("starting LZ4 fuzzer\n");
-		printf("Select an Initialisation number (default : random) : ");
-		fflush(stdout);
-		if ( fgets(userInput, sizeof userInput, stdin) )
-		{
-			if ( sscanf(userInput, "%d", &seed) == 1 ) {}
-			else seed = FUZ_GetMilliSpan(timestamp);
-		}
-		printf("Seed = %u\n", seed);
+        printf("starting LZ4 fuzzer\n");
+        printf("Select an Initialisation number (default : random) : ");
+        fflush(stdout);
+        if ( fgets(userInput, sizeof userInput, stdin) )
+        {
+            if ( sscanf(userInput, "%d", &seed) == 1 ) {}
+            else seed = FUZ_GetMilliSpan(timestamp);
+        }
+        printf("Seed = %u\n", seed);
+        randState = seed;
 
-		FUZ_SecurityTest();
+        FUZ_SecurityTest();
 
-		for (i = 0; i < 2048; i++)
-                cbuf[FUZ_avail + i] = cbuf[FUZ_avail + 2048 + i] = FUZ_rand(&seed) >> 16;
+        for (i = 0; i < 2048; i++)
+                cbuf[FUZ_avail + i] = cbuf[FUZ_avail + 2048 + i] = FUZ_rand(&randState) >> 16;
 
-        for (i = 0; i < NB_ATTEMPTS; i++) {
-			printf("\r%7i /%7i\r", i, NB_ATTEMPTS);
-			
-			FUZ_rand(&seed);
+        for (attemptNb = 0; attemptNb < NB_ATTEMPTS; attemptNb++) 
+        {
+            int testNb = 0;
+
+            printf("\r%7i /%7i\r", attemptNb, NB_ATTEMPTS);
+            
             for (j = 0; j < NUM_SEQ; j++) {
-                    seeds[j] = FUZ_rand(&seed) << 8;
-                    seeds[j] ^= (FUZ_rand(&seed) >> 8) & 65535;
+                    seeds[j] = FUZ_rand(&randState) << 8;
+                    seeds[j] ^= (FUZ_rand(&randState) >> 8) & 65535;
             }
             for (j = 0; j < LEN; j++) {
-                    k = FUZ_rand(&seed);
+                    k = FUZ_rand(&randState);
                     if (j == 0 || NEW_SEQ(k))
-                            cur_seq = seeds[(FUZ_rand(&seed) >> 16) & SEQ_MSK];
+                            cur_seq = seeds[(FUZ_rand(&randState) >> 16) & SEQ_MSK];
                     if (MOD_SEQ(k)) {
-                            k = (FUZ_rand(&seed) >> 16) & SEQ_MSK;
-                            seeds[k] = FUZ_rand(&seed) << 8;
-                            seeds[k] ^= (FUZ_rand(&seed) >> 8) & 65535;
+                            k = (FUZ_rand(&randState) >> 16) & SEQ_MSK;
+                            seeds[k] = FUZ_rand(&randState) << 8;
+                            seeds[k] ^= (FUZ_rand(&randState) >> 8) & 65535;
                     }
                     buf[j] = FUZ_rand(&cur_seq) >> 16;
             }
 
-			// Test compression
+            // Test compression HC
+            ret = LZ4_compressHC_limitedOutput((const char*)buf, (char*)&cbuf[off_full], LEN, FUZ_max);
+            FUZ_CHECKTEST(ret==0, "HC compression failed despite sufficient space");
+            lenHC = ret;
+
+            // Test compression
             ret = LZ4_compress_limitedOutput((const char*)buf, (char*)&cbuf[off_full], LEN, FUZ_max);
-			if (ret == 0) { printf("compression failed despite sufficient space: seed %u, len %d\n", seed, LEN); goto _output_error; }
+            FUZ_CHECKTEST(ret==0, "compression failed despite sufficient space");
             len = ret;
 
-			// Test decoding with output size being exactly what's necessary => must work
-			ret = LZ4_uncompress((char*)&cbuf[off_full], (char*)testOut, LEN);
-			if (ret<0) { printf("decompression failed despite sufficient space: seed %u, len %d\n", seed, LEN); goto _output_error; }
+            // Test decoding with output size being exactly what's necessary => must work
+            ret = LZ4_decompress_fast((char*)&cbuf[off_full], (char*)testOut, LEN);
+            FUZ_CHECKTEST(ret<0, "decompression failed despite correct space");
 
-			// Test decoding with one byte missing => must fail
-			ret = LZ4_uncompress((char*)&cbuf[off_full], (char*)testOut, LEN-1);
-			if (ret>=0) { printf("decompression should have failed, due to Output Size being too small : seed %u, len %d\n", seed, LEN); goto _output_error; }
+            // Test decoding with one byte missing => must fail
+            ret = LZ4_decompress_fast((char*)&cbuf[off_full], (char*)testOut, LEN-1);
+            FUZ_CHECKTEST(ret>=0, "decompression should have failed, due to Output Size being too small");
 
-			// Test decoding with one byte too much => must fail
-			ret = LZ4_uncompress((char*)&cbuf[off_full], (char*)testOut, LEN+1);
-			if (ret>=0) { printf("decompression should have failed, due to Output Size being too large : seed %u, len %d\n", seed, LEN); goto _output_error; }
+            // Test decoding with one byte too much => must fail
+            ret = LZ4_decompress_fast((char*)&cbuf[off_full], (char*)testOut, LEN+1);
+            FUZ_CHECKTEST(ret>=0, "decompression should have failed, due to Output Size being too large");
 
-			// Test decoding with enough output size => must work
-			ret = LZ4_uncompress_unknownOutputSize((char*)&cbuf[off_full], (char*)testOut, len, LEN+1);
-			if (ret<0) { printf("decompression failed despite sufficient space: seed %u, len %d\n", seed, LEN); goto _output_error; }
+            // Test decoding with enough output size => must work
+            ret = LZ4_decompress_safe((char*)&cbuf[off_full], (char*)testOut, len, LEN+1);
+            FUZ_CHECKTEST(ret<0, "decompression failed despite sufficient space");
 
-			// Test decoding with output size being exactly what's necessary => should work
-			ret = LZ4_uncompress_unknownOutputSize((char*)&cbuf[off_full], (char*)testOut, len, LEN);
-			if (ret<0) { printf("decompression failed despite sufficient space: seed %u, len %d\n", seed, LEN); goto _output_error; }
+            // Test decoding with output size being exactly what's necessary => must work
+            ret = LZ4_decompress_safe((char*)&cbuf[off_full], (char*)testOut, len, LEN);
+            FUZ_CHECKTEST(ret<0, "decompression failed despite sufficient space");
 
-			// Test decoding with output size being one byte too short => must fail
-			ret = LZ4_uncompress_unknownOutputSize((char*)&cbuf[off_full], (char*)testOut, len, LEN-1);
-			if (ret>=0) { printf("decompression should have failed, due to Output Size being too small : seed %u, len %d\n", seed, LEN); goto _output_error; }
+            // Test decoding with output size being one byte too short => must fail
+            ret = LZ4_decompress_safe((char*)&cbuf[off_full], (char*)testOut, len, LEN-1);
+            FUZ_CHECKTEST(ret>=0, "LZ4_decompress_safe should have failed, due to Output Size being one byte too short");
 
-			// Test decoding with input size being one byte too short => must fail
-			ret = LZ4_uncompress_unknownOutputSize((char*)&cbuf[off_full], (char*)testOut, len-1, LEN);
-			if (ret>=0) { printf("decompression should have failed, due to input size being too small : seed %u, len %d\n", seed, LEN); goto _output_error; }
+            // Test decoding with input size being one byte too short => must fail
+            ret = LZ4_decompress_safe((char*)&cbuf[off_full], (char*)testOut, len-1, LEN);
+            FUZ_CHECKTEST(ret>=0, "LZ4_decompress_safe should have failed, due to input size being one byte too short");
 
-			// Test decoding with input size being one byte too large => must fail
-			ret = LZ4_uncompress_unknownOutputSize((char*)&cbuf[off_full], (char*)testOut, len+1, LEN);
-			if (ret>=0) { printf("decompression should have failed, due to input size being too large : seed %u, len %d\n", seed, LEN); goto _output_error; }
+            // Test decoding with input size being one byte too large => must fail
+            ret = LZ4_decompress_safe((char*)&cbuf[off_full], (char*)testOut, len+1, LEN);
+            FUZ_CHECKTEST(ret>=0, "decompression should have failed, due to input size being too large");
+            //if (ret>=0) { printf("Test 10 : decompression should have failed, due to input size being too large : seed %u, len %d\n", seed, LEN); goto _output_error; }
 
-			// Test compression with output size being exactly what's necessary (should work)
+            // Test partial decoding with target output size being max/2 => must work
+            ret = LZ4_decompress_safe_partial((char*)&cbuf[off_full], (char*)testOut, len, LEN/2, LEN);
+            FUZ_CHECKTEST(ret<0, "partial decompression failed despite sufficient space");
+
+            // Test partial decoding with target output size being just below max => must work
+            ret = LZ4_decompress_safe_partial((char*)&cbuf[off_full], (char*)testOut, len, LEN-3, LEN);
+            FUZ_CHECKTEST(ret<0, "partial decompression failed despite sufficient space");
+
+            // Test compression with output size being exactly what's necessary (should work)
             ret = LZ4_compress_limitedOutput((const char*)buf, (char*)&cbuf[FUZ_avail-len], LEN, len);
-            if (!test_canary(&cbuf[FUZ_avail])) { printf("compression overran output buffer: seed %u, len %d, olen %d\n", seed, LEN, len); goto _output_error; }
-            if (ret == 0) { printf("compression failed despite sufficient space: seed %u, len %d\n", seed, LEN); goto _output_error; }
+            FUZ_CHECKTEST(!test_canary(&cbuf[FUZ_avail]), "compression overran output buffer");
+            FUZ_CHECKTEST(ret==0, "compression failed despite sufficient space");
 
-			// Test compression with just one missing byte into output buffer => must fail
+            // Test HC compression with output size being exactly what's necessary (should work)
+            ret = LZ4_compressHC_limitedOutput((const char*)buf, (char*)&cbuf[FUZ_avail-len], LEN, lenHC);
+            FUZ_CHECKTEST(ret==0, "HC compression failed despite sufficient space");
+
+            // Test compression with just one missing byte into output buffer => must fail
             ret = LZ4_compress_limitedOutput((const char*)buf, (char*)&cbuf[FUZ_avail-(len-1)], LEN, len-1);
-            if (ret) { printf("compression overran output buffer: seed %u, len %d, olen %d => ret %d", seed, LEN, len-1, ret); goto _output_error; }
-            if (!test_canary(&cbuf[FUZ_avail])) { printf("compression overran output buffer: seed %u, len %d, olen %d", seed, LEN, len-1); goto _output_error; }
+            FUZ_CHECKTEST(ret, "compression overran output buffer");
+            FUZ_CHECKTEST(!test_canary(&cbuf[FUZ_avail]), "compression overran output buffer");
 
-			bytes += LEN;
+            // Test HC compression with just one missing byte into output buffer => must fail
+            ret = LZ4_compressHC_limitedOutput((const char*)buf, (char*)&cbuf[FUZ_avail-(len-1)], LEN, lenHC-1);
+            FUZ_CHECKTEST(ret, "HC compression overran output buffer");
+
+            bytes += LEN;
             cbytes += len;
+            hcbytes += lenHC;
+            FUZ_rand(&randState);
         }
 
-		printf("all tests completed successfully \n");
+        printf("all tests completed successfully \n");
         printf("compression ratio: %0.3f%%\n", (double)cbytes/bytes*100);
-		getchar();
+        printf("HC compression ratio: %0.3f%%\n", (double)hcbytes/bytes*100);
+        getchar();
         return 0;
 
 _output_error:
-		getchar();
-		return 1;
+        getchar();
+        return 1;
 }

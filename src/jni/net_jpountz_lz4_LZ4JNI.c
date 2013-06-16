@@ -92,7 +92,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
  * Method:    LZ4_decompress
  * Signature: ([BI[BII)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1fast
   (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jbyteArray dest, jint destOff, jint destLen) {
 
   char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
@@ -106,7 +106,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress
     return 0;
   }
 
-  jint compressed = LZ4_uncompress(in + srcOff, out + destOff, destLen);
+  jint compressed = LZ4_decompress_fast(in + srcOff, out + destOff, destLen);
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
   (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);
@@ -120,7 +120,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress
  * Method:    LZ4_decompress_unknownOutputSize
  * Signature: ([BII[BI)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1unknownOutputSize
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1safe
   (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff, jint maxDestLen) {
 
   char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
@@ -134,7 +134,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1unknownOutpu
     return 0;
   }
 
-  jint decompressed = LZ4_uncompress_unknownOutputSize(in + srcOff, out + destOff, srcLen, maxDestLen);
+  jint decompressed = LZ4_decompress_safe(in + srcOff, out + destOff, srcLen, maxDestLen);
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
   (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);

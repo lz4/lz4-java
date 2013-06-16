@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -147,8 +148,8 @@ public class LZ4Test extends AbstractLZ4Test {
     // dest is too large
     final byte[] restored2 = new byte[len+1];
     try {
-      decompressor.decompress(compressed, 0, restored2, 0, len + 1);
-      assertTrue(false);
+      final int cpLen = decompressor.decompress(compressed, 0, restored2, 0, len + 1);
+      fail("compressedLen=" + cpLen);
     } catch (LZ4Exception e) {
       // OK
     }
@@ -164,8 +165,8 @@ public class LZ4Test extends AbstractLZ4Test {
 
     // over-estimated compressed length
     try {
-      decompressor2.decompress(compressed, 0, compressedLen + 1, new byte[len + 100], 0);
-      assertTrue(false);
+      final int decompressedLen = decompressor2.decompress(compressed, 0, compressedLen + 1, new byte[len + 100], 0);
+      fail("decompressedLen=" + decompressedLen);
     } catch (LZ4Exception e) {
       // OK
     }
@@ -173,7 +174,9 @@ public class LZ4Test extends AbstractLZ4Test {
     // under-estimated compressed length
     try {
       final int decompressedLen = decompressor2.decompress(compressed, 0, compressedLen - 1, new byte[len + 100], 0);
-      assertEquals(0, decompressedLen);
+      if (!(decompressor2 instanceof LZ4JNIUnknownSizeDecompressor)) {
+        fail("decompressedLen=" + decompressedLen);
+      }
     } catch (LZ4Exception e) {
       // OK
     }

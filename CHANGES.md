@@ -1,5 +1,9 @@
 # Change log
 
+## 1.2.0
+
+ - lz4 r97
+
 ## 1.1.2
 
  - LZ4BlockInputStream does not support mark/reset anymore. (Adrien Grand)

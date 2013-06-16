@@ -28,7 +28,7 @@ final class LZ4JNIDecompressor extends LZ4Decompressor {
   public final int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen) {
     checkRange(src, srcOff);
     checkRange(dest, destOff, destLen);
-    final int result = LZ4JNI.LZ4_decompress(src, srcOff, dest, destOff, destLen);
+    final int result = LZ4JNI.LZ4_decompress_fast(src, srcOff, dest, destOff, destLen);
     if (result < 0) {
       throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
     }

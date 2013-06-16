@@ -70,7 +70,7 @@ JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1init
  * Method:    XXH32_feed
  * Signature: (J[BII)V
  */
-JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1feed
+JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1update
   (JNIEnv *env, jclass cls, jlong state, jbyteArray src, jint off, jint len) {
 
   char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
@@ -79,7 +79,7 @@ JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1feed
     return;
   }
 
-  XXH32_feed((void*) state, in + off, len);
+  XXH32_update((void*) state, in + off, len);
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
 
@@ -90,10 +90,10 @@ JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1feed
  * Method:    XXH32_getIntermediateResult
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1getIntermediateResult
+JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1intermediateDigest
   (JNIEnv *env, jclass cls, jlong state) {
 
-  return XXH32_getIntermediateResult((void*) state);
+  return XXH32_intermediateDigest((void*) state);
 
 }
 
@@ -102,10 +102,10 @@ JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1getIntermediateR
  * Method:    XXH32_result
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1result
+JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1digest
   (JNIEnv *env, jclass cls, jlong state) {
 
-  return XXH32_result((void*) state);
+  return XXH32_digest((void*) state);
 
 }
 

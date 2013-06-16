@@ -8,18 +8,21 @@ else
 EXT =.exe
 endif
 
-default: lz4demo
+default: lz4c
 
-all: lz4demo lz4demo32 fuzzer
+all: lz4c lz4c32 fuzzer fullbench
 
-lz4demo: lz4.c lz4hc.c bench.c lz4demo.c
+lz4c: lz4.c lz4hc.c bench.c xxhash.c lz4c.c
 	$(CC)      -O3 $(CFLAGS) $^ -o $@$(EXT)
 
-lz4demo32: lz4.c lz4hc.c bench.c lz4demo.c
+lz4c32: lz4.c lz4hc.c bench.c xxhash.c lz4c.c
 	$(CC) -m32 -Os -march=native $(CFLAGS) $^ -o $@$(EXT)
 
-fuzzer : lz4.c fuzzer.c
+fuzzer : lz4.c lz4hc.c fuzzer.c
 	$(CC)      -O3 $(CFLAGS) $^ -o $@$(EXT)
 	
+fullbench : lz4.c lz4hc.c xxhash.c fullbench.c
+	$(CC)      -O3 $(CFLAGS) $^ -o $@$(EXT)
+
 clean:
-	rm -f core *.o lz4demo$(EXT) lz4demo32$(EXT) fuzzer$(EXT)
+	rm -f core *.o lz4c$(EXT) lz4c32$(EXT) fuzzer$(EXT) fullbench$(EXT)

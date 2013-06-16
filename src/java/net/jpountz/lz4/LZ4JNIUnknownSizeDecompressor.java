@@ -28,7 +28,7 @@ final class LZ4JNIUnknownSizeDecompressor extends LZ4UnknownSizeDecompressor {
   public final int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);
-    final int result = LZ4JNI.LZ4_decompress_unknownOutputSize(src, srcOff, srcLen, dest, destOff, maxDestLen);
+    final int result = LZ4JNI.LZ4_decompress_safe(src, srcOff, srcLen, dest, destOff, maxDestLen);
     if (result < 0) {
       throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
     }

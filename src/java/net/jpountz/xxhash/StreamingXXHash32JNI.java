@@ -51,13 +51,13 @@ final class StreamingXXHash32JNI extends StreamingXXHash32 {
   @Override
   public int getValue() {
     checkState();
-    return XXHashJNI.XXH32_getIntermediateResult(state);
+    return XXHashJNI.XXH32_intermediateDigest(state);
   }
 
   @Override
   public void update(byte[] bytes, int off, int len) {
     checkState();
-    XXHashJNI.XXH32_feed(state, bytes, off, len);
+    XXHashJNI.XXH32_update(state, bytes, off, len);
   }
 
   @Override
