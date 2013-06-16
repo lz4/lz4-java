@@ -96,7 +96,21 @@
     <property name="junit4.available" value="true" />
   </target>
 
-  <target name="compile-java" depends="init">
+  <target name="generate-sources" depends="init">
+    <ivy:cachepath organisation="org.mvel" module="mvel2" revision="2.1.5.Final"
+      inline="true" conf="default" transitive="true" pathid="mvel.classpath"/>
+    <mkdir dir="${build}/java" />
+    <java
+      fork="true"
+      classpathref="mvel.classpath"
+      classname="org.mvel2.sh.Main"
+      dir="${src}/build/source_templates">
+      <sysproperty key="out.dir" value="${build}/java"/>
+      <arg value="${src}/build/gen_sources.mvel" />
+    </java>
+  </target>
+
+  <target name="compile-java" depends="init, generate-sources">
     <mkdir dir="${build}/classes" />
     <javac
       includeAntRuntime="false"
@@ -116,6 +130,20 @@
       debug="true"
       classpath="${build}/classes"
       destdir="${build}/unsafe-classes"/>
+    <mkdir dir="${build}/generated-classes" />
+    <javac
+      includeAntRuntime="false"
+      srcdir="${build}/java"
+      source="${javac.source}"
+      target="${javac.target}"
+      encoding="UTF-8"
+      debug="true"
+      destdir="${build}/generated-classes">
+      <classpath>
+        <pathelement location="${build}/classes/" />
+        <pathelement location="${build}/unsafe-classes" />
+      </classpath>
+    </javac>
   </target>
 
   <target name="generate-headers" depends="compile-java" unless="${skip.jni}">
@@ -164,6 +192,7 @@
       <classpath>
         <path location="${build}/classes" />
         <path location="${build}/unsafe-classes" />
+        <path location="${build}/generated-classes" />
         <fileset dir="lib" includes="*.jar" />
       </classpath>
     </javac>
@@ -183,6 +212,7 @@
         <path location="${src}/test-resources" />
         <path location="${build}/classes" />
         <path location="${build}/unsafe-classes" />
+        <path location="${build}/generated-classes" />
         <path location="${build}/test-classes" />
         <path location="${build}/jni" />
         <fileset dir="${lib}" includes="*.jar" />

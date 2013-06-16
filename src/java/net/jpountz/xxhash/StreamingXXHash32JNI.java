@@ -17,6 +17,17 @@ package net.jpountz.xxhash;
 
 final class StreamingXXHash32JNI extends StreamingXXHash32 {
 
+  static class Factory implements StreamingXXHash32.Factory {
+
+    public static final StreamingXXHash32.Factory INSTANCE = new Factory();
+
+    @Override
+    public StreamingXXHash32 newStreamingHash(int seed) {
+      return new StreamingXXHash32JNI(seed);
+    }
+
+  }
+
   private long state;
 
   StreamingXXHash32JNI(int seed) {

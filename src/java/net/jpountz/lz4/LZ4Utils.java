@@ -14,39 +14,18 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import static net.jpountz.lz4.LZ4Constants.HASH_LOG;
+import static net.jpountz.lz4.LZ4Constants.HASH_LOG_64K;
+import static net.jpountz.lz4.LZ4Constants.HASH_LOG_HC;
+import static net.jpountz.lz4.LZ4Constants.LAST_LITERALS;
+import static net.jpountz.lz4.LZ4Constants.MIN_MATCH;
+import static net.jpountz.lz4.LZ4Constants.ML_BITS;
+import static net.jpountz.lz4.LZ4Constants.ML_MASK;
+import static net.jpountz.lz4.LZ4Constants.RUN_MASK;
 import static net.jpountz.util.Utils.readInt;
 
 enum LZ4Utils {
   ;
-
-  static final int MEMORY_USAGE = 14;
-  static final int NOT_COMPRESSIBLE_DETECTION_LEVEL = 6;
-
-  static final int MIN_MATCH = 4;
-
-  static final int HASH_LOG = MEMORY_USAGE - 2;
-  static final int HASH_TABLE_SIZE = 1 << HASH_LOG;
-
-  static final int SKIP_STRENGTH = Math.max(NOT_COMPRESSIBLE_DETECTION_LEVEL, 2);
-  static final int COPY_LENGTH = 8;
-  static final int LAST_LITERALS = 5;
-  static final int MF_LIMIT = COPY_LENGTH + MIN_MATCH;
-  static final int MIN_LENGTH = MF_LIMIT + 1;
-
-  static final int MAX_DISTANCE = 1 << 16;
-
-  static final int ML_BITS = 4;
-  static final int ML_MASK = (1 << ML_BITS) - 1;
-  static final int RUN_BITS = 8 - ML_BITS;
-  static final int RUN_MASK = (1 << RUN_BITS) - 1;
-
-  static final int LZ4_64K_LIMIT = (1 << 16) + (MF_LIMIT - 1);
-  static final int HASH_LOG_64K = HASH_LOG + 1;
-  static final int HASH_TABLE_SIZE_64K = 1 << HASH_LOG_64K;
-
-  static final int HASH_LOG_HC = 15;
-  static final int HASH_TABLE_SIZE_HC = 1 << HASH_LOG_HC;
-  static final int OPTIMAL_ML = ML_MASK - 1 + MIN_MATCH;
 
   static final int maxCompressedLength(int length) {
     if (length < 0) {
@@ -179,7 +158,7 @@ enum LZ4Utils {
     final int runLen = srcLen;
 
     if (dOff + runLen + 1 + (runLen + 255 - RUN_MASK) / 255 > destEnd) {
-      throw new LZ4Exception("maxDestLen is too small");
+      throw new LZ4Exception();
     }
 
     if (runLen >= RUN_MASK) {

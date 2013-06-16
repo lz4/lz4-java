@@ -1,31 +1,33 @@
+// Auto-generated: DO NOT EDIT
+
 package net.jpountz.xxhash;
 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+import static net.jpountz.xxhash.XXHashConstants.*;
 import static java.lang.Integer.rotateLeft;
+@if{ type == "Unsafe" }
+import static net.jpountz.util.UnsafeUtils.*;
 import static net.jpountz.util.Utils.checkRange;
-import static net.jpountz.util.Utils.readIntLE;
-import static net.jpountz.xxhash.XXHashUtils.PRIME1;
-import static net.jpountz.xxhash.XXHashUtils.PRIME2;
-import static net.jpountz.xxhash.XXHashUtils.PRIME3;
-import static net.jpountz.xxhash.XXHashUtils.PRIME4;
-import static net.jpountz.xxhash.XXHashUtils.PRIME5;
+@else{}
+import static net.jpountz.util.Utils.*;
+@end{}
 
-class StreamingXXHash32JavaSafe extends AbstractStreamingXXHash32Java {
+/**
+ * Streaming xxhash.
+ */
+final class StreamingXXHash32Java${type} extends AbstractStreamingXXHash32Java {
 
-  StreamingXXHash32JavaSafe(int seed) {
+  static class Factory implements StreamingXXHash32.Factory {
+
+    public static final StreamingXXHash32.Factory INSTANCE = new Factory();
+
+    @Override
+    public StreamingXXHash32 newStreamingHash(int seed) {
+      return new StreamingXXHash32Java${type}(seed);
+    }
+
+  }
+
+  StreamingXXHash32Java${type}(int seed) {
     super(seed);
   }
 
@@ -48,7 +50,7 @@ class StreamingXXHash32JavaSafe extends AbstractStreamingXXHash32Java {
     }
 
     while (off < memSize) {
-      h32 += (memory[off] & 0xFF) * PRIME5;
+      h32 += (readByte(memory, off) & 0xFF) * PRIME5;
       h32 = rotateLeft(h32, 11) * PRIME1;
       ++off;
     }
@@ -141,3 +143,4 @@ class StreamingXXHash32JavaSafe extends AbstractStreamingXXHash32Java {
   }
 
 }
+

@@ -1,57 +1,27 @@
+// Auto-generated: DO NOT EDIT
+
 package net.jpountz.lz4;
 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import static net.jpountz.lz4.LZ4UnsafeUtils.commonBytes;
-import static net.jpountz.lz4.LZ4UnsafeUtils.commonBytesBackward;
-import static net.jpountz.lz4.LZ4UnsafeUtils.hash;
-import static net.jpountz.lz4.LZ4UnsafeUtils.hash64k;
-import static net.jpountz.lz4.LZ4UnsafeUtils.readIntEquals;
-import static net.jpountz.lz4.LZ4UnsafeUtils.wildArraycopy;
-import static net.jpountz.lz4.LZ4UnsafeUtils.writeLen;
-import static net.jpountz.lz4.LZ4UnsafeUtils.writeShortLittleEndian;
-import static net.jpountz.lz4.LZ4Utils.HASH_TABLE_SIZE;
-import static net.jpountz.lz4.LZ4Utils.HASH_TABLE_SIZE_64K;
-import static net.jpountz.lz4.LZ4Utils.LAST_LITERALS;
-import static net.jpountz.lz4.LZ4Utils.LZ4_64K_LIMIT;
-import static net.jpountz.lz4.LZ4Utils.MAX_DISTANCE;
-import static net.jpountz.lz4.LZ4Utils.MF_LIMIT;
-import static net.jpountz.lz4.LZ4Utils.MIN_LENGTH;
-import static net.jpountz.lz4.LZ4Utils.MIN_MATCH;
-import static net.jpountz.lz4.LZ4Utils.ML_BITS;
-import static net.jpountz.lz4.LZ4Utils.ML_MASK;
-import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
-import static net.jpountz.lz4.LZ4Utils.SKIP_STRENGTH;
-import static net.jpountz.lz4.LZ4Utils.lastLiterals;
-import static net.jpountz.util.UnsafeUtils.readByte;
-import static net.jpountz.util.UnsafeUtils.readInt;
-import static net.jpountz.util.UnsafeUtils.readShort;
-import static net.jpountz.util.UnsafeUtils.writeByte;
-import static net.jpountz.util.UnsafeUtils.writeInt;
-import static net.jpountz.util.UnsafeUtils.writeShort;
-import static net.jpountz.util.Utils.checkRange;
-
 import java.util.Arrays;
+import static net.jpountz.lz4.LZ4Constants.*;
+@if{ type == "Unsafe" }
+import static net.jpountz.lz4.LZ4UnsafeUtils.*;
+import static net.jpountz.util.UnsafeUtils.*;
+import static net.jpountz.util.Utils.checkRange;
+import static net.jpountz.lz4.LZ4Utils.hash;
+import static net.jpountz.lz4.LZ4Utils.hash64k;
+@else{}
+import static net.jpountz.lz4.LZ4Utils.*;
+import static net.jpountz.util.Utils.*;
+@end{}
 
 /**
- * Fast compressor written in pure Java with the unofficial
- * sun.misc.Unsafe API.
+ * Compressor. 
  */
-final class LZ4JavaUnsafeCompressor extends LZ4Compressor {
+final class LZ4Java${type}Compressor extends LZ4Compressor {
 
-  public static final LZ4Compressor INSTANCE = new LZ4JavaUnsafeCompressor();
+  public static final LZ4Compressor INSTANCE = new LZ4Java${type}Compressor();
+
 
   static int compress64k(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int destEnd) {
     final int srcEnd = srcOff + srcLen;
@@ -84,7 +54,7 @@ final class LZ4JavaUnsafeCompressor extends LZ4Compressor {
             break main;
           }
 
-          final int h = hash64k(src, sOff);
+          final int h = hash64k(readInt(src, sOff));
           ref = srcOff + readShort(hashTable, h);
           writeShort(hashTable, h, sOff - srcOff);
         } while (!readIntEquals(src, ref, sOff));
@@ -144,10 +114,10 @@ final class LZ4JavaUnsafeCompressor extends LZ4Compressor {
           }
 
           // fill table
-          writeShort(hashTable, hash64k(src, sOff - 2), sOff - 2 - srcOff);
+          writeShort(hashTable, hash64k(readInt(src, sOff - 2)), sOff - 2 - srcOff);
 
           // test next position
-          final int h = hash64k(src, sOff);
+          final int h = hash64k(readInt(src, sOff));
           ref = srcOff + readShort(hashTable, h);
           writeShort(hashTable, h, sOff - srcOff);
 
@@ -205,7 +175,7 @@ final class LZ4JavaUnsafeCompressor extends LZ4Compressor {
           break main;
         }
 
-        final int h = hash(src, sOff);
+        final int h = hash(readInt(src, sOff));
         ref = readInt(hashTable, h);
         back = sOff - ref;
         writeInt(hashTable, h, sOff);
@@ -265,10 +235,10 @@ final class LZ4JavaUnsafeCompressor extends LZ4Compressor {
         }
 
         // fill table
-        writeInt(hashTable, hash(src, sOff - 2), sOff - 2);
+        writeInt(hashTable, hash(readInt(src, sOff - 2)), sOff - 2);
 
         // test next position
-        final int h = hash(src, sOff);
+        final int h = hash(readInt(src, sOff));
         ref = readInt(hashTable, h);
         writeInt(hashTable, h, sOff);
         back = sOff - ref;
@@ -290,3 +260,4 @@ final class LZ4JavaUnsafeCompressor extends LZ4Compressor {
   }
 
 }
+

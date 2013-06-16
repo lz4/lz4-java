@@ -14,8 +14,8 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-import static net.jpountz.xxhash.XXHashUtils.PRIME1;
-import static net.jpountz.xxhash.XXHashUtils.PRIME2;
+import static net.jpountz.xxhash.XXHashConstants.PRIME1;
+import static net.jpountz.xxhash.XXHashConstants.PRIME2;
 
 abstract class AbstractStreamingXXHash32Java extends StreamingXXHash32 {
 

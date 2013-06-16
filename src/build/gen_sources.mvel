@@ -1,0 +1,82 @@
+import java.io.*;
+import java.util.*;
+import org.mvel2.templates.*;
+
+outDir = System.getProperty("out.dir");
+
+def get_template(file) {
+  template = new File(file);
+  return TemplateCompiler.compileTemplate(template, Collections.emptyMap());
+}
+
+def execute_template(template, dest, args) {
+  System.out.println("Generating " + dest);
+  dest.getParentFile().mkdirs();
+  String result = (String) TemplateRuntime.execute(compiledTemplate, args);
+  writer = new PrintWriter(dest, "UTF-8");
+  writer.print(result);
+  writer.close();
+}
+
+def dest_file(path) {
+  return new File(outDir + "/net/jpountz/" + path);
+}
+
+def generate_decompressors() {
+  compiledTemplate = get_template("decompressor.template");
+  for (type : ["Safe", "Unsafe"]) {
+    for (size : ["", "UnknownSize"]) {
+      dest = dest_file("lz4/LZ4Java" + type + size + "Decompressor.java");
+      args = new HashMap();
+      args.put("type", type);
+      args.put("size", size);
+      execute_template(compiledTemplate, dest, args);
+    }
+  }
+}
+
+def generate_compressors() {
+  compiledTemplate = get_template("compressor.template");
+  for (type : ["Safe", "Unsafe"]) {
+    dest = dest_file("lz4/LZ4Java" + type + "Compressor.java");
+    args = new HashMap();
+    args.put("type", type);
+    execute_template(compiledTemplate, dest, args);
+  }
+}
+
+def generate_hc_compressors() {
+  compiledTemplate = get_template("compressor_hc.template");
+  for (type : ["Safe", "Unsafe"]) {
+    dest = dest_file("lz4/LZ4HCJava" + type + "Compressor.java");
+    args = new HashMap();
+    args.put("type", type);
+    execute_template(compiledTemplate, dest, args);
+  }
+}
+
+def generate_xxhash() {
+  compiledTemplate = get_template("xxhash.template");
+  for (type : ["Safe", "Unsafe"]) {
+    dest = dest_file("xxhash/XXHash32Java" + type + ".java");
+    args = new HashMap();
+    args.put("type", type);
+    execute_template(compiledTemplate, dest, args);
+  }
+}
+
+def generate_streaming_xxhash() {
+  compiledTemplate = get_template("xxhash_streaming.template");
+  for (type : ["Safe", "Unsafe"]) {
+    dest = dest_file("xxhash/StreamingXXHash32Java" + type + ".java");
+    args = new HashMap();
+    args.put("type", type);
+    execute_template(compiledTemplate, dest, args);
+  }
+}
+
+generate_decompressors();
+generate_compressors();
+generate_hc_compressors();
+generate_xxhash();
+generate_streaming_xxhash();

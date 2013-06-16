@@ -1,46 +1,28 @@
+// Auto-generated: DO NOT EDIT
+
 package net.jpountz.lz4;
 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import static net.jpountz.lz4.LZ4Utils.HASH_TABLE_SIZE_HC;
-import static net.jpountz.lz4.LZ4Utils.LAST_LITERALS;
-import static net.jpountz.lz4.LZ4Utils.MAX_DISTANCE;
-import static net.jpountz.lz4.LZ4Utils.MF_LIMIT;
-import static net.jpountz.lz4.LZ4Utils.MIN_MATCH;
-import static net.jpountz.lz4.LZ4Utils.ML_MASK;
-import static net.jpountz.lz4.LZ4Utils.OPTIMAL_ML;
-import static net.jpountz.lz4.LZ4Utils.commonBytes;
-import static net.jpountz.lz4.LZ4Utils.commonBytesBackward;
-import static net.jpountz.lz4.LZ4Utils.copyTo;
-import static net.jpountz.lz4.LZ4Utils.encodeSequence;
-import static net.jpountz.lz4.LZ4Utils.hashHC;
-import static net.jpountz.lz4.LZ4Utils.lastLiterals;
-import static net.jpountz.lz4.LZ4Utils.readIntEquals;
-import static net.jpountz.util.Utils.readInt;
-
 import java.util.Arrays;
+import static net.jpountz.lz4.LZ4Constants.*;
+@if{ type == "Unsafe" }
+import static net.jpountz.lz4.LZ4UnsafeUtils.*;
+import static net.jpountz.util.UnsafeUtils.*;
+import static net.jpountz.util.Utils.checkRange;
+import static net.jpountz.lz4.LZ4Utils.hashHC;
+import static net.jpountz.lz4.LZ4Utils.copyTo;
+@else{}
+import static net.jpountz.lz4.LZ4Utils.*;
+import static net.jpountz.util.Utils.*;
+@end{}
 
 import net.jpountz.lz4.LZ4Utils.Match;
 
 /**
- * High compression compressor written in pure Java without using the unofficial
- * sun.misc.Unsafe API.
+ * High compression compressor.
  */
-final class LZ4HCJavaSafeCompressor extends LZ4Compressor {
+final class LZ4HCJava${type}Compressor extends LZ4Compressor {
 
-  public static final LZ4Compressor INSTANCE = new LZ4HCJavaSafeCompressor();
+  public static final LZ4Compressor INSTANCE = new LZ4HCJava${type}Compressor();
 
   class HashTable {
     static final int MAX_ATTEMPTS = 256;
@@ -164,6 +146,9 @@ final class LZ4HCJavaSafeCompressor extends LZ4Compressor {
   @Override
   public int compress(byte[] src, int srcOff, int srcLen, byte[] dest,
       int destOff, int maxDestLen) {
+
+    checkRange(src, srcOff, srcLen);
+    checkRange(dest, destOff, maxDestLen);
 
     final int srcEnd = srcOff + srcLen;
     final int destEnd = destOff + maxDestLen;

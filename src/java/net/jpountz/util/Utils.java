@@ -41,6 +41,10 @@ public enum Utils {
     }
   }
 
+  public static byte readByte(byte[] buf, int i) {
+    return buf[i];
+  }
+
   public static int readIntBE(byte[] buf, int i) {
     return ((buf[i] & 0xFF) << 24) | ((buf[i+1] & 0xFF) << 16) | ((buf[i+2] & 0xFF) << 8) | (buf[i+3] & 0xFF);
   }
@@ -55,6 +59,31 @@ public enum Utils {
     } else {
       return readIntLE(buf, i);
     }
+  }
+
+  public static void writeShortLittleEndian(byte[] buf, int off, int v) {
+    buf[off++] = (byte) v;
+    buf[off++] = (byte) (v >>> 8);
+  }
+
+  public static void writeInt(int[] buf, int off, int v) {
+    buf[off] = v;
+  }
+
+  public static int readInt(int[] buf, int off) {
+    return buf[off];
+  }
+
+  public static void writeByte(byte[] dest, int tokenOff, int i) {
+    dest[tokenOff] = (byte) i;
+  }
+
+  public static void writeShort(short[] buf, int off, int v) {
+    buf[off] = (short) v;
+  }
+
+  public static int readShort(short[] buf, int off) {
+    return buf[off] & 0xFFFF;
   }
 
 }

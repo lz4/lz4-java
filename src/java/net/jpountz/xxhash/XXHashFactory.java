@@ -142,12 +142,12 @@ public final class XXHashFactory {
 
   private final String impl;
   private final XXHash32 hash32;
-  private final StreamingXXHash32Factory streamingHash32Factory;
+  private final StreamingXXHash32.Factory streamingHash32Factory;
 
   private XXHashFactory(String impl) throws ClassNotFoundException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
     this.impl = impl;
     hash32 = classInstance("net.jpountz.xxhash.XXHash32" + impl);
-    streamingHash32Factory = classInstance("net.jpountz.xxhash.StreamingXXHash32Factory" + impl);
+    streamingHash32Factory = classInstance("net.jpountz.xxhash.StreamingXXHash32" + impl + "$Factory");
 
     // make sure it can run
     final byte[] bytes = new byte[100];

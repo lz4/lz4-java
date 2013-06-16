@@ -43,9 +43,9 @@ public class LZ4Test extends AbstractLZ4Test {
   private static byte[] getCompressedWorstCase(byte[] decompressed) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     int len = decompressed.length;
-    if (len >= LZ4Utils.RUN_MASK) {
-      baos.write(LZ4Utils.RUN_MASK << LZ4Utils.ML_BITS);
-      len -= LZ4Utils.RUN_MASK;
+    if (len >= LZ4Constants.RUN_MASK) {
+      baos.write(LZ4Constants.RUN_MASK << LZ4Constants.ML_BITS);
+      len -= LZ4Constants.RUN_MASK;
     }
     while (len >= 255) {
       baos.write(255);

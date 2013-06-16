@@ -14,13 +14,13 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-final class StreamingXXHash32FactoryJNI implements StreamingXXHash32Factory {
+enum XXHashConstants {
+  ;
 
-  public static final StreamingXXHash32Factory INSTANCE = new StreamingXXHash32FactoryJNI();
-
-  @Override
-  public StreamingXXHash32 newStreamingHash(int seed) {
-    return new StreamingXXHash32JNI(seed);
-  }
+  static final int PRIME1 = -1640531535;
+  static final int PRIME2 = -2048144777;
+  static final int PRIME3 = -1028477379;
+  static final int PRIME4 = 668265263;
+  static final int PRIME5 = 374761393;
 
 }

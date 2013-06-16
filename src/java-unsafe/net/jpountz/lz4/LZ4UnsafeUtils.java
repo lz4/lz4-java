@@ -14,11 +14,11 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.lz4.LZ4Utils.COPY_LENGTH;
-import static net.jpountz.lz4.LZ4Utils.LAST_LITERALS;
-import static net.jpountz.lz4.LZ4Utils.ML_BITS;
-import static net.jpountz.lz4.LZ4Utils.ML_MASK;
-import static net.jpountz.lz4.LZ4Utils.RUN_MASK;
+import static net.jpountz.lz4.LZ4Constants.COPY_LENGTH;
+import static net.jpountz.lz4.LZ4Constants.LAST_LITERALS;
+import static net.jpountz.lz4.LZ4Constants.ML_BITS;
+import static net.jpountz.lz4.LZ4Constants.ML_MASK;
+import static net.jpountz.lz4.LZ4Constants.RUN_MASK;
 import static net.jpountz.util.UnsafeUtils.readByte;
 import static net.jpountz.util.UnsafeUtils.readInt;
 import static net.jpountz.util.UnsafeUtils.readLong;
@@ -94,6 +94,13 @@ enum LZ4UnsafeUtils {
     }
   }
 
+  static void safeIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
+    for (int i = 0; i < matchLen; ++i) {
+      dest[dOff + i] = dest[matchOff + i];
+      writeByte(dest, dOff + i, readByte(dest, matchOff + i));
+    }
+  }
+
   static int readShortLittleEndian(byte[] src, int srcOff) {
     short s = readShort(src, srcOff);
     if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
@@ -108,14 +115,6 @@ enum LZ4UnsafeUtils {
       s = Short.reverseBytes(s);
     }
     writeShort(dest, destOff, s);
-  }
-
-  static int hash(byte[] buf, int off) {
-    return LZ4Utils.hash(readInt(buf, off));
-  }
-
-  static int hash64k(byte[] buf, int off) {
-    return LZ4Utils.hash64k(readInt(buf, off));
   }
 
   static boolean readIntEquals(byte[] src, int ref, int sOff) {
@@ -198,6 +197,10 @@ enum LZ4UnsafeUtils {
       ++count;
     }
     return count;
+  }
+
+  static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff, int destEnd) {
+    return LZ4Utils.lastLiterals(src, sOff, srcLen, dest, dOff, destEnd);
   }
 
 }
