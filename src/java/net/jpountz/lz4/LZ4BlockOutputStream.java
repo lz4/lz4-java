@@ -171,9 +171,13 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
 
   @Override
   public void close() throws IOException {
-    ensureNotFinished();
-    finish();
-    out.close();
+    if (!finished) {
+      finish();
+    }
+    if (out != null) {
+      out.close();
+      out = null;
+    }
   }
 
   private void flushBufferedData() throws IOException {

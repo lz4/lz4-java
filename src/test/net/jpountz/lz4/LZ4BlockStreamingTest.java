@@ -21,6 +21,7 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.zip.Adler32;
 import java.util.zip.CRC32;
@@ -271,4 +272,25 @@ public class LZ4BlockStreamingTest extends AbstractLZ4Test {
     testRoundTrip(new byte[0]);
   }
 
+  @Test
+  public void testDoubleClose() throws IOException {
+    final byte[] testBytes = "Testing!".getBytes(Charset.forName("UTF-8"));
+
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    LZ4BlockOutputStream out = new LZ4BlockOutputStream(bytes);
+
+    out.write(testBytes);
+
+    out.close();
+    out.close();
+
+    LZ4BlockInputStream in = new LZ4BlockInputStream(new ByteArrayInputStream(bytes.toByteArray()));
+    byte[] actual = new byte[testBytes.length];
+    in.read(actual);
+
+    assertArrayEquals(testBytes, actual);
+
+    in.close();
+    in.close();
+  }
 }
