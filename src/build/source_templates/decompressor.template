@@ -25,6 +25,13 @@ final class LZ4Java@{type}${size}Decompressor extends LZ4${size}Decompressor {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, destLen);
 
+    if (destLen == 0) {
+      if (srcLen != 1 || src[srcOff] != 0) {
+        throw new LZ4Exception("Output buffer too small");
+      }
+      return 0;
+    }
+
     final int srcEnd = srcOff + srcLen;
 @else{}
     checkRange(src, srcOff);
@@ -43,11 +50,7 @@ final class LZ4Java@{type}${size}Decompressor extends LZ4${size}Decompressor {
     int sOff = srcOff;
     int dOff = destOff;
 
-@if{ size == "Fast" }
     while (true) {
-@else{}
-    while (sOff < srcEnd) {
-@end{}
       final int token = readByte(src, sOff) & 0xFF;
       ++sOff;
 
