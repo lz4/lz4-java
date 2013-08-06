@@ -6,6 +6,12 @@
 
  - [#17](http://github.com/jpountz/lz4-java/issues/17)
    The JNI HC compressor now supports maxDestLen < maxCompressedLength.
+   (Adrien Grand)
+
+ - [#12](http://github.com/jpountz/lz4-java/issues/12)
+   Fixed ArrayIndexOutOfBoundsException in the Java HC compressors on highly
+   compressible inputs when srcOff is > 0. (Brian S. O'Neill, @foresteve,
+   Adrien Grand)
 
 ## 1.1.2
 
