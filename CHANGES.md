@@ -4,6 +4,9 @@
 
  - lz4 r98
 
+ - [#17](http://github.com/jpountz/lz4-java/issues/17)
+   The JNI HC compressor now supports maxDestLen < maxCompressedLength.
+
 ## 1.1.2
 
  - LZ4BlockInputStream does not support mark/reset anymore. (Adrien Grand)

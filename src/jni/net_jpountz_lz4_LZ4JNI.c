@@ -65,7 +65,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress_1limitedOutput
  * Signature: ([BII[BI)I
  */
 JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
-  (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff) {
+  (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff, jint maxDestLen) {
 
   char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
   if (in == NULL) {
@@ -78,7 +78,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
     return 0;
   }
 
-  jint compressed = LZ4_compressHC(in + srcOff, out + destOff, srcLen);
+  jint compressed = LZ4_compressHC_limitedOutput(in + srcOff, out + destOff, srcLen, maxDestLen);
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
   (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);
