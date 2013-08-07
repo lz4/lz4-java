@@ -67,7 +67,7 @@ public class LZ4Test extends AbstractLZ4Test {
 
   public void testUncompressWorstCase(LZ4FastDecompressor decompressor) {
     final int len = randomInt(100 * 1024);
-    final int max = randomInt(255);
+    final int max = randomIntBetween(1, 255);
     byte[] decompressed = randomArray(len, max);
     byte[] compressed = getCompressedWorstCase(decompressed);
     byte[] restored = new byte[decompressed.length];
@@ -112,21 +112,17 @@ public class LZ4Test extends AbstractLZ4Test {
 
     // try to compress with the exact compressed size
     final byte[] compressed2 = new byte[compressedLen];
-    if (compressor != LZ4HCJNICompressor.INSTANCE) { // TODO: remove this test when the compressor is fixed
-      final int compressedLen2 = compressor.compress(data, off, len, compressed2, 0, compressed2.length);
-      assertEquals(compressedLen, compressedLen2);
-      assertArrayEquals(Arrays.copyOf(compressed, compressedLen), compressed2);
-    }
+    final int compressedLen2 = compressor.compress(data, off, len, compressed2, 0, compressed2.length);
+    assertEquals(compressedLen, compressedLen2);
+    assertArrayEquals(Arrays.copyOf(compressed, compressedLen), compressed2);
 
     // make sure it fails if the dest is not large enough
-    if (compressor != LZ4HCJNICompressor.INSTANCE) { // TODO: remove this test when the compressor is fixed
-      final byte[] compressed3 = new byte[compressedLen-1];
-      try {
-        compressor.compress(data, off, len, compressed3, 0, compressed3.length);
-        assertTrue(false);
-      } catch (LZ4Exception e) {
-        // OK
-      }
+    final byte[] compressed3 = new byte[compressedLen-1];
+    try {
+      compressor.compress(data, off, len, compressed3, 0, compressed3.length);
+      assertTrue(false);
+    } catch (LZ4Exception e) {
+      // OK
     }
 
     // test decompression
