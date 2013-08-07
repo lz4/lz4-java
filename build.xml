@@ -271,7 +271,7 @@
     <mkdir dir="${dist}" />
     <jar
       destfile="${dist}/${ivy.module}-${ivy.revision}.jar">
-      <fileset dir="${src}/resources" />
+      <fileset dir="${src}/resources" erroronmissingdir="false" />
       <fileset dir="${build}/classes" />
       <fileset dir="${build}/unsafe-classes" />
       <fileset dir="${build}/jni" erroronmissingdir="false" />
