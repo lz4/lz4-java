@@ -4,6 +4,11 @@
 
  - lz4 r98
 
+ - [#16](http://github.com/jpountz/lz4-java/issues/16)
+   Fix violation of the Closeable contract in LZ4BlockOutputStream: double close
+   now works as specified in the Closeable interface documentation.
+   (Steven Schlansker)
+
  - [#17](http://github.com/jpountz/lz4-java/issues/17)
    The JNI HC compressor now supports maxDestLen < maxCompressedLength.
    (Adrien Grand)
@@ -12,6 +17,9 @@
    Fixed ArrayIndexOutOfBoundsException in the Java HC compressors on highly
    compressible inputs when srcOff is > 0. (Brian S. O'Neill, @foresteve,
    Adrien Grand)
+
+ - Decompressors have been renamed to "safe" and "fast" to reflect changes in
+   the C API. (Adrien Grand)
 
 ## 1.1.2
 
