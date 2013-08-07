@@ -106,7 +106,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
   /**
    * Create a new instance which checks stream integrity using
    * {@link StreamingXXHash32} and doesn't sync flush.
-   * @see #LZ4BlockOutputStream(OutputStream, int, LZ4Compressor, Checksum)
+   * @see #LZ4BlockOutputStream(OutputStream, int, LZ4Compressor, Checksum, boolean)
    * @see StreamingXXHash32#asChecksum()
    */
   public LZ4BlockOutputStream(OutputStream out, int blockSize, LZ4Compressor compressor) {
