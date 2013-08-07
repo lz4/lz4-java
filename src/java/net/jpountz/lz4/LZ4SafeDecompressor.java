@@ -14,6 +14,8 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import java.util.Arrays;
+
 /**
  * LZ4 decompressor that requires the size of the compressed data to be known.
  * <p>
@@ -35,12 +37,53 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
   public abstract int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
 
   /**
-   * Convenience method. Equivalent to calling
-   * {@link #decompress(byte[], int, int, byte[], int, int)} with
-   * <code>maxDestLen = dest.length - destOff</code>.
+   * Convenience method, equivalent to calling
+   * {@link #decompress(byte[], int, int, byte[], int, int) decompress(src, srcOff, srcLen, dest, destOff, dest.length - destOff)}.
    */
   public final int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
     return decompress(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
+  }
+
+  /**
+   * Convenience method, equivalent to calling
+   * {@link #decompress(byte[], int, int, byte[], int) decompress(src, 0, src.length, dest, 0)}
+   */
+  public final int decompress(byte[] src, byte[] dest) {
+    return decompress(src, 0, src.length, dest, 0);
+  }
+
+  /**
+   * Convenience method which returns <code>src[srcOff:srcOff+srcLen]</code>
+   * decompressed.
+   * <p><b><span style="color:red">Warning</span></b>: this method has an
+   * important overhead due to the fact that it needs to allocate a buffer to
+   * decompress into, and then needs to resize this buffer to the actual
+   * decompressed length.</p>
+   * <p>Here is how this method is implemented:</p>
+   * <pre>
+   * byte[] decompressed = new byte[maxDestLen];
+   * final int decompressedLength = decompress(src, srcOff, srcLen, decompressed, 0, maxDestLen);
+   * if (decompressedLength != decompressed.length) {
+   *   decompressed = Arrays.copyOf(decompressed, decompressedLength);
+   * }
+   * return decompressed;
+   * </pre>
+   */
+  public final byte[] decompress(byte[] src, int srcOff, int srcLen, int maxDestLen) {
+    byte[] decompressed = new byte[maxDestLen];
+    final int decompressedLength = decompress(src, srcOff, srcLen, decompressed, 0, maxDestLen);
+    if (decompressedLength != decompressed.length) {
+      decompressed = Arrays.copyOf(decompressed, decompressedLength);
+    }
+    return decompressed;
+  }
+
+  /**
+   * Convenience method, equivalent to calling
+   * {@link #decompress(byte[], int, int, int) decompress(src, 0, src.length, maxDestLen)}.
+   */
+  public final byte[] decompress(byte[] src, int maxDestLen) {
+    return decompress(src, 0, src.length, maxDestLen);
   }
 
   @Override

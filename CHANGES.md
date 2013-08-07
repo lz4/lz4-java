@@ -21,6 +21,10 @@
  - Decompressors have been renamed to "safe" and "fast" to reflect changes in
    the C API. (Adrien Grand)
 
+ - [#18](http://github.com/jpountz/lz4-java/issues/18)
+   Added utility methods that take and return (de)compressed byte[]s.
+   (Adrien Grand)
+
 ## 1.1.2
 
  - LZ4BlockInputStream does not support mark/reset anymore. (Adrien Grand)

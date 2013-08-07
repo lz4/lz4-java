@@ -14,6 +14,8 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import java.util.Arrays;
+
 /**
  * LZ4 compressor.
  * <p>
@@ -43,12 +45,49 @@ public abstract class LZ4Compressor {
   public abstract int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
 
   /**
-   * Convenience method. Equivalent to calling
-   * {@link #compress(byte[], int, int, byte[], int, int)} with
-   * <code>destLen = dest.length - destOff</code>.
+   * Convenience method, equivalent to calling
+   * {@link #compress(byte[], int, int, byte[], int, int) compress(src, srcOff, srcLen, dest, destOff, dest.length - destOff)}.
    */
   public final int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
     return compress(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
+  }
+
+  /**
+   * Convenience method, equivalent to calling
+   * {@link #compress(byte[], int, int, byte[], int) compress(src, 0, src.length, dest, 0)}.
+   */
+  public final int compress(byte[] src, byte[] dest) {
+    return compress(src, 0, src.length, dest, 0);
+  }
+
+  /**
+   * Convenience method which returns <code>src[srcOff:srcOff+srcLen]</code>
+   * compressed.
+   * <p><b><span style="color:red">Warning</span></b>: this method has an
+   * important overhead due to the fact that it needs to allocate a buffer to
+   * compress into, and then needs to resize this buffer to the actual
+   * compressed length.</p>
+   * <p>Here is how this method is implemented:</p>
+   * <pre>
+   * final int maxCompressedLength = maxCompressedLength(srcLen);
+   * final byte[] compressed = new byte[maxCompressedLength];
+   * final int compressedLength = compress(src, srcOff, srcLen, compressed, 0);
+   * return Arrays.copyOf(compressed, compressedLength);
+   * </pre>
+   */
+  public final byte[] compress(byte[] src, int srcOff, int srcLen) {
+    final int maxCompressedLength = maxCompressedLength(srcLen);
+    final byte[] compressed = new byte[maxCompressedLength];
+    final int compressedLength = compress(src, srcOff, srcLen, compressed, 0);
+    return Arrays.copyOf(compressed, compressedLength);
+  }
+
+  /**
+   * Convenience method, equivalent to calling
+   * {@link #compress(byte[], int, int) compress(src, 0, src.length)}.
+   */
+  public final byte[] compress(byte[] src) {
+    return compress(src, 0, src.length);
   }
 
   @Override

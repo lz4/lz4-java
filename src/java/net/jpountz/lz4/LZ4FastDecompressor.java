@@ -32,6 +32,49 @@ public abstract class LZ4FastDecompressor implements LZ4Decompressor {
    */
   public abstract int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
 
+  /**
+   * Convenience method, equivalent to calling
+   * {@link #decompress(byte[], int, byte[], int, int) decompress(src, 0, dest, 0, destLen)}.
+   */
+  public final int decompress(byte[] src, byte[] dest, int destLen) {
+    return decompress(src, 0, dest, 0, destLen);
+  }
+
+  /**
+   * Convenience method, equivalent to calling
+   * {@link #decompress(byte[], byte[], int) decompress(src, dest, dest.length)}.
+   */
+  public final int decompress(byte[] src, byte[] dest) {
+    return decompress(src, dest, dest.length);
+  }
+
+  /**
+   * Convenience method which returns <code>src[srcOff:?]</code>
+   * decompressed.
+   * <p><b><span style="color:red">Warning</span></b>: this method has an
+   * important overhead due to the fact that it needs to allocate a buffer to
+   * decompress into.</p>
+   * <p>Here is how this method is implemented:</p>
+   * <pre>
+   * final byte[] decompressed = new byte[destLen];
+   * decompress(src, srcOff, decompressed, 0, destLen);
+   * return decompressed;
+   * </pre>
+   */
+  public final byte[] decompress(byte[] src, int srcOff, int destLen) {
+    final byte[] decompressed = new byte[destLen];
+    decompress(src, srcOff, decompressed, 0, destLen);
+    return decompressed;
+  }
+
+  /**
+   * Convenience method, equivalent to calling
+   * {@link #decompress(byte[], int, int) decompress(src, 0, destLen)}.
+   */
+  public final byte[] decompress(byte[] src, int destLen) {
+    return decompress(src, 0, destLen);
+  }
+
   @Override
   public String toString() {
     return getClass().getSimpleName();
