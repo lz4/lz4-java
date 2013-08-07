@@ -274,6 +274,7 @@
       <fileset dir="${src}/resources" erroronmissingdir="false" />
       <fileset dir="${build}/classes" />
       <fileset dir="${build}/unsafe-classes" />
+      <fileset dir="${build}/generated-classes" />
       <fileset dir="${build}/jni" erroronmissingdir="false" />
     </jar>
   </target>
