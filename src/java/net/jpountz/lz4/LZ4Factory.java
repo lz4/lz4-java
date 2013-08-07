@@ -196,6 +196,18 @@ public final class LZ4Factory {
     return safeDecompressor;
   }
 
+  /** Return a {@link LZ4UnknownSizeDecompressor} instance.
+   * @deprecated use {@link #safeDecompressor()} */
+  public LZ4UnknownSizeDecompressor unknwonSizeDecompressor() {
+    return safeDecompressor();
+  }
+
+  /** Return a {@link LZ4Decompressor} instance.
+   * @deprecated use {@link #fastDecompressor()} */
+  public LZ4Decompressor decompressor() {
+    return fastDecompressor();
+  }
+
   /** Prints the fastest instance. */
   public static void main(String[] args) {
     System.out.println("Fastest instance is " + fastestInstance());
