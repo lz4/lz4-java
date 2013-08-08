@@ -1,0 +1,51 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawCharts);
+      function drawCharts() {
+         var datas = [
+          ['16', 10.3, 48.8, 54.4, 17.2, 74.8, 75, 65.6, 43.7, 10.5, 17.2],
+          ['128', 107,140,142,89,200,199,66,55,29,70],
+          ['1024', 876,889,843,594,1484,1470,790,181,176,471],
+          ['8196', 7000,6903,6492,4590,10180,10215,5674,1133,1312,3596],
+          ['65536', 55900,55085,51225,36408,82097,81867,44926,8773,10356,28799],
+          ['524288', 447480,440487,411705,292063,649767,653614,352468,70131,89313,230116]];
+
+        for (var i = 0; i < datas.length; i++) {
+
+          var data = google.visualization.arrayToDataTable([
+            ['Input size', 'Arrays.hashCode', 'CRC-32', 'Adler-32', 'Murmur2', 'Murmur3', 'Hashing.goodFastHash(32)', 'Hashing.goodFastHash(64)', 'XXHash (JNI)', 'XXHash (Java+Unsafe)', 'XXHash (Java)'],
+            datas[i]
+          ]);
+
+          var chart = new google.visualization.ColumnChart(document.getElementById('chart_div_' + datas[i][0]));
+          chart.draw(data, { title: 'Time to hash ' + datas[i][0] + ' bytes (nanoseconds)' });
+        }
+      }
+    </script>
+  </head>
+  <body>
+<p>Benchmarks of some Java hash functions. Please note that this benchmark only computes the hash function performance, not its quality. A good slow hash function will always provide better hashtable performance than a bad fast hash function. However, some of the fast functions benchmarked, such as XXHash and Murmur3 are known to be good hash functions (XXHash for instance has a <a href="http://code.google.com/p/smhasher/wiki/SMHasher">SMHasher</a> score of 10).</p>
+
+<p>The souce code used for this benchmark can be found at <a href="http://github.com/jpountz/jvm-checksum-benchmark">github.com/jpountz/jvm-checksum-benchmark</a>.</p>
+
+<ul>
+<li><b>Arrays.hashCode</b> is the hash function specified in the <a href="http://docs.oracle.com/javase/6/docs/api/java/util/Arrays.html#hashCode(byte[])">java.util.Arrays.hashCode(byte[])</a> method,</li>
+<li><b>CRC-32</b> is the <a href="http://docs.oracle.com/javase/6/docs/api/java/util/zip/CRC32.html">java.util.zip.CRC32</a>.</li>
+<li><b>Adler-32</b> is the <a href="http://docs.oracle.com/javase/6/docs/api/java/util/zip/CRC32.html">java.util.zip.Adler32</a>.</li>
+<li><b>Murmur2</b> is a <a href="https://svn.apache.org/repos/asf/lucene/dev/trunk/lucene/codecs/src/java/org/apache/lucene/codecs/bloom/MurmurHash2.java">Java implementation</a> of the version 2 of MurmurHash.</li>
+<li><b>Murmur3</b> is the Java implementation of MurmurHash version 3 found in <a href="http://docs.guava-libraries.googlecode.com/git-history/v11.0/javadoc/com/google/common/hash/Hashing.html#murmur3_32()">Guava</a>.</li>
+<li><b>Hashing.goodFastHash(32)</b> and <b>Hashing.goodFastHash(64)</b> are two hash implementations from <a href="http://docs.guava-libraries.googlecode.com/git-history/v11.0/javadoc/com/google/common/hash/Hashing.html#goodFastHash(int)">Guava</a>.</li>
+<li>the <b>XXHash</b> hash functions are those found in <a href="http://github.com/jpountz/lz4-java">lz4-java</a>.</li>
+</ul>
+
+    <div id="chart_div_16" style="width: 1200px; height: 500px;"></div>
+    <div id="chart_div_128" style="width: 1200px; height: 500px;"></div>
+    <div id="chart_div_1024" style="width: 1200px; height: 500px;"></div>
+    <div id="chart_div_8196" style="width: 1200px; height: 500px;"></div>
+    <div id="chart_div_65536" style="width: 1200px; height: 500px;"></div>
+    <div id="chart_div_524288" style="width: 1200px; height: 500px;"></div>
+  </body>
+</html>

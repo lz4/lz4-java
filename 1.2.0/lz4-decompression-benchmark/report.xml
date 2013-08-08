@@ -1,0 +1,1657 @@
+<testSuiteReport name="Test suite for JVM compressors" xmlns="http://www.sun.com/japex/testSuiteReport">
+<description xmlns="http://www.sun.com/japex/testSuite">
+
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>
+Micro-benchmark for testing performance of compressors on JVM platform
+</p>
+</div>
+</description>  <chartType>barchart</chartType>
+  <configFile>tests-calgary-uncompress.xml</configFile>
+  <dateTime>07 Aug 2013/13:51:39 CEST</dateTime>
+  <hostName>zreptik4</hostName>
+  <inputDir>testdata/calgary</inputDir>
+  <numberOfCpus>8</numberOfCpus>
+  <numberOfThreads>1</numberOfThreads>
+  <osArchitecture>amd64</osArchitecture>
+  <osName>Linux</osName>
+  <plotDrivers>false</plotDrivers>
+  <plotGroupSize>6</plotGroupSize>
+  <reportsDirectory>reports/calgary-uncompress</reportsDirectory>
+  <resultAxis>normal</resultAxis>
+  <resultAxisX>normal</resultAxisX>
+  <resultUnit>TPS</resultUnit>
+  <resultUnitX>Size%</resultUnitX>
+  <runTime>5</runTime>
+  <runsPerDriver>1</runsPerDriver>
+  <singleClassLoader>false</singleClassLoader>
+  <version>1.2.2</version>
+  <vmInfo>Oracle Corporation 23.21-b01</vmInfo>
+  <warmupTime>2</warmupTime>
+  <warmupsPerDriver>0</warmupsPerDriver>
+  <driver name="LZ4 (JNI)/block">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>LZ4 (JNI), block mode</p>
+    </div>
+        </description>    <classPath>build/classes
+lib/lz4/*.jar</classPath>
+    <driverClass>com.ning.jcbm.lz4.Lz4JNIDriver</driverClass>
+    <resultAritMean>1499.9</resultAritMean>
+    <resultAritMeanX>53.919</resultAritMeanX>
+    <resultGeomMean>1499.9</resultGeomMean>
+    <resultGeomMeanX>51.136</resultGeomMeanX>
+    <resultHarmMean>1499.9</resultHarmMean>
+    <resultHarmMeanX>47.415</resultHarmMeanX>
+    <singleClassLoader>n/a</singleClassLoader>
+    <streaming xmlns="">n/a</streaming>
+    <testCase name="U:bib">
+      <resultIterations>102516</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>52.188</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>11649</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>66.935</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>15880</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>55.37</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>276402</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>94.989</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>27688</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>57.688</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>860120</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>60.152</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>44551</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>48.723</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>195296</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>54.433</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>116779</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>59.097</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>204060</resultIterations>
+      <resultTime>4.974</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>60.822</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>830554</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>63.812</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>949574</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>62.406</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>284488</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>54.095</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>30700</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>16.822</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>283528</resultIterations>
+      <resultTime>4.99</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>52.781</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>172659</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>39.459</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>271308</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>37.913</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>153531</resultIterations>
+      <resultTime>4.991</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>32.864</resultValueX>
+    </testCase>
+  </driver>
+  <driver name="LZ4 (Java+Unsafe)/block">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>LZ4 (Java+Unsafe), block mode</p>
+    </div>
+        </description>    <classPath>build/classes
+lib/lz4/*.jar</classPath>
+    <driverClass>com.ning.jcbm.lz4.Lz4JavaUnsafeDriver</driverClass>
+    <resultAritMean>1097.383</resultAritMean>
+    <resultAritMeanX>53.919</resultAritMeanX>
+    <resultGeomMean>1063.256</resultGeomMean>
+    <resultGeomMeanX>51.136</resultGeomMeanX>
+    <resultHarmMean>1029.35</resultHarmMean>
+    <resultHarmMeanX>47.415</resultHarmMeanX>
+    <singleClassLoader>n/a</singleClassLoader>
+    <streaming xmlns="">n/a</streaming>
+    <testCase name="U:bib">
+      <resultIterations>39456</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>839.866</resultValue>
+      <resultValueX>52.188</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>4550</resultIterations>
+      <resultTime>4.98</resultTime>
+      <resultValue>669.798</resultValue>
+      <resultValueX>66.935</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>6436</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>751.85</resultValue>
+      <resultValueX>55.37</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>160257</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>94.989</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>11057</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>797.349</resultValue>
+      <resultValueX>57.688</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>475374</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>60.152</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>19160</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>904.803</resultValue>
+      <resultValueX>48.723</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>93837</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>954.053</resultValue>
+      <resultValueX>54.433</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>51562</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>811.12</resultValue>
+      <resultValueX>59.097</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>100841</resultIterations>
+      <resultTime>4.982</resultTime>
+      <resultValue>898.061</resultValue>
+      <resultValueX>60.822</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>526729</resultIterations>
+      <resultTime>4.981</resultTime>
+      <resultValue>1339.982</resultValue>
+      <resultValueX>63.812</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>609395</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>1393.317</resultValue>
+      <resultValueX>62.406</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>154905</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1129.439</resultValue>
+      <resultValueX>54.095</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>14998</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>1473.199</resultValue>
+      <resultValueX>16.822</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>148549</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1125.97</resultValue>
+      <resultValueX>52.781</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>80869</resultIterations>
+      <resultTime>4.99</resultTime>
+      <resultValue>1107.3</resultValue>
+      <resultValueX>39.459</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>140176</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1324.116</resultValue>
+      <resultValueX>37.913</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>68783</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1232.868</resultValue>
+      <resultValueX>32.864</resultValueX>
+    </testCase>
+  </driver>
+  <driver name="Snappy(JNI)/block">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>Snappy-JNI, block mode</p>
+    </div>
+</description>    <classPath>build/classes
+lib/snappy/*.jar</classPath>
+    <driverClass>com.ning.jcbm.snappy.SnappyDriver</driverClass>
+    <resultAritMean>1174.546</resultAritMean>
+    <resultAritMeanX>54.646</resultAritMeanX>
+    <resultGeomMean>1154.637</resultGeomMean>
+    <resultGeomMeanX>52.052</resultGeomMeanX>
+    <resultHarmMean>1135.265</resultHarmMean>
+    <resultHarmMeanX>48.678</resultHarmMeanX>
+    <singleClassLoader>true</singleClassLoader>
+    <streaming xmlns="">n/a</streaming>
+    <testCase name="U:bib">
+      <resultIterations>49141</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1045.921</resultValue>
+      <resultValueX>55.445</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>5527</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>812.729</resultValue>
+      <resultValueX>68.25</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>8202</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>958.41</resultValue>
+      <resultValueX>56.758</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>193971</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>95.636</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>14250</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1028.001</resultValue>
+      <resultValueX>59.775</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>437267</resultIterations>
+      <resultTime>4.98</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>61.221</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>24988</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>1179.736</resultValue>
+      <resultValueX>49.794</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>102638</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>1044.194</resultValue>
+      <resultValueX>55.332</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>59588</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>937.162</resultValue>
+      <resultValueX>59.339</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>105915</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>942.344</resultValue>
+      <resultValueX>62.006</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>431589</resultIterations>
+      <resultTime>4.981</resultTime>
+      <resultValue>1097.773</resultValue>
+      <resultValueX>61.749</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>497565</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>1137.754</resultValue>
+      <resultValueX>60.842</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>150874</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1099.873</resultValue>
+      <resultValueX>53.906</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>20032</resultIterations>
+      <resultTime>4.981</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>18.21</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>147720</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>1118.764</resultValue>
+      <resultValueX>52.258</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>97548</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1337.155</resultValue>
+      <resultValueX>37.93</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>153700</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>1451.534</resultValue>
+      <resultValueX>37.121</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>80980</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>1450.772</resultValue>
+      <resultValueX>38.058</resultValueX>
+    </testCase>
+  </driver>
+  <driver name="Snappy(iq80)/block">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>Snappy-Java, block mode</p>
+    </div>
+        </description>    <classPath>build/classes
+lib/iq80-snappy/*.jar</classPath>
+    <driverClass>com.ning.jcbm.iq80snappy.Iq80SnappyDriver</driverClass>
+    <resultAritMean>1024.152</resultAritMean>
+    <resultAritMeanX>54.646</resultAritMeanX>
+    <resultGeomMean>995.713</resultGeomMean>
+    <resultGeomMeanX>52.052</resultGeomMeanX>
+    <resultHarmMean>969.113</resultHarmMean>
+    <resultHarmMeanX>48.678</resultHarmMeanX>
+    <singleClassLoader>n/a</singleClassLoader>
+    <streaming xmlns="">n/a</streaming>
+    <testCase name="U:bib">
+      <resultIterations>40440</resultIterations>
+      <resultTime>4.977</resultTime>
+      <resultValue>862.2</resultValue>
+      <resultValueX>55.445</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>4444</resultIterations>
+      <resultTime>4.99</resultTime>
+      <resultValue>652.976</resultValue>
+      <resultValueX>68.25</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>6623</resultIterations>
+      <resultTime>4.98</resultTime>
+      <resultValue>774.73</resultValue>
+      <resultValueX>56.758</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>156804</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>95.636</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>11050</resultIterations>
+      <resultTime>4.98</resultTime>
+      <resultValue>798.054</resultValue>
+      <resultValueX>59.775</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>329624</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1356.023</resultValue>
+      <resultValueX>61.221</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>19472</resultIterations>
+      <resultTime>4.981</resultTime>
+      <resultValue>920.218</resultValue>
+      <resultValueX>49.794</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>86237</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>877.214</resultValue>
+      <resultValueX>55.332</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>49677</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>780.899</resultValue>
+      <resultValueX>59.339</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>89559</resultIterations>
+      <resultTime>4.989</resultTime>
+      <resultValue>796.487</resultValue>
+      <resultValueX>62.006</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>404740</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1028.766</resultValue>
+      <resultValueX>61.749</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>455352</resultIterations>
+      <resultTime>4.981</resultTime>
+      <resultValue>1042.101</resultValue>
+      <resultValueX>60.842</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>129381</resultIterations>
+      <resultTime>4.982</resultTime>
+      <resultValue>943.762</resultValue>
+      <resultValueX>53.906</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>15970</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>18.21</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>128096</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>970.13</resultValue>
+      <resultValueX>52.258</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>84423</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1157.091</resultValue>
+      <resultValueX>37.93</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>135713</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>1281.481</resultValue>
+      <resultValueX>37.121</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>66516</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>1192.804</resultValue>
+      <resultValueX>38.058</resultValueX>
+    </testCase>
+  </driver>
+  <driver name="LZF/block">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>LZF, block mode</p>
+    </div>
+</description>    <classPath>build/classes
+lib/lzf/*.jar</classPath>
+    <driverClass>com.ning.jcbm.lzf.LzfDriver</driverClass>
+    <resultAritMean>924.96</resultAritMean>
+    <resultAritMeanX>52.406</resultAritMeanX>
+    <resultGeomMean>911.659</resultGeomMean>
+    <resultGeomMeanX>49.898</resultGeomMeanX>
+    <resultHarmMean>898.382</resultHarmMean>
+    <resultHarmMeanX>46.429</resultHarmMeanX>
+    <singleClassLoader>n/a</singleClassLoader>
+    <streaming xmlns="">n/a</streaming>
+    <testCase name="U:bib">
+      <resultIterations>37331</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>794.957</resultValue>
+      <resultValueX>53.879</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>5081</resultIterations>
+      <resultTime>4.975</resultTime>
+      <resultValue>748.719</resultValue>
+      <resultValueX>62.646</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>6897</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>805.581</resultValue>
+      <resultValueX>54.603</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>32984</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>645.909</resultValue>
+      <resultValueX>90.913</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>10224</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>737.646</resultValue>
+      <resultValueX>56.899</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>270848</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>1113.71</resultValue>
+      <resultValueX>61.142</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>16705</resultIterations>
+      <resultTime>4.989</resultTime>
+      <resultValue>788.168</resultValue>
+      <resultValueX>49.693</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>88803</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>903.336</resultValue>
+      <resultValueX>52.725</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>53656</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>843.219</resultValue>
+      <resultValueX>56.491</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>94751</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>842.964</resultValue>
+      <resultValueX>57.918</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>449995</resultIterations>
+      <resultTime>4.98</resultTime>
+      <resultValue>1145.005</resultValue>
+      <resultValueX>58.513</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>533770</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>1220.487</resultValue>
+      <resultValueX>58.357</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>130884</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>953.992</resultValue>
+      <resultValueX>51.815</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>10046</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>985.928</resultValue>
+      <resultValueX>16.283</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>124227</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>941.705</resultValue>
+      <resultValueX>50.307</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>76488</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1048.65</resultValue>
+      <resultValueX>37.134</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>116426</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>1100.223</resultValue>
+      <resultValueX>35.77</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>57370</resultIterations>
+      <resultTime>4.981</resultTime>
+      <resultValue>1029.079</resultValue>
+      <resultValueX>38.221</resultValueX>
+    </testCase>
+  </driver>
+  <driver name="LZF/stream">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>LZF, streaming</p>
+    </div>
+</description>    <classPath>build/classes
+lib/lzf/*.jar</classPath>
+    <driverClass>com.ning.jcbm.lzf.LzfDriver</driverClass>
+    <resultAritMean>883.054</resultAritMean>
+    <resultAritMeanX>52.406</resultAritMeanX>
+    <resultGeomMean>870.974</resultGeomMean>
+    <resultGeomMeanX>49.898</resultGeomMeanX>
+    <resultHarmMean>858.883</resultHarmMean>
+    <resultHarmMeanX>46.429</resultHarmMeanX>
+    <singleClassLoader>n/a</singleClassLoader>
+    <streaming xmlns="">true</streaming>
+    <testCase name="U:bib">
+      <resultIterations>35777</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>761.727</resultValue>
+      <resultValueX>53.879</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>4885</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>718.272</resultValue>
+      <resultValueX>62.646</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>6599</resultIterations>
+      <resultTime>4.98</resultTime>
+      <resultValue>771.92</resultValue>
+      <resultValueX>54.603</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>31599</resultIterations>
+      <resultTime>4.99</resultTime>
+      <resultValue>618.394</resultValue>
+      <resultValueX>90.913</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>9862</resultIterations>
+      <resultTime>4.976</resultTime>
+      <resultValue>712.723</resultValue>
+      <resultValueX>56.899</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>253986</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1044.832</resultValue>
+      <resultValueX>61.142</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>16084</resultIterations>
+      <resultTime>4.982</resultTime>
+      <resultValue>759.973</resultValue>
+      <resultValueX>49.693</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>84454</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>859.01</resultValue>
+      <resultValueX>52.725</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>51243</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>805.862</resultValue>
+      <resultValueX>56.491</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>91056</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>810.657</resultValue>
+      <resultValueX>57.918</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>430275</resultIterations>
+      <resultTime>4.99</resultTime>
+      <resultValue>1092.557</resultValue>
+      <resultValueX>58.513</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>503924</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>1152.777</resultValue>
+      <resultValueX>58.357</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>122881</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>895.901</resultValue>
+      <resultValueX>51.815</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>9723</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>954.292</resultValue>
+      <resultValueX>16.283</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>118591</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>898.903</resultValue>
+      <resultValueX>50.307</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>72900</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>998.915</resultValue>
+      <resultValueX>37.134</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>111606</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1054.575</resultValue>
+      <resultValueX>35.77</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>54868</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>983.678</resultValue>
+      <resultValueX>38.221</resultValueX>
+    </testCase>
+  </driver>
+  <driver name="LZO-java/block">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>LZO-java, block mode</p>
+    </div>
+</description>    <classPath>build/classes
+lib/lzo-java/*.jar</classPath>
+    <driverClass>com.ning.jcbm.lzo.LzoJavaDriver</driverClass>
+    <resultAritMean>396.018</resultAritMean>
+    <resultAritMeanX>52.669</resultAritMeanX>
+    <resultGeomMean>359.483</resultGeomMean>
+    <resultGeomMeanX>49.904</resultGeomMeanX>
+    <resultHarmMean>337.109</resultHarmMean>
+    <resultHarmMeanX>46.405</resultHarmMeanX>
+    <singleClassLoader>n/a</singleClassLoader>
+    <streaming xmlns="">n/a</streaming>
+    <testCase name="U:bib">
+      <resultIterations>13542</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>288.23</resultValue>
+      <resultValueX>52.3</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>1616</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>237.777</resultValue>
+      <resultValueX>64.587</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>2198</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>256.716</resultValue>
+      <resultValueX>54.299</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>59934</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1174.262</resultValue>
+      <resultValueX>98.392</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>3917</resultIterations>
+      <resultTime>4.982</resultTime>
+      <resultValue>282.764</resultValue>
+      <resultValueX>57.396</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>148558</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>610.943</resultValue>
+      <resultValueX>60.114</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>6933</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>327.417</resultValue>
+      <resultValueX>47.691</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>27224</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>276.995</resultValue>
+      <resultValueX>53.024</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>16475</resultIterations>
+      <resultTime>4.982</resultTime>
+      <resultValue>259.242</resultValue>
+      <resultValueX>56.682</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>29015</resultIterations>
+      <resultTime>4.976</resultTime>
+      <resultValue>258.743</resultValue>
+      <resultValueX>58.363</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>148475</resultIterations>
+      <resultTime>4.981</resultTime>
+      <resultValue>377.699</resultValue>
+      <resultValueX>60.477</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>176224</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>403.055</resultValue>
+      <resultValueX>59.637</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>40076</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>292.251</resultValue>
+      <resultValueX>51.382</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>6613</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>649.212</resultValue>
+      <resultValueX>16.991</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>39096</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>296.373</resultValue>
+      <resultValueX>49.966</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>25487</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>349.476</resultValue>
+      <resultValueX>37.346</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>40307</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>380.597</resultValue>
+      <resultValueX>34.899</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>22676</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>406.578</resultValue>
+      <resultValueX>34.505</resultValueX>
+    </testCase>
+  </driver>
+  <driver name="LZ4 HC (JNI)/block">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>LZ4 HC (JNI), block mode</p>
+    </div>
+        </description>    <classPath>build/classes
+lib/lz4/*.jar</classPath>
+    <driverClass>com.ning.jcbm.lz4.Lz4HcJNIDriver</driverClass>
+    <resultAritMean>1499.9</resultAritMean>
+    <resultAritMeanX>43.336</resultAritMeanX>
+    <resultGeomMean>1499.9</resultGeomMean>
+    <resultGeomMeanX>40.538</resultGeomMeanX>
+    <resultHarmMean>1499.9</resultHarmMean>
+    <resultHarmMeanX>37.137</resultHarmMeanX>
+    <singleClassLoader>n/a</singleClassLoader>
+    <streaming xmlns="">n/a</streaming>
+    <testCase name="U:bib">
+      <resultIterations>112383</resultIterations>
+      <resultTime>4.99</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>36.093</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>13778</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>47.247</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>18856</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>38.875</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>117406</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>83.655</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>29578</resultIterations>
+      <resultTime>4.975</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>44.002</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>912433</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>57.445</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>49848</resultIterations>
+      <resultTime>4.99</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>39.334</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>247426</resultIterations>
+      <resultTime>4.982</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>43.538</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>147686</resultIterations>
+      <resultTime>4.982</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>43.846</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>253403</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>49.222</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>943350</resultIterations>
+      <resultTime>4.978</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>56.255</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>1057758</resultIterations>
+      <resultTime>4.981</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>56.266</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>350559</resultIterations>
+      <resultTime>4.98</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>44.821</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>43762</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>13.094</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>352763</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>43.549</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>204965</resultIterations>
+      <resultTime>4.99</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>28.953</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>372036</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>29.101</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>167389</resultIterations>
+      <resultTime>4.989</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>24.753</resultValueX>
+    </testCase>
+  </driver>
+  <driver name="LZ4 HC (Java+Unsafe)/block">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>LZ4 HC (Java+Unsafe), block mode</p>
+    </div>
+        </description>    <classPath>build/classes
+lib/lz4/*.jar</classPath>
+    <driverClass>com.ning.jcbm.lz4.Lz4HcJavaUnsafeDriver</driverClass>
+    <resultAritMean>1216.057</resultAritMean>
+    <resultAritMeanX>43.336</resultAritMeanX>
+    <resultGeomMean>1186.092</resultGeomMean>
+    <resultGeomMeanX>40.538</resultGeomMeanX>
+    <resultHarmMean>1154.934</resultHarmMean>
+    <resultHarmMeanX>37.137</resultHarmMeanX>
+    <singleClassLoader>n/a</singleClassLoader>
+    <streaming xmlns="">n/a</streaming>
+    <testCase name="U:bib">
+      <resultIterations>47299</resultIterations>
+      <resultTime>4.99</resultTime>
+      <resultValue>1005.84</resultValue>
+      <resultValueX>36.093</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>5270</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>775.407</resultValue>
+      <resultValueX>47.247</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>7286</resultIterations>
+      <resultTime>4.976</resultTime>
+      <resultValue>853.001</resultValue>
+      <resultValueX>38.875</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>62130</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>1216.688</resultValue>
+      <resultValueX>83.655</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>11787</resultIterations>
+      <resultTime>4.99</resultTime>
+      <resultValue>849.527</resultValue>
+      <resultValueX>44.002</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>462941</resultIterations>
+      <resultTime>4.989</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>57.445</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>22260</resultIterations>
+      <resultTime>4.981</resultTime>
+      <resultValue>1051.911</resultValue>
+      <resultValueX>39.334</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>106923</resultIterations>
+      <resultTime>4.982</resultTime>
+      <resultValue>1088.062</resultValue>
+      <resultValueX>43.538</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>57808</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>908.805</resultValue>
+      <resultValueX>43.846</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>115898</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>1032.071</resultValue>
+      <resultValueX>49.222</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>598823</resultIterations>
+      <resultTime>4.99</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>56.255</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>664983</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>56.266</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>188691</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1375.486</resultValue>
+      <resultValueX>44.821</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>21148</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>13.094</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>178490</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>1352.785</resultValue>
+      <resultValueX>43.549</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>100750</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>1380.043</resultValue>
+      <resultValueX>28.953</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>187777</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>29.101</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>88442</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>1499.9</resultValue>
+      <resultValueX>24.753</resultValueX>
+    </testCase>
+  </driver>
+  <driver name="QuickLZ/L3/block">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>QuickLZ (level 3), block mode
+</p>
+    </div>
+</description>    <classPath>build/classes</classPath>
+    <driverClass>com.ning.jcbm.quicklz.QuickLZDriver3</driverClass>
+    <resultAritMean>256.845</resultAritMean>
+    <resultAritMeanX>43.566</resultAritMeanX>
+    <resultGeomMean>248.717</resultGeomMean>
+    <resultGeomMeanX>41.12</resultGeomMeanX>
+    <resultHarmMean>242.416</resultHarmMean>
+    <resultHarmMeanX>38.154</resultHarmMeanX>
+    <singleClassLoader>n/a</singleClassLoader>
+    <streaming xmlns="">n/a</streaming>
+    <testCase name="U:bib">
+      <resultIterations>12020</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>255.78</resultValue>
+      <resultValueX>39.534</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>1454</resultIterations>
+      <resultTime>4.981</resultTime>
+      <resultValue>214.008</resultValue>
+      <resultValueX>53.581</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>2006</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>234.275</resultValue>
+      <resultValueX>42.955</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>8543</resultIterations>
+      <resultTime>4.982</resultTime>
+      <resultValue>167.45</resultValue>
+      <resultValueX>79.199</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>3130</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>225.78</resultValue>
+      <resultValueX>45.733</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>49551</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>203.85</resultValue>
+      <resultValueX>54.157</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>5146</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>242.936</resultValue>
+      <resultValueX>39.541</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>22799</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>231.812</resultValue>
+      <resultValueX>44.164</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>14263</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>224.332</resultValue>
+      <resultValueX>47.04</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>24499</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>217.912</resultValue>
+      <resultValueX>50.217</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>88438</resultIterations>
+      <resultTime>4.981</resultTime>
+      <resultValue>224.946</resultValue>
+      <resultValueX>52.928</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>99431</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>227.317</resultValue>
+      <resultValueX>52.434</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>31898</resultIterations>
+      <resultTime>4.979</resultTime>
+      <resultValue>232.806</resultValue>
+      <resultValueX>43.923</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>5165</resultIterations>
+      <resultTime>4.979</resultTime>
+      <resultValue>507.768</resultValue>
+      <resultValueX>14.781</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>30957</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>234.485</resultValue>
+      <resultValueX>42.041</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>22125</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>303.325</resultValue>
+      <resultValueX>28.846</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>33818</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>319.5</resultValue>
+      <resultValueX>28.237</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>19804</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>354.921</resultValue>
+      <resultValueX>24.868</resultValueX>
+    </testCase>
+  </driver>
+  <driver name="Gzip/JDK/stream">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>JDK Gzip/Deflate, streaming
+</p>
+    </div>
+</description>    <classPath>build/classes</classPath>
+    <driverClass>com.ning.jcbm.gzip.JDKGzipDriver</driverClass>
+    <resultAritMean>258.611</resultAritMean>
+    <resultAritMeanX>35.042</resultAritMeanX>
+    <resultGeomMean>248.511</resultGeomMean>
+    <resultGeomMeanX>32.894</resultGeomMeanX>
+    <resultHarmMean>240.533</resultHarmMean>
+    <resultHarmMeanX>30.274</resultHarmMeanX>
+    <singleClassLoader>n/a</singleClassLoader>
+    <streaming xmlns="">true</streaming>
+    <testCase name="U:bib">
+      <resultIterations>11986</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>255.036</resultValue>
+      <resultValueX>31.657</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>1394</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>205.109</resultValue>
+      <resultValueX>40.789</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>2025</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>236.626</resultValue>
+      <resultValueX>33.831</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>7766</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>152.068</resultValue>
+      <resultValueX>66.823</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>2979</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>214.842</resultValue>
+      <resultValueX>38.396</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>50528</resultIterations>
+      <resultTime>4.982</resultTime>
+      <resultValue>207.977</resultValue>
+      <resultValueX>47.949</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>5208</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>245.975</resultValue>
+      <resultValueX>33.02</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>23092</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>234.873</resultValue>
+      <resultValueX>34.898</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>14478</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>227.759</resultValue>
+      <resultValueX>36.198</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>24347</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>216.749</resultValue>
+      <resultValueX>38.843</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>83863</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>213.195</resultValue>
+      <resultValueX>41.48</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>94268</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>215.62</resultValue>
+      <resultValueX>41.576</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>32267</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>235.225</resultValue>
+      <resultValueX>34.893</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>5389</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>529.2</resultValue>
+      <resultValueX>11.001</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>31715</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>240.26</resultValue>
+      <resultValueX>33.67</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>23889</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>327.548</resultValue>
+      <resultValueX>22.68</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>34655</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>327.183</resultValue>
+      <resultValueX>22.726</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>20624</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>369.76</resultValue>
+      <resultValueX>20.32</resultValueX>
+    </testCase>
+  </driver>
+  <driver name="BZip2/stream">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>Commons-compress BZip2 implementation</p>
+    </div>
+</description>    <classPath>build/classes
+lib/jakarta/*.jar</classPath>
+    <driverClass>com.ning.jcbm.bzip2.BZip2Driver</driverClass>
+    <resultAritMean>29.444</resultAritMean>
+    <resultAritMeanX>31.604</resultAritMeanX>
+    <resultGeomMean>28.525</resultGeomMean>
+    <resultGeomMeanX>29.668</resultGeomMeanX>
+    <resultHarmMean>27.868</resultHarmMean>
+    <resultHarmMeanX>27.289</resultHarmMeanX>
+    <singleClassLoader>n/a</singleClassLoader>
+    <streaming xmlns="">true</streaming>
+    <testCase name="U:bib">
+      <resultIterations>1416</resultIterations>
+      <resultTime>4.981</resultTime>
+      <resultValue>30.161</resultValue>
+      <resultValueX>24.615</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>172</resultIterations>
+      <resultTime>4.992</resultTime>
+      <resultValue>25.26</resultValue>
+      <resultValueX>33.322</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>242</resultIterations>
+      <resultTime>5.007</resultTime>
+      <resultValue>28.154</resultValue>
+      <resultValueX>28.307</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>1152</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>22.568</resultValue>
+      <resultValueX>55.537</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>354</resultIterations>
+      <resultTime>4.992</resultTime>
+      <resultValue>25.504</resultValue>
+      <resultValueX>33.564</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>5279</resultIterations>
+      <resultTime>4.98</resultTime>
+      <resultValue>21.738</resultValue>
+      <resultValueX>50.219</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>612</resultIterations>
+      <resultTime>4.995</resultTime>
+      <resultValue>28.837</resultValue>
+      <resultValueX>31.825</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>2685</resultIterations>
+      <resultTime>4.989</resultTime>
+      <resultValue>27.287</resultValue>
+      <resultValueX>31.156</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>1744</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>27.408</resultValue>
+      <resultValueX>30.506</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>2892</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>25.736</resultValue>
+      <resultValueX>34.086</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>9397</resultIterations>
+      <resultTime>4.989</resultTime>
+      <resultValue>23.864</resultValue>
+      <resultValueX>39.049</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>10227</resultIterations>
+      <resultTime>4.979</resultTime>
+      <resultValue>23.416</resultValue>
+      <resultValueX>40.43</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>3740</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>27.26</resultValue>
+      <resultValueX>32.295</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>636</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>62.45</resultValue>
+      <resultValueX>9.696</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>3570</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>27.06</resultValue>
+      <resultValueX>31.648</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>2453</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>33.603</resultValue>
+      <resultValueX>21.743</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>3594</resultIterations>
+      <resultTime>4.988</resultTime>
+      <resultValue>33.928</resultValue>
+      <resultValueX>21.748</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>1995</resultIterations>
+      <resultTime>4.985</resultTime>
+      <resultValue>35.759</resultValue>
+      <resultValueX>19.13</resultValueX>
+    </testCase>
+  </driver>
+  <driver name="LZMA-orig/block">
+<description xmlns="http://www.sun.com/japex/testSuite">
+    <div xmlns="" xmlns:ns2="http://www.sun.com/japex/testSuite" xmlns:xi="http://www.w3.org/2001/XInclude">
+        <p>7Zip's LZMA, block mode</p>
+    </div>
+</description>    <classPath>build/classes
+lib/lzma/*.jar</classPath>
+    <driverClass>com.ning.jcbm.lzma.LzmaDriver</driverClass>
+    <resultAritMean>36.125</resultAritMean>
+    <resultAritMeanX>30.89</resultAritMeanX>
+    <resultGeomMean>33.524</resultGeomMean>
+    <resultGeomMeanX>28.822</resultGeomMeanX>
+    <resultHarmMean>31.593</resultHarmMean>
+    <resultHarmMeanX>25.945</resultHarmMeanX>
+    <singleClassLoader>n/a</singleClassLoader>
+    <streaming xmlns="">n/a</streaming>
+    <testCase name="U:bib">
+      <resultIterations>1696</resultIterations>
+      <resultTime>4.991</resultTime>
+      <resultValue>36.054</resultValue>
+      <resultValueX>27.453</resultValueX>
+    </testCase>
+    <testCase name="U:book1">
+      <resultIterations>227</resultIterations>
+      <resultTime>4.976</resultTime>
+      <resultValue>33.446</resultValue>
+      <resultValueX>33.96</resultValueX>
+    </testCase>
+    <testCase name="U:book2">
+      <resultIterations>326</resultIterations>
+      <resultTime>4.99</resultTime>
+      <resultValue>38.063</resultValue>
+      <resultValueX>27.794</resultValueX>
+    </testCase>
+    <testCase name="U:geo">
+      <resultIterations>870</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>17.04</resultValue>
+      <resultValueX>51.952</resultValueX>
+    </testCase>
+    <testCase name="U:news">
+      <resultIterations>450</resultIterations>
+      <resultTime>4.991</resultTime>
+      <resultValue>32.428</resultValue>
+      <resultValueX>31.514</resultValueX>
+    </testCase>
+    <testCase name="U:obj1">
+      <resultIterations>5566</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>22.889</resultValue>
+      <resultValueX>43.694</resultValueX>
+    </testCase>
+    <testCase name="U:obj2">
+      <resultIterations>769</resultIterations>
+      <resultTime>4.989</resultTime>
+      <resultValue>36.282</resultValue>
+      <resultValueX>24.871</resultValueX>
+    </testCase>
+    <testCase name="U:paper1">
+      <resultIterations>3008</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>30.577</resultValue>
+      <resultValueX>32.43</resultValueX>
+    </testCase>
+    <testCase name="U:paper2">
+      <resultIterations>1955</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>30.73</resultValue>
+      <resultValueX>33.086</resultValueX>
+    </testCase>
+    <testCase name="U:paper3">
+      <resultIterations>3118</resultIterations>
+      <resultTime>4.987</resultTime>
+      <resultValue>27.739</resultValue>
+      <resultValueX>36.61</resultValueX>
+    </testCase>
+    <testCase name="U:paper4">
+      <resultIterations>9536</resultIterations>
+      <resultTime>4.982</resultTime>
+      <resultValue>24.254</resultValue>
+      <resultValueX>40.351</resultValueX>
+    </testCase>
+    <testCase name="U:paper5">
+      <resultIterations>10512</resultIterations>
+      <resultTime>4.982</resultTime>
+      <resultValue>24.054</resultValue>
+      <resultValueX>40.572</resultValueX>
+    </testCase>
+    <testCase name="U:paper6">
+      <resultIterations>4082</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>29.772</resultValue>
+      <resultValueX>32.712</resultValueX>
+    </testCase>
+    <testCase name="U:pic">
+      <resultIterations>973</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>95.553</resultValue>
+      <resultValueX>7.96</resultValueX>
+    </testCase>
+    <testCase name="U:progc">
+      <resultIterations>4029</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>30.537</resultValue>
+      <resultValueX>31.597</resultValueX>
+    </testCase>
+    <testCase name="U:progl">
+      <resultIterations>3265</resultIterations>
+      <resultTime>4.986</resultTime>
+      <resultValue>44.746</resultValue>
+      <resultValueX>20.829</resultValueX>
+    </testCase>
+    <testCase name="U:progp">
+      <resultIterations>4746</resultIterations>
+      <resultTime>4.983</resultTime>
+      <resultValue>44.851</resultValue>
+      <resultValueX>20.881</resultValueX>
+    </testCase>
+    <testCase name="U:trans">
+      <resultIterations>2858</resultIterations>
+      <resultTime>4.984</resultTime>
+      <resultValue>51.237</resultValue>
+      <resultValueX>17.76</resultValueX>
+    </testCase>
+  </driver>
+</testSuiteReport>
