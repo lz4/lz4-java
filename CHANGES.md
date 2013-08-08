@@ -2,7 +2,7 @@
 
 ## 1.2.0
 
- - lz4 r98
+ - lz4 r100
 
  - [#16](http://github.com/jpountz/lz4-java/issues/16)
    Fix violation of the Closeable contract in LZ4BlockOutputStream: double close
