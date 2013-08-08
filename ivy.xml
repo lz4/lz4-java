@@ -13,7 +13,7 @@
 -->
 
 <ivy-module version="2.0">
-  <info organisation="net.jpountz.lz4" module="lz4" revision="1.2-SNAPSHOT" />
+  <info organisation="net.jpountz.lz4" module="lz4" revision="1.3-SNAPSHOT" />
 
   <configurations defaultconfmapping="default->default">
     <conf name="default" />
