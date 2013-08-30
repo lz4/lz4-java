@@ -269,10 +269,10 @@ int get_fileHandle(char* input_filename, char* output_filename, FILE** pfinput, 
         if (output_filename != nulmark) *pfoutput = fopen( output_filename, "rb" );
         if (*pfoutput!=0) 
         { 
-            char ch;
             fclose(*pfoutput); 
             if (!overwrite)
             {
+                char ch;
                 DISPLAY( "Warning : %s already exists\n", output_filename); 
                 DISPLAY( "Overwrite ? (Y/N) : ");
                 ch = (char)getchar();
@@ -378,7 +378,7 @@ int compress_file_blockDependency(char* input_filename, char* output_filename, i
     char* out_buff;
     FILE* finput;
     FILE* foutput;
-    int displayLevel = (compressionlevel>0);
+    int displayLevel = ((compressionlevel>0) && (!silence)) || (verbose);
     clock_t start, end;
     unsigned int blockSize, inputBufferSize;
     size_t sizeCheck, header_size;
@@ -390,6 +390,11 @@ int compress_file_blockDependency(char* input_filename, char* output_filename, i
     switch (compressionlevel)
     {
     case 0 :
+        initFunction = LZ4_create;
+        compressionFunction = LZ4_compress_limitedOutput_continue;
+        translateFunction = LZ4_slideInputBuffer;
+        freeFunction = LZ4_free;
+        break;
     case 1 :
     default:
         initFunction = LZ4_createHC;
@@ -447,12 +452,11 @@ int compress_file_blockDependency(char* input_filename, char* output_filename, i
         // Write Block
         if (outSize > 0)
         {
-            unsigned int checksum;
             int sizeToWrite;
             * (unsigned int*) out_buff = LITTLE_ENDIAN_32(outSize);
             if (blockChecksum)
             {
-                checksum = XXH32(out_buff+4, outSize, LZ4S_CHECKSUM_SEED);
+                unsigned int checksum = XXH32(out_buff+4, outSize, LZ4S_CHECKSUM_SEED);
                 * (unsigned int*) (out_buff+4+outSize) = LITTLE_ENDIAN_32(checksum);
             }
             sizeToWrite = 4 + outSize + (4*blockChecksum);
@@ -462,7 +466,6 @@ int compress_file_blockDependency(char* input_filename, char* output_filename, i
         }
         else   // Copy Original
         {
-            unsigned int checksum;
             * (unsigned int*) out_buff = LITTLE_ENDIAN_32(inSize|0x80000000);   // Add Uncompressed flag
             sizeCheck = fwrite(out_buff, 1, 4, foutput);
             if (sizeCheck!=(size_t)(4)) EXM_THROW(34, "Write error : cannot write block header");
@@ -470,7 +473,7 @@ int compress_file_blockDependency(char* input_filename, char* output_filename, i
             if (sizeCheck!=(size_t)(inSize)) EXM_THROW(35, "Write error : cannot write block");
             if (blockChecksum)
             {
-                checksum = XXH32(in_start, inSize, LZ4S_CHECKSUM_SEED);
+                unsigned int checksum = XXH32(in_start, inSize, LZ4S_CHECKSUM_SEED);
                 * (unsigned int*) out_buff = LITTLE_ENDIAN_32(checksum);
                 sizeCheck = fwrite(out_buff, 1, 4, foutput);
                 if (sizeCheck!=(size_t)(4)) EXM_THROW(36, "Write error : cannot write block checksum");
@@ -589,12 +592,11 @@ int compress_file(char* input_filename, char* output_filename, int compressionle
         // Write Block
         if (outSize > 0)
         {
-            unsigned int checksum;
             int sizeToWrite;
             * (unsigned int*) out_buff = LITTLE_ENDIAN_32(outSize);
             if (blockChecksum)
             {
-                checksum = XXH32(out_buff+4, outSize, LZ4S_CHECKSUM_SEED);
+                unsigned int checksum = XXH32(out_buff+4, outSize, LZ4S_CHECKSUM_SEED);
                 * (unsigned int*) (out_buff+4+outSize) = LITTLE_ENDIAN_32(checksum);
             }
             sizeToWrite = 4 + outSize + (4*blockChecksum);
@@ -603,7 +605,6 @@ int compress_file(char* input_filename, char* output_filename, int compressionle
         }
         else  // Copy Original Uncompressed
         {
-            unsigned int checksum;
             * (unsigned int*) out_buff = LITTLE_ENDIAN_32(((unsigned long)readSize)|0x80000000);   // Add Uncompressed flag
             sizeCheck = fwrite(out_buff, 1, 4, foutput);
             if (sizeCheck!=(size_t)(4)) EXM_THROW(34, "Write error : cannot write block header");
@@ -611,7 +612,7 @@ int compress_file(char* input_filename, char* output_filename, int compressionle
             if (sizeCheck!=readSize) EXM_THROW(35, "Write error : cannot write block");
             if (blockChecksum)
             {
-                checksum = XXH32(in_buff, (int)readSize, LZ4S_CHECKSUM_SEED);
+                unsigned int checksum = XXH32(in_buff, (int)readSize, LZ4S_CHECKSUM_SEED);
                 * (unsigned int*) out_buff = LITTLE_ENDIAN_32(checksum);
                 sizeCheck = fwrite(out_buff, 1, 4, foutput);
                 if (sizeCheck!=(size_t)(4)) EXM_THROW(36, "Write error : cannot write block checksum");
@@ -661,10 +662,7 @@ unsigned long long decodeLegacyStream(FILE* finput, FILE* foutput)
     unsigned long long filesize = 0;
     char* in_buff;
     char* out_buff;
-    size_t uselessRet;
-    int sinkint;
     unsigned int blockSize;
-    size_t sizeCheck;
 
 
     // Allocate Memory
@@ -675,6 +673,10 @@ unsigned long long decodeLegacyStream(FILE* finput, FILE* foutput)
     // Main Loop
     while (1)
     {
+        size_t uselessRet;
+        int sinkint;
+        size_t sizeCheck;
+
         // Block Size
         uselessRet = fread(&blockSize, 1, 4, finput);
         if( uselessRet==0 ) break;                 // Nothing to read : file read is completed
