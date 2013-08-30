@@ -37,11 +37,26 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
   public abstract int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
 
   /**
+   * Same as {@link #decompress(byte[], int, int, byte[], int, int) except that
+   * up to 64 KB before <code>srcOff</code> in <code>src</code>. This is useful
+   * for providing LZ4 with a dictionary that can be reused during decompression.
+   */
+  public abstract int decompressWithPrefix64k(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
+
+  /**
    * Convenience method, equivalent to calling
    * {@link #decompress(byte[], int, int, byte[], int, int) decompress(src, srcOff, srcLen, dest, destOff, dest.length - destOff)}.
    */
   public final int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
     return decompress(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
+  }
+
+  /**
+   * Convenience method, equivalent to calling
+   * {@link #decompressWithPrefix64k(byte[], int, int, byte[], int, int) decompress(src, srcOff, srcLen, dest, destOff, dest.length - destOff)}.
+   */
+  public final int decompressWithPrefix64k(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
+    return decompressWithPrefix64k(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
   }
 
   /**

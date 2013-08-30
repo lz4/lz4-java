@@ -1,5 +1,5 @@
   @Override
-  public int decompress(byte[] src, final int srcOff@if{ size == "Safe" }, final int srcLen @end{}, byte[] dest, final int destOff, int destLen) {
+  public int decompress@if{ prefix }WithPrefix64k@end{}(byte[] src, final int srcOff@if{ size == "Safe" }, final int srcLen @end{}, byte[] dest, final int destOff, int destLen) {
 @if{ size == "Safe" }
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, destLen);
@@ -72,9 +72,11 @@
       sOff += 2;
       int matchOff = dOff - matchDec;
 
+@if{ !prefix }
       if (matchOff < destOff) {
         throw new LZ4Exception("Malformed input at " + sOff);
       }
+@end{}
 
       int matchLen = token & ML_MASK;
       if (matchLen == ML_MASK) {

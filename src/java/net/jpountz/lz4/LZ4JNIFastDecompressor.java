@@ -35,4 +35,14 @@ final class LZ4JNIFastDecompressor extends LZ4FastDecompressor {
     return result;
   }
 
+  @Override
+  public final int decompressWithPrefix64k(byte[] src, int srcOff, byte[] dest, int destOff, int destLen) {
+    checkRange(src, srcOff);
+    checkRange(dest, destOff, destLen);
+    final int result = LZ4JNI.LZ4_decompress_fast_withPrefix64k(src, srcOff, dest, destOff, destLen);
+    if (result < 0) {
+      throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
+    }
+    return result;
+  }
 }

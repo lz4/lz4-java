@@ -130,6 +130,11 @@ public class LZ4Test extends AbstractLZ4Test {
     assertEquals(compressedLen, decompressor.decompress(compressed, 0, restored, 0, len));
     assertArrayEquals(Arrays.copyOfRange(data, off, off + len), restored);
 
+    // test decompression with prefix
+    Arrays.fill(restored, (byte) randomByte());
+    assertEquals(compressedLen, decompressor.decompressWithPrefix64k(compressed, 0, restored, 0, len));
+    assertArrayEquals(Arrays.copyOfRange(data, off, off + len), restored);
+
     if (len > 0) {
       // dest is too small
       try {
@@ -151,11 +156,14 @@ public class LZ4Test extends AbstractLZ4Test {
 
     // try decompression when only the size of the compressed buffer is known
     if (len > 0) {
-      Arrays.fill(restored, (byte) 0);
-      decompressor2.decompress(compressed, 0, compressedLen, restored, 0);
+      Arrays.fill(restored, randomByte());
       assertEquals(len, decompressor2.decompress(compressed, 0, compressedLen, restored, 0));
+
+      Arrays.fill(restored, randomByte());
+      assertEquals(len, decompressor2.decompressWithPrefix64k(compressed, 0, compressedLen, restored, 0));
     } else {
       assertEquals(0, decompressor2.decompress(compressed, 0, compressedLen, new byte[1], 0));
+      assertEquals(0, decompressor2.decompressWithPrefix64k(compressed, 0, compressedLen, new byte[1], 0));
     }
 
     // over-estimated compressed length
@@ -389,6 +397,27 @@ public class LZ4Test extends AbstractLZ4Test {
         13, 85, 5, 72, 13, 72, 13, 85, 5, 72, 13, -19, -24, -101, -35
       };
     testRoundTrip(data, 9, data.length - 9);
+  }
+
+  @Test
+  public void testDecompressWithPrefix64k() {
+    final byte[] compressed = new byte[] {
+      16, 42, 7,0, 80, 1,2,3,4,5  
+    };
+    final byte[] original = new byte[] {
+        42,1,2,3,4,1,2,3,4,5
+    };
+    for (LZ4FastDecompressor decompressor : FAST_DECOMPRESSORS) {
+      final byte[] restored = new byte[16];
+      restored[0] = 1;
+      restored[1] = 2;
+      restored[2] = 3;
+      restored[3] = 4;
+      restored[4] = 5;
+      final int compressedLen = decompressor.decompressWithPrefix64k(compressed, 0, restored, 6, restored.length - 6);
+      assertEquals(compressed.length, compressedLen);
+      assertArrayEquals(original, Arrays.copyOfRange(restored, 6, restored.length));
+    }
   }
 
   private static void assertCompressedArrayEquals(String message, byte[] expected, byte[] actual) {

@@ -145,6 +145,62 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1safe
 
 /*
  * Class:     net_jpountz_lz4_LZ4JNI
+ * Method:    LZ4_decompress_fast_withPrefix64k
+ * Signature: ([BI[BII)I
+ */
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1fast_1withPrefix64k
+  (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jbyteArray dest, jint destOff, jint destLen) {
+
+  char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
+  if (in == NULL) {
+    throw_OOM(env);
+    return 0;
+  }
+  char* out = (char*) (*env)->GetPrimitiveArrayCritical(env, dest, 0);
+  if (out == NULL) {
+    throw_OOM(env);
+    return 0;
+  }
+
+  jint compressed = LZ4_decompress_fast_withPrefix64k(in + srcOff, out + destOff, destLen);
+
+  (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
+  (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);
+
+  return compressed;
+
+}
+
+/*
+ * Class:     net_jpountz_lz4_LZ4JNI
+ * Method:    LZ4_decompress_safe_withPrefix64k
+ * Signature: ([BII[BII)I
+ */
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1safe_1withPrefix64k
+  (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff, jint maxDestLen) {
+
+  char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
+  if (in == NULL) {
+    throw_OOM(env);
+    return 0;
+  }
+  char* out = (char*) (*env)->GetPrimitiveArrayCritical(env, dest, 0);
+  if (out == NULL) {
+    throw_OOM(env);
+    return 0;
+  }
+
+  jint decompressed = LZ4_decompress_safe_withPrefix64k(in + srcOff, out + destOff, srcLen, maxDestLen);
+
+  (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
+  (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);
+
+  return decompressed;
+
+}
+
+/*
+ * Class:     net_jpountz_lz4_LZ4JNI
  * Method:    LZ4_compressBound
  * Signature: (I)I
  */

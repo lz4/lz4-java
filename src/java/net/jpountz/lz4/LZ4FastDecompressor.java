@@ -23,7 +23,7 @@ package net.jpountz.lz4;
  */
 public abstract class LZ4FastDecompressor implements LZ4Decompressor {
 
-  /** Uncompress <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>
+  /** Decompress <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>
    * and return the number of bytes read from <code>src</code>.
    * <code>destLen</code> must be exactly the size of the decompressed data.
    *
@@ -31,6 +31,13 @@ public abstract class LZ4FastDecompressor implements LZ4Decompressor {
    * @return the number of bytes read to restore the original input
    */
   public abstract int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
+
+  /**
+   * Same as {@link #decompress(byte[], int, byte[], int, int)} except that up
+   * to 64 KB before <code>srcOff</code> in <code>src</code>. This is useful for
+   * providing LZ4 with a dictionary that can be reused during decompression.
+   */
+  public abstract int decompressWithPrefix64k(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
 
   /**
    * Convenience method, equivalent to calling

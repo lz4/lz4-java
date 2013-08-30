@@ -4,6 +4,10 @@
 
  - lz4 r102
 
+ - [#23](http://github.com/jpountz/lz4-java/issues/23)
+   Added the ability for the decompressors to use preset dictionaries as a 64kb
+   buffer in front of the buffer to decompress.
+
 ## 1.2.0
 
  - lz4 r100

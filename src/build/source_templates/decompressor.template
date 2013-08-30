@@ -19,7 +19,8 @@ final class LZ4Java@{type}${size}Decompressor extends LZ4${size}Decompressor {
 
   public static final LZ4${size}Decompressor INSTANCE = new LZ4Java${type}${size}Decompressor();
 
-@include{"decompress.template"}
+@include{"decompress.template"; prefix = false}
+@include{"decompress.template"; prefix = true}
 
 }
 

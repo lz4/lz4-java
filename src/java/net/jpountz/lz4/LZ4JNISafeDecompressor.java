@@ -34,4 +34,15 @@ final class LZ4JNISafeDecompressor extends LZ4SafeDecompressor {
     }
     return result;
   }
+
+  @Override
+  public final int decompressWithPrefix64k(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
+    checkRange(src, srcOff, srcLen);
+    checkRange(dest, destOff, maxDestLen);
+    final int result = LZ4JNI.LZ4_decompress_safe_withPrefix64k(src, srcOff, srcLen, dest, destOff, maxDestLen);
+    if (result < 0) {
+      throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
+    }
+    return result;
+  }
 }
