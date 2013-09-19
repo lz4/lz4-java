@@ -40,13 +40,16 @@ static void throw_OOM(JNIEnv *env) {
 JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32
   (JNIEnv *env, jclass cls, jbyteArray buf, jint off, jint len, jint seed) {
 
-  char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, buf, 0);
+  char* in;
+  jint h32;
+
+  in = (char*) (*env)->GetPrimitiveArrayCritical(env, buf, 0);
   if (in == NULL) {
     throw_OOM(env);
     return 0;
   }
 
-  jint h32 = XXH32(in + off, len, seed);
+  h32 = XXH32(in + off, len, seed);
 
   (*env)->ReleasePrimitiveArrayCritical(env, buf, in, 0);
 
