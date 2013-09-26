@@ -12,7 +12,7 @@ def get_template(file) {
 def execute_template(template, dest, args) {
   System.out.println("Generating " + dest);
   dest.getParentFile().mkdirs();
-  String result = (String) TemplateRuntime.execute(compiledTemplate, args);
+  String result = (String) TemplateRuntime.execute(compiledTemplate, null, args);
   writer = new PrintWriter(dest, "UTF-8");
   writer.print(result);
   writer.close();
