@@ -198,7 +198,7 @@ public final class LZ4Factory {
 
   /** Return a {@link LZ4UnknownSizeDecompressor} instance.
    * @deprecated use {@link #safeDecompressor()} */
-  public LZ4UnknownSizeDecompressor unknwonSizeDecompressor() {
+  public LZ4UnknownSizeDecompressor unknownSizeDecompressor() {
     return safeDecompressor();
   }
 
