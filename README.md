@@ -41,6 +41,34 @@ Have a look at LZ4Factory for more information.
    especially if CPU endianness differs, but the compressed streams can be
    safely decompressed by any decompressor implementation on any platform.
 
+## Example
+
+```java
+LZ4Factory factory = LZ4Factory.fastestInstance();
+
+byte[] data = "12345345234572".getBytes("UTF-8");
+final int decompressedLength = data.length;
+
+// compress data
+LZ4Compressor compressor = factory.fastCompressor();
+int maxCompressedLength = compressor.maxCompressedLength(decompressedLength);
+byte[] compressed = new byte[maxCompressedLength];
+int compressedLength = compressor.compress(data, 0, decompressedLength, compressed, 0, maxCompressedLength);
+
+// decompress data
+// - method 1: when the decompressed length is known
+LZ4FastDecompressor decompressor = factory.fastDecompressor();
+byte[] restored = new byte[decompressedLength];
+int compressedLength2 = decompressor.decompress(compressed, 0, restored, 0, decompressedLength);
+// compressedLength == compressedLength2
+
+// - method 2: when the compressed length is known (a little slower)
+// the destination buffer needs to be over-sized
+LZ4SafeDecompressor decompressor2 = factory.safeDecompressor();
+int decompressedLength2 = decompressor2.decompress(compressed, 0, compressedLength, restored, 0);
+// decompressedLength == decompressedLength2
+```
+
 # xxhash Java
 
 xxhash hashing for Java, based on Yann Collet's work available at
@@ -60,6 +88,28 @@ Have a look at XXHashFactory for more information.
  - All implementation return the same hash for the same input bytes:
    - on any JVM,
    - on any platform (even if the endianness or integer size differs).
+
+## Example
+
+```java
+XXHashFactory factory = XXHashFactory.fastestInstance();
+
+byte[] data = "12345345234572".getBytes("UTF-8");
+ByteArrayInputStream in = new ByteArrayInputStream(data);
+
+int seed = 0x9747b28c; // used to initialize the hash value, use whatever
+                       // value you want, but always the same
+StreamingXXHash32 hash32 = factory.newStreamingHash32(seed);
+byte[] buf = new byte[8]; // for real-world usage, use a larger buffer, like 8192 bytes
+for (;;) {
+  int read = in.read(buf);
+  if (read == -1) {
+    break;
+  }
+  hash32.update(buf, 0, read);
+}
+int hash = hash32.getValue();
+```
 
 # Download
 
