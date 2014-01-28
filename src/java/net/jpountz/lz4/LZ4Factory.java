@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import net.jpountz.util.Native;
+import net.jpountz.util.Utils;
 
 /**
  * Entry point for the LZ4 API.
@@ -105,9 +106,13 @@ public final class LZ4Factory {
    * working {@link sun.misc.Unsafe}.
    */
   public static LZ4Factory fastestJavaInstance() {
-    try {
-      return unsafeInstance();
-    } catch (Throwable t) {
+    if (Utils.isUnalignedAccessAllowed()) {
+      try {
+        return unsafeInstance();
+      } catch (Throwable t) {
+        return safeInstance();
+      }
+    } else {
       return safeInstance();
     }
   }
