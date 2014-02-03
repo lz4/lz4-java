@@ -21,6 +21,17 @@ public enum Utils {
 
   public static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
 
+  private static final boolean unalignedAccessAllowed;
+  static {
+    String arch = System.getProperty("os.arch");
+    unalignedAccessAllowed = arch.equals("i386") || arch.equals("x86")
+            || arch.equals("amd64") || arch.equals("x86_64");
+  }
+
+  public static boolean isUnalignedAccessAllowed() {
+    return unalignedAccessAllowed;
+  }
+
   public static void checkRange(byte[] buf, int off) {
     if (off < 0 || off >= buf.length) {
       throw new ArrayIndexOutOfBoundsException(off);

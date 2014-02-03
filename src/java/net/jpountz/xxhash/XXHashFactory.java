@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.util.Random;
 
 import net.jpountz.util.Native;
+import net.jpountz.util.Utils;
 
 /**
  * Entry point to get {@link XXHash32} and {@link StreamingXXHash32} instances.
@@ -103,9 +104,13 @@ public final class XXHashFactory {
    * working {@link sun.misc.Unsafe}.
    */
   public static XXHashFactory fastestJavaInstance() {
-    try {
-      return unsafeInstance();
-    } catch (Throwable t) {
+    if (Utils.isUnalignedAccessAllowed()) {
+      try {
+        return unsafeInstance();
+      } catch (Throwable t) {
+        return safeInstance();
+      }
+    } else {
       return safeInstance();
     }
   }

@@ -46,7 +46,7 @@ public enum Native {
       return OS.MAC;
     } else if (osName.contains("Windows")) {
       return OS.WINDOWS;
-    } else if (osName.contains("Solaris")) {
+    } else if (osName.contains("Solaris") || osName.contains("SunOS")) {
       return OS.SOLARIS;
     } else {
       throw new UnsupportedOperationException("Unsupported operating system: "
