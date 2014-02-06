@@ -15,6 +15,7 @@ package net.jpountz.lz4;
  */
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import net.jpountz.util.Native;
@@ -189,6 +190,26 @@ public final class LZ4Factory {
    * {@link #fastCompressor()} and is slower but compresses more efficiently. */
   public LZ4Compressor highCompressor() {
     return highCompressor;
+  }
+
+  /** Return a {@link LZ4Compressor} which requires more memory than
+   * {@link #fastCompressor()} and is slower but compresses more efficiently.
+   * The compression level can be customized. The interpretation of compression level is implementation-defined.
+   * <p>If, for any reason, the construction of the customized HC compressor failed, null is returned.</p>
+   * <p>For current implementations, the following is true about compression level:<ol>
+   *   <li>It has no effect on memory usage, it only affect how hard the algorithm would try to find a match.</li>
+   *   <li>It should be in range [1, 17]</li>
+   *   <li>A compression level higher than 17 would be treated as 17.</li>
+   *   <li>A compression level lower than 1 would be treated as 9.</li>
+   * </ol></p>
+   */
+  public LZ4Compressor highCompressor(int compressionLevel) {
+    try {
+      return (LZ4Compressor)highCompressor.getClass().getDeclaredConstructor(int.class).newInstance(compressionLevel);
+    } catch(Throwable t) {
+      t.printStackTrace();
+      return null;
+    }
   }
 
   /** Return a {@link LZ4FastDecompressor} instance. */

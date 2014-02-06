@@ -21,11 +21,24 @@ import net.jpountz.lz4.LZ4Utils.Match;
  * High compression compressor.
  */
 final class LZ4HCJava${type}Compressor extends LZ4Compressor {
+  static final int DEFAULT_COMPRESSION_LEVEL = 8;
+  static final int MAX_COMPRESSION_LEVEL = 16;
 
   public static final LZ4Compressor INSTANCE = new LZ4HCJava${type}Compressor();
 
-  static class HashTable {
-    static final int MAX_ATTEMPTS = 256;
+  private final int maxAttempts;
+  
+  LZ4HCJava${type}Compressor() { this(0); }
+  LZ4HCJava${type}Compressor(int compressionLevel) {
+    if(compressionLevel > MAX_COMPRESSION_LEVEL) {
+      compressionLevel = MAX_COMPRESSION_LEVEL + 1;
+    } else if(compressionLevel < 1) {
+      compressionLevel = DEFAULT_COMPRESSION_LEVEL + 1;
+    }
+    this.maxAttempts = 1<<(compressionLevel-1);
+  }
+  
+  private class HashTable {
     static final int MASK = MAX_DISTANCE - 1;
     int nextToUpdate;
     private final int base;
@@ -87,7 +100,7 @@ final class LZ4HCJava${type}Compressor extends LZ4Compressor {
         ref = next(ref);
       }
 
-      for (int i = 0; i < MAX_ATTEMPTS; ++i) {
+      for (int i = 0; i < maxAttempts; ++i) {
         if (ref < Math.max(base, off - MAX_DISTANCE + 1) || ref > off) {
           break;
         }
@@ -126,7 +139,7 @@ final class LZ4HCJava${type}Compressor extends LZ4Compressor {
 
       final int delta = off - startLimit;
       int ref = hashPointer(buf, off);
-      for (int i = 0; i < MAX_ATTEMPTS; ++i) {
+      for (int i = 0; i < maxAttempts; ++i) {
         if (ref < Math.max(base, off - MAX_DISTANCE + 1) || ref > off) {
           break;
         }

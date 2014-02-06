@@ -37,7 +37,7 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
   public abstract int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
 
   /**
-   * Same as {@link #decompress(byte[], int, int, byte[], int, int) except that
+   * Same as {@link #decompress(byte[], int, int, byte[], int, int)} except that
    * up to 64 KB before <code>srcOff</code> in <code>src</code>. This is useful
    * for providing LZ4 with a dictionary that can be reused during decompression.
    */

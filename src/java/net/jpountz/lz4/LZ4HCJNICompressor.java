@@ -24,11 +24,22 @@ final class LZ4HCJNICompressor extends LZ4Compressor {
 
   public static final LZ4Compressor INSTANCE = new LZ4HCJNICompressor();
 
+  private final int compressionLevel;
+  
+  LZ4HCJNICompressor() { this(0); }
+  LZ4HCJNICompressor(int compressionLevel) {
+    if(compressionLevel < 0) {
+      this.compressionLevel = 0;
+    } else {
+      this.compressionLevel = compressionLevel;
+    }
+  }
+
   @Override
   public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);
-    final int result = LZ4JNI.LZ4_compressHC(src, srcOff, srcLen, dest, destOff, maxDestLen);
+    final int result = LZ4JNI.LZ4_compressHC(src, srcOff, srcLen, dest, destOff, maxDestLen, compressionLevel);
     if (result <= 0) {
       throw new LZ4Exception();
     }
