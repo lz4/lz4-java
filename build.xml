@@ -289,6 +289,15 @@
 
   <target name="bundle" description="makes the JAR a valid OSGi bundle" depends="install-bnd, jar">
     <taskdef resource="aQute/bnd/ant/taskdef.properties" classpathref="bnd.classpath"/>
+    <property name="packages.version" value="${ivy.revision}"/>
+    <!-- We need to remove potential -SNAPSHOT qualifiers as package versions... -->
+    <script language="javascript">
+            <![CDATA[
+                // lz4 is the ant project name
+                version = lz4.getProperty("packages.version");
+                lz4.setProperty("packages.version", version.replace("-SNAPSHOT", ""));
+            ]]>
+    </script>
     <!-- wrap the JAR as a bundle and set the proper name -->
     <bndwrap definitions="${basedir}" output="${dist}/${ivy.module}-${ivy.revision}.jar" trace="true">
       <fileset dir="${dist}/" includes="${ivy.module}.jar"/>
