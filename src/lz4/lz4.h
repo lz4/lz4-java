@@ -74,9 +74,9 @@ LZ4_decompress_safe() :
 //****************************
 // Advanced Functions
 //****************************
-
-static inline int LZ4_compressBound(int isize)   { return ((isize) + ((isize)/255) + 16); }
-#define           LZ4_COMPRESSBOUND(    isize)            ((isize) + ((isize)/255) + 16)
+#define LZ4_MAX_INPUT_SIZE        0x7E000000   /* 2 113 929 216 bytes */
+static inline int LZ4_compressBound(int isize) { return ((unsigned int)(isize) > (unsigned int)LZ4_MAX_INPUT_SIZE ? 0 : (isize) + ((isize)/255) + 16); }
+#define           LZ4_COMPRESSBOUND(isize)              ((unsigned int)(isize) > (unsigned int)LZ4_MAX_INPUT_SIZE ? 0 : (isize) + ((isize)/255) + 16)
 
 /*
 LZ4_compressBound() :

@@ -700,12 +700,14 @@ FORCE_INLINE int LZ4_decompress_generic(
         token = *ip++;
         if ((length=(token>>ML_BITS)) == RUN_MASK)
         { 
-            unsigned s=255; 
-            while (((endOnInput)?ip<iend:1) && (s==255))
-            { 
+            unsigned s;
+            do {
                 s = *ip++; 
                 length += s; 
             } 
+            while (likely((endOnInput)?ip<iend-RUN_MASK:1) && (s==255));
+            if ((sizeof(void*)==4) && unlikely(length>LZ4_MAX_INPUT_SIZE)) goto _output_error;   /* overflow detection */
+
         }
 
         // copy literals
@@ -737,13 +739,14 @@ FORCE_INLINE int LZ4_decompress_generic(
         // get matchlength
         if ((length=(token&ML_MASK)) == ML_MASK) 
         { 
-            while ((!endOnInput) || (ip<iend-(LASTLITERALS+1)))   // Ensure enough bytes remain for LASTLITERALS + token
+            unsigned s;
+            do
             {
-                unsigned s = *ip++; 
-                length += s; 
-                if (s==255) continue; 
-                break; 
-            }
+                if (endOnInput && (ip > iend-LASTLITERALS)) goto _output_error;
+                s = *ip++;
+                length += s;
+            } while (s==255);
+            if ((sizeof(void*)==4) && unlikely(length>LZ4_MAX_INPUT_SIZE)) goto _output_error;   /* overflow detection */
         }
 
         // copy repeated sequence
