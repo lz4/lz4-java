@@ -27,9 +27,13 @@ import static net.jpountz.util.Utils.readInt;
 enum LZ4Utils {
   ;
 
-  static final int maxCompressedLength(int length) {
+  private static final int MAX_INPUT_SIZE = 0x7E000000;
+
+  static int maxCompressedLength(int length) {
     if (length < 0) {
       throw new IllegalArgumentException("length must be >= 0, got " + length);
+    } else if (length >= MAX_INPUT_SIZE) {
+        throw new IllegalArgumentException("length must be < " + MAX_INPUT_SIZE);
     }
     return length + length / 255 + 16;
   }
