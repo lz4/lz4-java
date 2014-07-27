@@ -20,22 +20,17 @@ import net.jpountz.lz4.LZ4Utils.Match;
 /**
  * High compression compressor.
  */
-final class LZ4HCJava${type}Compressor extends LZ4Compressor {
-  static final int DEFAULT_COMPRESSION_LEVEL = 8;
-  static final int MAX_COMPRESSION_LEVEL = 16;
+final class LZ4HCJava${type}Compressor extends LZ4HCCompressor {
 
   public static final LZ4Compressor INSTANCE = new LZ4HCJava${type}Compressor();
 
   private final int maxAttempts;
+  private final int compressionLevel;
   
-  LZ4HCJava${type}Compressor() { this(0); }
+  LZ4HCJava${type}Compressor() { this(DEFAULT_COMPRESSION_LEVEL); }
   LZ4HCJava${type}Compressor(int compressionLevel) {
-    if(compressionLevel > MAX_COMPRESSION_LEVEL) {
-      compressionLevel = MAX_COMPRESSION_LEVEL + 1;
-    } else if(compressionLevel < 1) {
-      compressionLevel = DEFAULT_COMPRESSION_LEVEL + 1;
-    }
     this.maxAttempts = 1<<(compressionLevel-1);
+    this.compressionLevel = compressionLevel;
   }
   
   private class HashTable {
@@ -304,4 +299,8 @@ final class LZ4HCJava${type}Compressor extends LZ4Compressor {
     return dOff - destOff;
   }
 
+  @Override
+  public int getCompressionLevel() {
+    return compressionLevel;
+  }
 }

@@ -14,12 +14,17 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import net.jpountz.util.Native;
 import net.jpountz.util.Utils;
+
+import static net.jpountz.lz4.LZ4Constants.DEFAULT_COMPRESSION_LEVEL;
+import static net.jpountz.lz4.LZ4Constants.MAX_COMPRESSION_LEVEL;
 
 /**
  * Entry point for the LZ4 API.
@@ -153,13 +158,17 @@ public final class LZ4Factory {
   private final LZ4Compressor highCompressor;
   private final LZ4FastDecompressor fastDecompressor;
   private final LZ4SafeDecompressor safeDecompressor;
+  private final Constructor<? extends LZ4Compressor> highConstructor;
+  private final HashMap<Integer, LZ4Compressor> highCompressors = new HashMap<Integer, LZ4Compressor>();
 
-  private LZ4Factory(String impl) throws ClassNotFoundException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+  private LZ4Factory(String impl) throws ClassNotFoundException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, NoSuchMethodException {
     this.impl = impl;
     fastCompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "Compressor");
     highCompressor = classInstance("net.jpountz.lz4.LZ4HC" + impl + "Compressor");
     fastDecompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "FastDecompressor");
     safeDecompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "SafeDecompressor");
+    highConstructor = highCompressor.getClass().getDeclaredConstructor(int.class);
+    highCompressors.put(DEFAULT_COMPRESSION_LEVEL, highCompressor);
 
     // quickly test that everything works as expected
     final byte[] original = new byte[] {'a','b','c','d',' ',' ',' ',' ',' ',' ','a','b','c','d','e','f','g','h','i','j'};
@@ -194,18 +203,32 @@ public final class LZ4Factory {
 
   /** Return a {@link LZ4Compressor} which requires more memory than
    * {@link #fastCompressor()} and is slower but compresses more efficiently.
-   * The compression level can be customized. The interpretation of compression level is implementation-defined.
+   * The compression level can be customized.
    * <p>If, for any reason, the construction of the customized HC compressor failed, null is returned.</p>
    * <p>For current implementations, the following is true about compression level:<ol>
-   *   <li>It has no effect on memory usage, it only affect how hard the algorithm would try to find a match.</li>
    *   <li>It should be in range [1, 17]</li>
    *   <li>A compression level higher than 17 would be treated as 17.</li>
    *   <li>A compression level lower than 1 would be treated as 9.</li>
    * </ol></p>
    */
   public LZ4Compressor highCompressor(int compressionLevel) {
+    if(compressionLevel > MAX_COMPRESSION_LEVEL) {
+      compressionLevel = MAX_COMPRESSION_LEVEL;
+    } else if(compressionLevel < 1) {
+      compressionLevel = DEFAULT_COMPRESSION_LEVEL;
+    }
     try {
-      return (LZ4Compressor)highCompressor.getClass().getDeclaredConstructor(int.class).newInstance(compressionLevel);
+      LZ4Compressor comp = null;
+      synchronized(highCompressors) {
+	      if(highCompressors.containsKey(compressionLevel)) {
+	    	  comp = highCompressors.get(compressionLevel);
+	      }
+	      if(comp == null) {
+	    	  comp = highConstructor.newInstance(compressionLevel);
+	    	  highCompressors.put(compressionLevel, comp);
+	      }
+      }
+      return comp;
     } catch(Throwable t) {
       t.printStackTrace();
       return null;

@@ -14,25 +14,22 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import static net.jpountz.lz4.LZ4Constants.DEFAULT_COMPRESSION_LEVEL;
 import static net.jpountz.util.Utils.checkRange;
 
 /**
  * High compression {@link LZ4Compressor}s implemented with JNI bindings to the
  * original C implementation of LZ4.
  */
-final class LZ4HCJNICompressor extends LZ4Compressor {
+final class LZ4HCJNICompressor extends LZ4HCCompressor {
 
   public static final LZ4Compressor INSTANCE = new LZ4HCJNICompressor();
 
   private final int compressionLevel;
   
-  LZ4HCJNICompressor() { this(0); }
+  LZ4HCJNICompressor() { this(DEFAULT_COMPRESSION_LEVEL); }
   LZ4HCJNICompressor(int compressionLevel) {
-    if(compressionLevel < 0) {
-      this.compressionLevel = 0;
-    } else {
-      this.compressionLevel = compressionLevel;
-    }
+    this.compressionLevel = compressionLevel;
   }
 
   @Override
@@ -46,4 +43,8 @@ final class LZ4HCJNICompressor extends LZ4Compressor {
     return result;
   }
 
+  @Override
+  public int getCompressionLevel() {
+    return compressionLevel;
+  }
 }
