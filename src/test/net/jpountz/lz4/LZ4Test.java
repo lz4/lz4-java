@@ -104,7 +104,8 @@ public class LZ4Test extends AbstractLZ4Test {
   public void testRoundTrip(byte[] data, int off, int len,
       LZ4Compressor compressor,
       LZ4FastDecompressor decompressor,
-      LZ4SafeDecompressor decompressor2) {
+      LZ4SafeDecompressor decompressor2,
+      LZ4Compressor refCompressor) {
     final byte[] compressed = new byte[LZ4Utils.maxCompressedLength(len)];
     final int compressedLen = compressor.compress(
         data, off, len,
@@ -185,14 +186,6 @@ public class LZ4Test extends AbstractLZ4Test {
     }
 
     // compare compression against the reference
-    LZ4Compressor refCompressor = null;
-    if (compressor == LZ4Factory.unsafeInstance().fastCompressor()
-        || compressor == LZ4Factory.safeInstance().fastCompressor()) {
-      refCompressor = LZ4Factory.nativeInstance().fastCompressor();
-    } else if (compressor == LZ4Factory.unsafeInstance().highCompressor()
-        || compressor == LZ4Factory.safeInstance().highCompressor()) {
-      refCompressor = LZ4Factory.nativeInstance().highCompressor();
-    }
     if (refCompressor != null) {
       final byte[] compressed4 = new byte[refCompressor.maxCompressedLength(len)];
       final int compressedLen4 = refCompressor.compress(data, off, len, compressed4, 0, compressed4.length);
@@ -201,11 +194,36 @@ public class LZ4Test extends AbstractLZ4Test {
           Arrays.copyOf(compressed,  compressedLen));
     }
   }
+  
+  public void testRoundTrip(byte[] data, int off, int len,
+      LZ4Compressor compressor,
+      LZ4FastDecompressor decompressor,
+      LZ4SafeDecompressor decompressor2) {
+    if(   compressor instanceof LZ4JNICompressor
+       || compressor instanceof LZ4HCJNICompressor) {
+      testRoundTrip(data, off, len, compressor, decompressor, decompressor2, null);
+      return;
+    }
+
+    LZ4Compressor refCompressor = null;
+    if (compressor == LZ4Factory.unsafeInstance().fastCompressor()
+        || compressor == LZ4Factory.safeInstance().fastCompressor()) {
+      refCompressor = LZ4Factory.nativeInstance().fastCompressor();
+    } else if (compressor == LZ4Factory.unsafeInstance().highCompressor()
+        || compressor == LZ4Factory.safeInstance().highCompressor()) {
+      refCompressor = LZ4Factory.nativeInstance().highCompressor();
+    } else if (compressor instanceof LZ4HCCompressor) {
+      refCompressor = LZ4Factory.nativeInstance().highCompressor(((LZ4HCCompressor)compressor).getCompressionLevel());
+    } else {
+      throw new AssertionError();
+    }
+    testRoundTrip(data, off, len, compressor, decompressor, decompressor2, refCompressor);
+  }
 
   public void testRoundTrip(byte[] data, int off, int len, LZ4Factory lz4) {
-    for (LZ4Compressor compressor : Arrays.asList(
-        lz4.fastCompressor(), lz4.highCompressor())) {
-      testRoundTrip(data, off, len, compressor, lz4.fastDecompressor(), lz4.safeDecompressor());
+    testRoundTrip(data, off, len, lz4.fastCompressor(), lz4.fastDecompressor(), lz4.safeDecompressor());
+    for (int level : Arrays.asList(1, 5, 9, 13)) { //Test compression level 1, 5, 9(default) and 13 only. Should be ok.
+      testRoundTrip(data, off, len, lz4.highCompressor(level), lz4.fastDecompressor(), lz4.safeDecompressor());
     }
   }
 

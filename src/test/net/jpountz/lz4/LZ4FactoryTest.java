@@ -33,6 +33,21 @@ public class LZ4FactoryTest extends TestCase {
     assertEquals(LZ4JNISafeDecompressor.INSTANCE, LZ4Factory.nativeInstance().safeDecompressor());
     assertEquals(LZ4JavaUnsafeSafeDecompressor.INSTANCE, LZ4Factory.unsafeInstance().safeDecompressor());
     assertEquals(LZ4JavaSafeSafeDecompressor.INSTANCE, LZ4Factory.safeInstance().safeDecompressor());
+
+    assertEquals(LZ4Factory.nativeInstance().highCompressor(LZ4Constants.DEFAULT_COMPRESSION_LEVEL), LZ4Factory.nativeInstance().highCompressor());
+    assertEquals(LZ4Factory.unsafeInstance().highCompressor(LZ4Constants.DEFAULT_COMPRESSION_LEVEL), LZ4Factory.unsafeInstance().highCompressor());
+    assertEquals(LZ4Factory.safeInstance().highCompressor(LZ4Constants.DEFAULT_COMPRESSION_LEVEL), LZ4Factory.safeInstance().highCompressor());
+    assertEquals(LZ4Factory.nativeInstance().highCompressor(LZ4Constants.MAX_COMPRESSION_LEVEL+1), LZ4Factory.nativeInstance().highCompressor(LZ4Constants.MAX_COMPRESSION_LEVEL));
+    assertEquals(LZ4Factory.unsafeInstance().highCompressor(LZ4Constants.MAX_COMPRESSION_LEVEL+1), LZ4Factory.unsafeInstance().highCompressor(LZ4Constants.MAX_COMPRESSION_LEVEL));
+    assertEquals(LZ4Factory.safeInstance().highCompressor(LZ4Constants.MAX_COMPRESSION_LEVEL+1), LZ4Factory.safeInstance().highCompressor(LZ4Constants.MAX_COMPRESSION_LEVEL));
+    assertEquals(LZ4Factory.nativeInstance().highCompressor(LZ4Constants.DEFAULT_COMPRESSION_LEVEL), LZ4Factory.nativeInstance().highCompressor(0));
+    assertEquals(LZ4Factory.unsafeInstance().highCompressor(LZ4Constants.DEFAULT_COMPRESSION_LEVEL), LZ4Factory.unsafeInstance().highCompressor(0));
+    assertEquals(LZ4Factory.safeInstance().highCompressor(LZ4Constants.DEFAULT_COMPRESSION_LEVEL), LZ4Factory.safeInstance().highCompressor(0));
+    for (int level = 1; level <= LZ4Constants.MAX_COMPRESSION_LEVEL; level++) {
+      assertEquals(LZ4Factory.nativeInstance().highCompressor(level), LZ4Factory.nativeInstance().highCompressor(level));
+      assertEquals(LZ4Factory.unsafeInstance().highCompressor(level), LZ4Factory.unsafeInstance().highCompressor(level));
+      assertEquals(LZ4Factory.safeInstance().highCompressor(level), LZ4Factory.safeInstance().highCompressor(level));
+    }
   }
 
 }

@@ -26,7 +26,7 @@ final class LZ4HCJNICompressor extends LZ4HCCompressor {
   public static final LZ4Compressor INSTANCE = new LZ4HCJNICompressor();
 
   private final int compressionLevel;
-  
+
   LZ4HCJNICompressor() { this(DEFAULT_COMPRESSION_LEVEL); }
   LZ4HCJNICompressor(int compressionLevel) {
     this.compressionLevel = compressionLevel;

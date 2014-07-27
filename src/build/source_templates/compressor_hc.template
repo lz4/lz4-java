@@ -32,7 +32,7 @@ final class LZ4HCJava${type}Compressor extends LZ4HCCompressor {
     this.maxAttempts = 1<<(compressionLevel-1);
     this.compressionLevel = compressionLevel;
   }
-  
+
   private class HashTable {
     static final int MASK = MAX_DISTANCE - 1;
     int nextToUpdate;
