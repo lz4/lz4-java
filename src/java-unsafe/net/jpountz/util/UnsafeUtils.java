@@ -14,7 +14,6 @@ package net.jpountz.util;
  * limitations under the License.
  */
 
-import static java.lang.Integer.reverseBytes;
 import static net.jpountz.util.Utils.NATIVE_BYTE_ORDER;
 
 import java.lang.reflect.Field;
@@ -69,6 +68,14 @@ public enum UnsafeUtils {
     return UNSAFE.getLong(src, BYTE_ARRAY_OFFSET + srcOff);
   }
 
+  public static long readLongLE(byte[] src, int srcOff) {
+    long i = readLong(src, srcOff);
+    if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
+      i = Long.reverseBytes(i);
+    }
+    return i;
+  }
+
   public static void writeLong(byte[] dest, int destOff, long value) {
     UNSAFE.putLong(dest, BYTE_ARRAY_OFFSET + destOff, value);
   }
@@ -80,7 +87,7 @@ public enum UnsafeUtils {
   public static int readIntLE(byte[] src, int srcOff) {
     int i = readInt(src, srcOff);
     if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
-      i = reverseBytes(i);
+      i = Integer.reverseBytes(i);
     }
     return i;
   }

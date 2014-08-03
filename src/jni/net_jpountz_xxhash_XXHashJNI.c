@@ -70,7 +70,7 @@ JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1init
 
 /*
  * Class:     net_jpountz_xxhash_XXHashJNI
- * Method:    XXH32_feed
+ * Method:    XXH32_update
  * Signature: (J[BII)V
  */
 JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1update
@@ -90,7 +90,7 @@ JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1update
 
 /*
  * Class:     net_jpountz_xxhash_XXHashJNI
- * Method:    XXH32_getIntermediateResult
+ * Method:    XXH32_intermediateDigest
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1intermediateDigest
@@ -102,7 +102,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1intermediateDige
 
 /*
  * Class:     net_jpountz_xxhash_XXHashJNI
- * Method:    XXH32_result
+ * Method:    XXH32_digest
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1digest
@@ -124,3 +124,93 @@ JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1free
 
 }
 
+/*
+ * Class:     net_jpountz_xxhash_XXHashJNI
+ * Method:    XXH64
+ * Signature: ([BIIJ)J
+ */
+JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64
+  (JNIEnv *env, jclass cls, jbyteArray buf, jint off, jint len, jlong seed) {
+
+  char* in;
+  jlong h64;
+
+  in = (char*) (*env)->GetPrimitiveArrayCritical(env, buf, 0);
+  if (in == NULL) {
+    throw_OOM(env);
+    return 0;
+  }
+
+  h64 = XXH64(in + off, len, seed);
+
+  (*env)->ReleasePrimitiveArrayCritical(env, buf, in, 0);
+
+  return h64;
+}
+
+/*
+ * Class:     net_jpountz_xxhash_XXHashJNI
+ * Method:    XXH64_init
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1init
+  (JNIEnv *env, jclass cls, jlong seed) {
+
+  return (jlong) XXH64_init(seed);
+}
+
+/*
+ * Class:     net_jpountz_xxhash_XXHashJNI
+ * Method:    XXH64_update
+ * Signature: (J[BII)V
+ */
+JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1update
+  (JNIEnv *env, jclass cls, jlong state, jbyteArray src, jint off, jint len) {
+
+  char* in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
+  if (in == NULL) {
+    throw_OOM(env);
+    return;
+  }
+
+  XXH64_update((void*) state, in + off, len);
+
+  (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
+
+}
+
+/*
+ * Class:     net_jpountz_xxhash_XXHashJNI
+ * Method:    XXH64_intermediateDigest
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1intermediateDigest
+  (JNIEnv *env, jclass cls, jlong state) {
+
+  return XXH64_intermediateDigest((void*) state);
+
+}
+
+/*
+ * Class:     net_jpountz_xxhash_XXHashJNI
+ * Method:    XXH64_digest
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1digest
+  (JNIEnv *env, jclass cls, jlong state) {
+
+  return XXH64_digest((void*) state);
+
+}
+
+/*
+ * Class:     net_jpountz_xxhash_XXHashJNI
+ * Method:    XXH64_free
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1free
+  (JNIEnv *env, jclass cls, jlong state) {
+
+  free((void*) state);
+
+}

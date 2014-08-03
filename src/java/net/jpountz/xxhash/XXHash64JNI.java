@@ -14,18 +14,16 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-enum XXHashConstants {
-  ;
+import static net.jpountz.util.Utils.checkRange;
 
-  static final int PRIME1 = -1640531535;
-  static final int PRIME2 = -2048144777;
-  static final int PRIME3 = -1028477379;
-  static final int PRIME4 = 668265263;
-  static final int PRIME5 = 374761393;
+final class XXHash64JNI extends XXHash64 {
 
-  static final long PRIME64_1 = -7046029288634856825L; //11400714785074694791
-  static final long PRIME64_2 = -4417276706812531889L; //14029467366897019727
-  static final long PRIME64_3 = 1609587929392839161L;
-  static final long PRIME64_4 = -8796714831421723037L; //9650029242287828579
-  static final long PRIME64_5 = 2870177450012600261L;
+  public static final XXHash64 INSTANCE = new XXHash64JNI();
+
+  @Override
+  public long hash(byte[] buf, int off, int len, long seed) {
+    checkRange(buf, off, len);
+    return XXHashJNI.XXH64(buf, off, len, seed);
+  }
+
 }

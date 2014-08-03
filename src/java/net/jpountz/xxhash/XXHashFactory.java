@@ -147,12 +147,16 @@ public final class XXHashFactory {
 
   private final String impl;
   private final XXHash32 hash32;
+  private final XXHash64 hash64;
   private final StreamingXXHash32.Factory streamingHash32Factory;
+  private final StreamingXXHash64.Factory streamingHash64Factory;
 
   private XXHashFactory(String impl) throws ClassNotFoundException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
     this.impl = impl;
     hash32 = classInstance("net.jpountz.xxhash.XXHash32" + impl);
     streamingHash32Factory = classInstance("net.jpountz.xxhash.StreamingXXHash32" + impl + "$Factory");
+    hash64 = classInstance("net.jpountz.xxhash.XXHash64" + impl);
+    streamingHash64Factory = classInstance("net.jpountz.xxhash.StreamingXXHash64" + impl + "$Factory");
 
     // make sure it can run
     final byte[] bytes = new byte[100];
@@ -164,6 +168,10 @@ public final class XXHashFactory {
     final StreamingXXHash32 streamingHash32 = newStreamingHash32(seed);
     streamingHash32.update(bytes, 0, bytes.length);
     final int h2 = streamingHash32.getValue();
+    final long h3 = hash64.hash(bytes, 0, bytes.length, seed);
+    final StreamingXXHash64 streamingHash64 = newStreamingHash64(seed);
+    streamingHash64.update(bytes, 0, bytes.length);
+    final long h4 = streamingHash64.getValue();
     if (h1 != h2) {
       throw new AssertionError();
     }
@@ -174,11 +182,23 @@ public final class XXHashFactory {
     return hash32;
   }
 
+  /** Return a {@link XXHash64} instance. */
+  public XXHash64 hash64() {
+    return hash64;
+  }
+
   /**
    * Return a new {@link StreamingXXHash32} instance.
    */
   public StreamingXXHash32 newStreamingHash32(int seed) {
     return streamingHash32Factory.newStreamingHash(seed);
+  }
+
+  /**
+   * Return a new {@link StreamingXXHash64} instance.
+   */
+  public StreamingXXHash64 newStreamingHash64(long seed) {
+    return streamingHash64Factory.newStreamingHash(seed);
   }
 
   /** Prints the fastest instance. */
