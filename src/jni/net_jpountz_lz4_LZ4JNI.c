@@ -13,6 +13,7 @@
  */
 
 #include "lz4.h"
+#include "lz4hc.h"
 #include "net_jpountz_lz4_LZ4JNI.h"
 
 static jclass OutOfMemoryError;
@@ -64,17 +65,24 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress_1limitedOutput
 }
 
 /*
- * Class:     net_jpountz_lz4_LZ4
- * Method:    LZ4_compressHC
- * Signature: ([BII[BI)I
+ * Class:     net_jpountz_lz4_LZ4JNI
+ * Method:    LZ4_compressHC_withStateHC
+ * Signature: ([B[BII[BII)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
-  (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff, jint maxDestLen) {
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC_1withStateHC
+  (JNIEnv *env, jclass cls, jbyteArray state, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff, jint maxDestLen) {
 
+  char* stateHC;
   char* in;
   char* out;
   jint compressed;
   
+  stateHC = (char*) (*env)->GetPrimitiveArrayCritical(env, state, 0);
+  if (stateHC == NULL) {
+    throw_OOM(env);
+    return 0;
+  }
+
   in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
   if (in == NULL) {
     throw_OOM(env);
@@ -86,13 +94,24 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
     return 0;
   }
 
-  compressed = LZ4_compressHC_limitedOutput(in + srcOff, out + destOff, srcLen, maxDestLen);
+  compressed = LZ4_compressHC_limitedOutput_withStateHC(stateHC, in + srcOff, out + destOff, srcLen, maxDestLen);
 
+  (*env)->ReleasePrimitiveArrayCritical(env, state, stateHC, 0);
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
   (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);
 
   return compressed;
 
+}
+
+/*
+ * Class:     net_jpountz_lz4_LZ4JNI
+ * Method:    LZ4_sizeofStateHC
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1sizeofStateHC
+  (JNIEnv *env, jclass cls) {
+  return LZ4_sizeofStateHC();
 }
 
 /*
