@@ -30,7 +30,8 @@ enum LZ4JNI {
 
   static native void init();
   static native int LZ4_compress_limitedOutput(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
-  static native int LZ4_compressHC(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
+  static native int LZ4_sizeofStateHC();
+  static native int LZ4_compressHC_withStateHC(byte[] state, byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
   static native int LZ4_decompress_fast(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
   static native int LZ4_decompress_fast_withPrefix64k(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
   static native int LZ4_decompress_safe(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
