@@ -57,7 +57,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress_1limitedOutput
   compressed = LZ4_compress_limitedOutput(in + srcOff, out + destOff, srcLen, maxDestLen);
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
-  (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);
+  (*env)->ReleasePrimitiveArrayCritical(env, dest, out, 0);
 
   return compressed;
 
@@ -89,7 +89,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
   compressed = LZ4_compressHC_limitedOutput(in + srcOff, out + destOff, srcLen, maxDestLen);
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
-  (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);
+  (*env)->ReleasePrimitiveArrayCritical(env, dest, out, 0);
 
   return compressed;
 
@@ -121,7 +121,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1fast
   compressed = LZ4_decompress_fast(in + srcOff, out + destOff, destLen);
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
-  (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);
+  (*env)->ReleasePrimitiveArrayCritical(env, dest, out, 0);
 
   return compressed;
 
@@ -153,7 +153,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1safe
   decompressed = LZ4_decompress_safe(in + srcOff, out + destOff, srcLen, maxDestLen);
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
-  (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);
+  (*env)->ReleasePrimitiveArrayCritical(env, dest, out, 0);
 
   return decompressed;
 
@@ -185,7 +185,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1fast_1withPr
   compressed = LZ4_decompress_fast_withPrefix64k(in + srcOff, out + destOff, destLen);
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
-  (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);
+  (*env)->ReleasePrimitiveArrayCritical(env, dest, out, 0);
 
   return compressed;
 
@@ -217,7 +217,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1safe_1withPr
   decompressed = LZ4_decompress_safe_withPrefix64k(in + srcOff, out + destOff, srcLen, maxDestLen);
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
-  (*env)->ReleasePrimitiveArrayCritical(env, src, out, 0);
+  (*env)->ReleasePrimitiveArrayCritical(env, dest, out, 0);
 
   return decompressed;
 
