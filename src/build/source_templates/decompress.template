@@ -1,33 +1,34 @@
-  @Override
-  public int decompress@if{ prefix }WithPrefix64k@end{}(byte[] src, final int srcOff@if{ size == "Safe" }, final int srcLen @end{}, byte[] dest, final int destOff, int destLen) {
-@if{ size == "Safe" }
-    checkRange(src, srcOff, srcLen);
-    checkRange(dest, destOff, destLen);
+  @{Visibility} int decompress@{NameSuffix}(
+      @{Storage} src, @{OffsetType} srcOff,@if{ size == "Safe" } int srcLen,@end{}
+      @{Storage} dest, @{OffsetType} destOff, int destLen) {
 
+@if{ size == "Safe" }
     if (destLen == 0) {
-      if (srcLen != 1 || src[srcOff] != 0) {
+      if (srcLen != 1 || readByte(src, srcOff) != 0) {
         throw new LZ4Exception("Output buffer too small");
       }
       return 0;
     }
 
-    final int srcEnd = srcOff + srcLen;
+    final @{OffsetType} srcEnd = srcOff + srcLen;
 @else{}
-    checkRange(src, srcOff);
-    checkRange(dest, destOff, destLen);
-
     if (destLen == 0) {
-      if (src[srcOff] != 0) {
+      if (readByte(src, srcOff) != 0) {
         throw new LZ4Exception("Malformed input at " + srcOff);
       }
       return 1;
     }
 @end{}
 
-    final int destEnd = destOff + destLen;
+@if{Storage == "ByteBuffer"}
+    src = inNativeOrder(src);
+    dest = inNativeOrder(dest);
+@end{}
 
-    int sOff = srcOff;
-    int dOff = destOff;
+    final @{OffsetType} destEnd = destOff + destLen;
+
+    @{OffsetType} sOff = srcOff;
+    @{OffsetType} dOff = destOff;
 
     while (true) {
       final int token = readByte(src, sOff) & 0xFF;
@@ -37,13 +38,13 @@
       int literalLen = token >>> ML_BITS;
       if (literalLen == RUN_MASK) {
         byte len = (byte) 0xFF;
-        while (@if{ size == "Safe" }sOff < srcEnd &&@end{}(len = src[sOff++]) == (byte) 0xFF) {
+        while (@if{ size == "Safe" }sOff < srcEnd &&@end{}(len = readByte(src, sOff++)) == (byte) 0xFF) {
           literalLen += 0xFF;
         }
         literalLen += len & 0xFF;
       }
 
-      final int literalCopyEnd = dOff + literalLen;
+      final @{OffsetType} literalCopyEnd = dOff + literalLen;
 @if{ size == "Fast" }
       if (literalCopyEnd > destEnd - COPY_LENGTH) {
         if (literalCopyEnd != destEnd) {
@@ -70,7 +71,7 @@
       // matchs
       final int matchDec = readShortLittleEndian(src, sOff);
       sOff += 2;
-      int matchOff = dOff - matchDec;
+      @{OffsetType} matchOff = dOff - matchDec;
 
 @if{ !prefix }
       if (matchOff < destOff) {
@@ -81,14 +82,14 @@
       int matchLen = token & ML_MASK;
       if (matchLen == ML_MASK) {
         byte len = (byte) 0xFF;
-        while (@if{ size == "Safe" }sOff < srcEnd &&@end{}(len = src[sOff++]) == (byte) 0xFF) {
+        while (@if{ size == "Safe" }sOff < srcEnd &&@end{}(len = readByte(src, sOff++)) == (byte) 0xFF) {
           matchLen += 0xFF;
         }
         matchLen += len & 0xFF;
       }
       matchLen += MIN_MATCH;
 
-      final int matchCopyEnd = dOff + matchLen;
+      final @{OffsetType} matchCopyEnd = dOff + matchLen;
 
       if (matchCopyEnd > destEnd - COPY_LENGTH) {
         if (matchCopyEnd > destEnd) {
@@ -102,8 +103,8 @@
     }
 
 @if{ size == "Fast" }
-    return sOff - srcOff;
+    return (int) (sOff - srcOff);
 @else{}
-    return dOff - destOff;
+    return (int) (dOff - destOff);
 @end{}
   }

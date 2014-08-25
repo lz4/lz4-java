@@ -14,6 +14,7 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -43,6 +44,21 @@ public abstract class LZ4Compressor {
    * @return the compressed size
    */
   public abstract int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
+
+  /**
+   * Compress <code>src[srcOff:srcOff+srcLen]</code> into
+   * <code>dest[destOff:destOff+destLen]</code> and return the compressed
+   * length. Neither buffer's position is moved.
+   *
+   * This method will throw a {@link LZ4Exception} if this compressor is unable
+   * to compress the input into less than the remaining bytes in <code>dest</code>. To
+   * prevent this exception to be thrown, you should make sure that
+   * <code>dest.remaining() >= maxCompressedLength(srcLen)</code>.
+   *
+   * @throws LZ4Exception if dest is too small
+   * @return the compressed size
+   */
+  public abstract int compress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen);
 
   /**
    * Convenience method, equivalent to calling
@@ -88,6 +104,16 @@ public abstract class LZ4Compressor {
    */
   public final byte[] compress(byte[] src) {
     return compress(src, 0, src.length);
+  }
+
+  /**
+   * Convenience method for processing ByteBuffers using their positions and limits.
+   * The positions in both buffers are moved to reflect the bytes read/written.
+   */
+  public final void compress(ByteBuffer src, ByteBuffer dest) {
+    int result = compress(src, src.position(), src.remaining(), dest, dest.position(), dest.remaining());
+    src.position(src.limit());
+    dest.position(dest.position() + result);
   }
 
   @Override
