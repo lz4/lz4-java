@@ -15,6 +15,7 @@ package net.jpountz.util;
  */
 
 import java.lang.reflect.Field;
+import java.nio.Buffer;
 
 import sun.misc.Unsafe;
 
@@ -27,6 +28,8 @@ public class UnsafeBase {
   protected static final int INT_ARRAY_SCALE;
   protected static final long SHORT_ARRAY_OFFSET;
   protected static final int SHORT_ARRAY_SCALE;
+  protected static final long BUFFER_ADDRESS_OFFSET;
+
   public static final String POINTER_SIZE_SUFFIX;
   
   
@@ -42,6 +45,8 @@ public class UnsafeBase {
       SHORT_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(short[].class);
       SHORT_ARRAY_SCALE = UNSAFE.arrayIndexScale(short[].class);
       POINTER_SIZE_SUFFIX = UNSAFE.addressSize() == 4 ? "" : "Long";
+      Field addressField = Buffer.class.getDeclaredField("address");
+      BUFFER_ADDRESS_OFFSET = UNSAFE.objectFieldOffset(addressField);
     } catch (IllegalAccessException e) {
       throw new ExceptionInInitializerError("Cannot access Unsafe");
     } catch (NoSuchFieldException e) {

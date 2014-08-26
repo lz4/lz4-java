@@ -111,15 +111,6 @@
   </target>
 
   <target name="compile-java" depends="init, generate-sources">
-    <mkdir dir="${build}/classes" />
-    <javac
-      includeAntRuntime="false"
-      srcdir="${src}/java"
-      source="${javac.source}"
-      target="${javac.target}"
-      encoding="UTF-8"
-      debug="true"
-      destdir="${build}/classes"/>
     <mkdir dir="${build}/unsafe-classes" />
     <javac
       includeAntRuntime="false"
@@ -130,6 +121,19 @@
       debug="true"
       classpath="${build}/classes"
       destdir="${build}/unsafe-classes"/>
+    <mkdir dir="${build}/classes" />
+    <javac
+      includeAntRuntime="false"
+      srcdir="${src}/java"
+      source="${javac.source}"
+      target="${javac.target}"
+      encoding="UTF-8"
+      debug="true"
+      destdir="${build}/classes">
+      <classpath>
+        <pathelement location="${build}/unsafe-classes" />
+      </classpath>
+    </javac>
     <mkdir dir="${build}/generated-classes" />
     <javac
       includeAntRuntime="false"

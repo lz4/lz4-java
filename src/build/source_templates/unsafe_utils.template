@@ -17,8 +17,6 @@ package net.jpountz.util;
 import static java.lang.Integer.reverseBytes;
 import static net.jpountz.util.Utils.NATIVE_BYTE_ORDER;
 
-import java.lang.reflect.Field;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -86,16 +84,7 @@ public class UnsafeUtils@{TypeSuffix} extends UnsafeBase {
 
   public static @{OffsetType} getBufferOffsetFromNull(ByteBuffer buffer)
   {
-      try
-      {
-          Field addressField = Buffer.class.getDeclaredField("address");
-          addressField.setAccessible(true);
-          return (@{OffsetType}) (addressField.getLong(buffer) - BYTE_ARRAY_OFFSET);
-      }
-      catch (Exception e)
-      {
-          throw new RuntimeException("Unable to address field from ByteBuffer", e);
-      }
+      return (@{OffsetType}) (UNSAFE.getLong(buffer, BUFFER_ADDRESS_OFFSET) - BYTE_ARRAY_OFFSET);
   }
 
   public static class Match {

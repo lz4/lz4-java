@@ -54,12 +54,6 @@ public class LZ4ThreadedBuffersBench<T> {
     byte[] bytes = Files.readAllBytes(
         FileSystems.getDefault().getPath("src/test-resources/calgary/book1"));
 
-    LZ4Factory facty = LZ4Factory.unsafeInstance();
-    Tester<?> testr = new DirectBuffers();
-    for (int i=0;i<10;++i)
-      new LZ4ThreadedBuffersBench<>(bytes, facty, testr).run(false);
-    
-    
     for (LZ4Factory factory: Arrays.asList(
         LZ4Factory.nativeInstance(), LZ4Factory.unsafeInstance(), LZ4Factory.safeInstance())) {
       for (Tester<?> tester: Arrays.asList(
