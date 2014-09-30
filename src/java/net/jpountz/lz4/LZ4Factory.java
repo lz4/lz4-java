@@ -16,13 +16,11 @@ package net.jpountz.lz4;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import net.jpountz.util.Native;
 import net.jpountz.util.Utils;
-
 import static net.jpountz.lz4.LZ4Constants.DEFAULT_COMPRESSION_LEVEL;
 import static net.jpountz.lz4.LZ4Constants.MAX_COMPRESSION_LEVEL;
 
@@ -159,7 +157,7 @@ public final class LZ4Factory {
   private final LZ4FastDecompressor fastDecompressor;
   private final LZ4SafeDecompressor safeDecompressor;
   private final Constructor<? extends LZ4Compressor> highConstructor;
-  private final HashMap<Integer, LZ4Compressor> highCompressors = new HashMap<Integer, LZ4Compressor>();
+  private final AtomicReferenceArray<LZ4Compressor> highCompressors = new AtomicReferenceArray<LZ4Compressor>(MAX_COMPRESSION_LEVEL+1);
 
   private LZ4Factory(String impl) throws ClassNotFoundException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, NoSuchMethodException {
     this.impl = impl;
@@ -168,7 +166,7 @@ public final class LZ4Factory {
     fastDecompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "FastDecompressor");
     safeDecompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "SafeDecompressor");
     highConstructor = highCompressor.getClass().getDeclaredConstructor(int.class);
-    highCompressors.put(DEFAULT_COMPRESSION_LEVEL, highCompressor);
+    highCompressors.set(DEFAULT_COMPRESSION_LEVEL, highCompressor);
 
     // quickly test that everything works as expected
     final byte[] original = new byte[] {'a','b','c','d',' ',' ',' ',' ',' ',' ','a','b','c','d','e','f','g','h','i','j'};
@@ -218,16 +216,13 @@ public final class LZ4Factory {
       compressionLevel = DEFAULT_COMPRESSION_LEVEL;
     }
     try {
-      LZ4Compressor comp = null;
-      synchronized(highCompressors) {
-	      if(highCompressors.containsKey(compressionLevel)) {
-	    	  comp = highCompressors.get(compressionLevel);
-	      }
-	      if(comp == null) {
-	    	  comp = highConstructor.newInstance(compressionLevel);
-	    	  highCompressors.put(compressionLevel, comp);
-	      }
-      }
+      LZ4Compressor comp = highCompressors.get(compressionLevel);
+	  if(comp == null) {
+	    comp = highConstructor.newInstance(compressionLevel);
+	    if(!highCompressors.compareAndSet(compressionLevel, null, comp)) {
+	      comp = highCompressors.get(compressionLevel);
+	    }
+	  }
       return comp;
     } catch(Throwable t) {
       t.printStackTrace();
@@ -261,11 +256,17 @@ public final class LZ4Factory {
   public static void main(String[] args) {
     System.out.println("Fastest instance is " + fastestInstance());
     System.out.println("Fastest Java instance is " + fastestJavaInstance());
+    
+    final long ts1 = System.currentTimeMillis();
+    for(int i = 0; i < 100000; i++) {
+      fastestInstance().highCompressor(i%MAX_COMPRESSION_LEVEL);
+    }
+    final long ts2 = System.currentTimeMillis();
+    System.out.println("100000 high comp. in  " + (ts2-ts1));
   }
 
   @Override
   public String toString() {
     return getClass().getSimpleName() + ":" + impl;
   }
-
 }

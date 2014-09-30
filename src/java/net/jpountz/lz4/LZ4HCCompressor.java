@@ -14,8 +14,6 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import java.util.Arrays;
-
 /**
  * LZ4HC compressor.
  * <p>
