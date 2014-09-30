@@ -24,11 +24,18 @@ final class LZ4HCJNICompressor extends LZ4Compressor {
 
   public static final LZ4Compressor INSTANCE = new LZ4HCJNICompressor();
 
+  private static ThreadLocal<byte[]> state = new ThreadLocal() {
+    @Override
+    protected byte[] initialValue() {
+      return new byte[LZ4JNI.LZ4_sizeofStateHC()];
+    }
+  };
+
   @Override
   public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);
-    final int result = LZ4JNI.LZ4_compressHC(src, srcOff, srcLen, dest, destOff, maxDestLen);
+    final int result = LZ4JNI.LZ4_compressHC_withStateHC(state.get(), src, srcOff, srcLen, dest, destOff, maxDestLen);
     if (result <= 0) {
       throw new LZ4Exception();
     }
