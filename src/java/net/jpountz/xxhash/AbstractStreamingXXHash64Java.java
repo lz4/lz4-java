@@ -14,18 +14,30 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-enum XXHashConstants {
-  ;
+import static net.jpountz.xxhash.XXHashConstants.PRIME64_1;
+import static net.jpountz.xxhash.XXHashConstants.PRIME64_2;
 
-  static final int PRIME1 = -1640531535;
-  static final int PRIME2 = -2048144777;
-  static final int PRIME3 = -1028477379;
-  static final int PRIME4 = 668265263;
-  static final int PRIME5 = 374761393;
+abstract class AbstractStreamingXXHash64Java extends StreamingXXHash64 {
 
-  static final long PRIME64_1 = -7046029288634856825L; //11400714785074694791
-  static final long PRIME64_2 = -4417276706812531889L; //14029467366897019727
-  static final long PRIME64_3 = 1609587929392839161L;
-  static final long PRIME64_4 = -8796714831421723037L; //9650029242287828579
-  static final long PRIME64_5 = 2870177450012600261L;
+  int memSize;
+  long v1, v2, v3, v4;
+  long totalLen;
+  final byte[] memory;
+
+  AbstractStreamingXXHash64Java(long seed) {
+    super(seed);
+    memory = new byte[32];
+    reset();
+  }
+
+  @Override
+  public void reset() {
+    v1 = seed + PRIME64_1 + PRIME64_2;
+    v2 = seed + PRIME64_2;
+    v3 = seed + 0;
+    v4 = seed - PRIME64_1;
+    totalLen = 0;
+    memSize = 0;
+  }
+
 }

@@ -32,4 +32,10 @@ enum XXHashJNI {
   static native int XXH32_digest(long state);
   static native void XXH32_free(long state);
 
+  static native long XXH64(byte[] input, int offset, int len, long seed);
+  static native long XXH64_init(long seed);
+  static native void XXH64_update(long state, byte[] input, int offset, int len);
+  static native long XXH64_intermediateDigest(long state);
+  static native long XXH64_digest(long state);
+  static native void XXH64_free(long state);
 }

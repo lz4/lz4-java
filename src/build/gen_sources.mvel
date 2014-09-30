@@ -56,22 +56,26 @@ def generate_hc_compressors() {
 }
 
 def generate_xxhash() {
-  compiledTemplate = get_template("xxhash.template");
-  for (type : ["Safe", "Unsafe"]) {
-    dest = dest_file("xxhash/XXHash32Java" + type + ".java");
-    args = new HashMap();
-    args.put("type", type);
-    execute_template(compiledTemplate, dest, args);
+  for (bitness : ["32", "64"]) {
+    compiledTemplate = get_template("xxhash" + bitness + ".template");
+    for (type : ["Safe", "Unsafe"]) {
+      dest = dest_file("xxhash/XXHash" + bitness + "Java" + type + ".java");
+      args = new HashMap();
+      args.put("type", type);
+      execute_template(compiledTemplate, dest, args);
+    }
   }
 }
 
 def generate_streaming_xxhash() {
-  compiledTemplate = get_template("xxhash_streaming.template");
-  for (type : ["Safe", "Unsafe"]) {
-    dest = dest_file("xxhash/StreamingXXHash32Java" + type + ".java");
-    args = new HashMap();
-    args.put("type", type);
-    execute_template(compiledTemplate, dest, args);
+  for (bitness : ["32", "64"]) {
+    compiledTemplate = get_template("xxhash" + bitness + "_streaming.template");
+    for (type : ["Safe", "Unsafe"]) {
+      dest = dest_file("xxhash/StreamingXXHash" + bitness + "Java" + type + ".java");
+      args = new HashMap();
+      args.put("type", type);
+      execute_template(compiledTemplate, dest, args);
+    }
   }
 }
 

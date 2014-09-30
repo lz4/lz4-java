@@ -24,7 +24,7 @@ import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
 @RunWith(RandomizedRunner.class)
-public class XXHashTest extends RandomizedTest {
+public class XXHash32Test extends RandomizedTest {
 
   private static abstract class StreamingXXHash32Adapter extends XXHash32 {
 
