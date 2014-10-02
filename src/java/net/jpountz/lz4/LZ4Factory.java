@@ -18,7 +18,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import net.jpountz.util.Native;
 import net.jpountz.util.Utils;
@@ -206,7 +205,6 @@ public final class LZ4Factory {
   /** Return a {@link LZ4Compressor} which requires more memory than
    * {@link #fastCompressor()} and is slower but compresses more efficiently.
    * The compression level can be customized.
-   * <p>If, for any reason, the construction of the customized HC compressor failed, null is returned.</p>
    * <p>For current implementations, the following is true about compression level:<ol>
    *   <li>It should be in range [1, 17]</li>
    *   <li>A compression level higher than 17 would be treated as 17.</li>
@@ -248,13 +246,6 @@ public final class LZ4Factory {
   public static void main(String[] args) {
     System.out.println("Fastest instance is " + fastestInstance());
     System.out.println("Fastest Java instance is " + fastestJavaInstance());
-    
-    final long ts1 = System.currentTimeMillis();
-    for(int i = 0; i < 100000; i++) {
-      fastestInstance().highCompressor(i%MAX_COMPRESSION_LEVEL);
-    }
-    final long ts2 = System.currentTimeMillis();
-    System.out.println("100000 high comp. in  " + (ts2-ts1));
   }
 
   @Override
