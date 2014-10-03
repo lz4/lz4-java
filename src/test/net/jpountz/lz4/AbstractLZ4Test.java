@@ -17,6 +17,10 @@ package net.jpountz.lz4;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
+import org.junit.Assert;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 

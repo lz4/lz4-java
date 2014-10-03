@@ -57,7 +57,7 @@ final class LZ4HCJava${type}@{TypeSuffix}Compressor extends LZ4Compressor {
     private void addHash(byte[] bytes, @{OffsetType} off) {
       final int v = readInt(bytes, off);
       final int h = hashHC(v);
-      int delta = (int)(off - hashTable[h]);
+      @{OffsetType} delta = off - hashTable[h];
       assert delta > 0 : delta;
       if (delta >= MAX_DISTANCE) {
         delta = MAX_DISTANCE - 1;
@@ -75,7 +75,7 @@ final class LZ4HCJava${type}@{TypeSuffix}Compressor extends LZ4Compressor {
     boolean insertAndFindBestMatch(byte[] buf, @{OffsetType} off, @{OffsetType} matchLimit, Match match) {
       match.start = off;
       match.len = 0;
-      int delta = 0;
+      @{OffsetType} delta = 0;
       int repl = 0;
 
       insert(off, buf);
@@ -84,7 +84,7 @@ final class LZ4HCJava${type}@{TypeSuffix}Compressor extends LZ4Compressor {
 
       if (ref >= off - 4 && ref <= off && ref >= base) { // potential repetition
         if (readIntEquals(buf, ref, off)) { // confirmed
-          delta = (int) (off - ref);
+          delta = off - ref;
           repl = match.len = MIN_MATCH + commonBytes(buf, ref + MIN_MATCH, off + MIN_MATCH, matchLimit);
           match.ref = ref;
         }
@@ -128,7 +128,7 @@ final class LZ4HCJava${type}@{TypeSuffix}Compressor extends LZ4Compressor {
 
       insert(off, buf);
 
-      final int delta = (int) (off - startLimit);
+      final @{OffsetType} delta = off - startLimit;
       @{OffsetType} ref = hashPointer(buf, off);
       for (int i = 0; i < MAX_ATTEMPTS; ++i) {
         if (ref < Math.max(base, off - MAX_DISTANCE + 1) || ref > off) {

@@ -24,18 +24,31 @@ def dest_file(path) {
 
 def generate_utils() {
   for (pointerSize : ["int", "long"]) {
-      typeSuffix = (pointerSize == "long" ? "Long" : "");
-	  args = new HashMap();
-	  args.put("OffsetType", pointerSize);
-      args.put("TypeSuffix", typeSuffix);
-	  compiledTemplate = get_template("unsafe_utils.template");
-	  dest = dest_file("util/UnsafeUtils" + typeSuffix + ".java");
-	  execute_template(compiledTemplate, dest, args);
-	
-	  compiledTemplate = get_template("lz4_unsafe_utils.template");
-	  dest = dest_file("lz4/LZ4UnsafeUtils" + typeSuffix + ".java");
-	  execute_template(compiledTemplate, dest, args);
+    typeSuffix = (pointerSize == "long" ? "Long" : "");
+    args = new HashMap();
+    args.put("OffsetType", pointerSize);
+    args.put("TypeSuffix", typeSuffix);
+    compiledTemplate = get_template("unsafe_utils.template");
+    dest = dest_file("util/UnsafeUtils" + typeSuffix + ".java");
+    execute_template(compiledTemplate, dest, args);
+    
+    args.put("Kind", "Unsafe");
+    args.put("Storage", "byte[]");
+    args.put("Order", "NATIVE_BYTE_ORDER");
+    compiledTemplate = get_template("lz4_utils.template");
+    dest = dest_file("lz4/LZ4UnsafeUtils" + typeSuffix + ".java");
+    execute_template(compiledTemplate, dest, args);
   }
+
+  args = new HashMap();
+  args.put("OffsetType", "int");
+  args.put("TypeSuffix", "");
+  args.put("Kind", "ByteBuffer");
+  args.put("Storage", "ByteBuffer");
+  args.put("Order", "buf.order()");
+  compiledTemplate = get_template("lz4_utils.template");
+  dest = dest_file("lz4/LZ4ByteBufferUtils.java");
+  execute_template(compiledTemplate, dest, args);
 }
 
 def generate_decompressors() {
