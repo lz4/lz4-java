@@ -14,6 +14,7 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -37,11 +38,31 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
   public abstract int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
 
   /**
-   * Same as {@link #decompress(byte[], int, int, byte[], int, int) except that
+   * Same as {@link #decompress(byte[], int, int, byte[], int, int)} except that
    * up to 64 KB before <code>srcOff</code> in <code>src</code>. This is useful
    * for providing LZ4 with a dictionary that can be reused during decompression.
    */
   public abstract int decompressWithPrefix64k(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
+
+  /**
+   * Uncompress <code>src[srcOff:srcLen]</code> into
+   * <code>dest[destOff:destOff+maxDestLen]</code> and returns the number of
+   * decompressed bytes written into <code>dest</code>.
+   * Neither buffer's position is moved.
+   *
+   * @param srcLen the exact size of the compressed stream
+   * @return the original input size
+   * @throws LZ4Exception if maxDestLen is too small
+   */
+  public abstract int decompress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen);
+
+  /**
+   * Same as {@link #decompress(ByteBuffer, ByteBuffer)} except that
+   * up to 64 KB before <code>src.position()</code> in <code>src</code>. This is useful
+   * for providing LZ4 with a dictionary that can be reused during decompression.
+   */
+
+  public abstract int decompressWithPrefix64k(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen);
 
   /**
    * Convenience method, equivalent to calling
@@ -101,6 +122,33 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
     return decompress(src, 0, src.length, maxDestLen);
   }
 
+
+  /**
+   * Convenience method for processing ByteBuffers using their positions and limits.
+   * The positions in both buffers are moved to reflect the bytes read/written.
+   */
+  public final void decompress(ByteBuffer src, ByteBuffer dest) {
+    int result = decompress(src, src.position(), src.remaining(), dest, dest.position(), dest.remaining());
+    src.position(src.limit());
+    dest.position(dest.position() + result);
+  }
+
+  /**
+   * Convenience method, equivalent to calling
+   * {@link #decompress(ByteBuffer, int, int, ByteBuffer, int, int) decompress(src, srcOff, srcLen, dest, destOff, dest.capacity() - destOff)}.
+   */
+  public final int decompress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff) {
+    return decompress(src, srcOff, srcLen, dest, destOff, dest.capacity() - destOff);
+  }
+
+  /**
+   * Convenience method, equivalent to calling
+   * {@link #decompressWitPrefix64k(ByteBuffer, int, int, ByteBuffer, int, int) decompress(src, srcOff, srcLen, dest, destOff, dest.capacity() - destOff)}.
+   */
+  public final int decompressWithPrefix64k(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff) {
+    return decompress(src, srcOff, srcLen, dest, destOff, dest.capacity() - destOff);
+  }
+  
   @Override
   public String toString() {
     return getClass().getSimpleName();
