@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import net.jpountz.util.Native;
+import net.jpountz.util.UnsafeBase;
 import net.jpountz.util.Utils;
 
 /**
@@ -93,7 +94,7 @@ public final class LZ4Factory {
    *  and decompression. */
   public static synchronized LZ4Factory unsafeInstance() {
     if (JAVA_UNSAFE_INSTANCE == null) {
-      JAVA_UNSAFE_INSTANCE = instance("JavaUnsafe");
+      JAVA_UNSAFE_INSTANCE = instance("JavaUnsafe" + UnsafeBase.POINTER_SIZE_SUFFIX);
     }
     return JAVA_UNSAFE_INSTANCE;
   }

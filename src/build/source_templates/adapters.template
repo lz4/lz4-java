@@ -1,0 +1,39 @@
+
+  @Override
+  public int @{Method}(
+      byte[] src, final int srcOff,@if{WithSrcLen} int srcLen,@end{}
+      byte[] dest, final int destOff, int destLen) {
+    checkRange(src, srcOff@if{WithSrcLen}, srcLen@end{});
+    checkRange(dest, destOff, destLen);
+    
+    return @{Method}Unchecked(src, srcOff,@if{WithSrcLen} srcLen,@end{} dest, destOff, destLen);
+  }
+
+  @Override
+  public int @{Method}(
+      ByteBuffer srcBuf, final int srcOffBuf,@if{WithSrcLen} int srcLen,@end{}
+      ByteBuffer destBuf, final int destOffBuf, int destLen) {
+    checkRange(srcBuf, srcOffBuf@if{WithSrcLen}, srcLen@end{});
+    checkRange(destBuf, destOffBuf, destLen);
+    
+    @{OffsetType} srcOff = srcOffBuf;
+    @{OffsetType} destOff = destOffBuf;
+    byte[] src;
+    if (srcBuf.hasArray()) {
+      src = srcBuf.array();
+      srcOff += srcBuf.arrayOffset();
+    } else {
+      src = null;
+      srcOff += getBufferOffsetFromNull(srcBuf);
+    }
+    byte[] dest;
+    if (destBuf.hasArray()) {
+      dest = destBuf.array();
+      destOff += destBuf.arrayOffset();
+    } else {
+      dest = null;
+      destOff += getBufferOffsetFromNull(destBuf);
+    }
+    return @{Method}Unchecked(src, srcOff,@if{WithSrcLen} srcLen,@end{} dest, destOff, destLen);
+  }
+
