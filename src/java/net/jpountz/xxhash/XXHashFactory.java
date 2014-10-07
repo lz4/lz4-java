@@ -175,6 +175,9 @@ public final class XXHashFactory {
     if (h1 != h2) {
       throw new AssertionError();
     }
+    if (h3 != h4) {
+      throw new AssertionError();
+    }
   }
 
   /** Return a {@link XXHash32} instance. */
