@@ -38,7 +38,7 @@ public class UnsafeUtils@{TypeSuffix} extends UnsafeBase {
     return UNSAFE.getLong(src, BYTE_ARRAY_OFFSET + srcOff);
   }
 
-  public static long readLongLE(byte[] src, int srcOff) {
+  public static long readLongLE(byte[] src, @{OffsetType} srcOff) {
     long i = readLong(src, srcOff);
     if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
       i = Long.reverseBytes(i);
