@@ -1,5 +1,7 @@
 package net.jpountz.xxhash;
 
+import java.nio.ByteBuffer;
+
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +28,24 @@ public abstract class XXHash64 {
    * <code>seed</code>.
    */
   public abstract long hash(byte[] buf, int off, int len, long seed);
+
+  /**
+   * Compute the hash of the given slice of the {@link ByteBuffer}.
+   * {@link ByteBuffer#position() position} and {@link ByteBuffer#limit() limit}
+   * are not modified. 
+   */
+  public abstract long hash(ByteBuffer buf, int off, int len, long seed);
+
+  /**
+   * Compute the hash of the given {@link ByteBuffer}. The
+   * {@link ByteBuffer#position() position} is moved in order to reflect bytes
+   * which have been read.
+   */
+  public final long hash(ByteBuffer buf, long seed) {
+    final long hash = hash(buf, buf.position(), buf.remaining(), seed);
+    buf.position(buf.limit());
+    return hash;
+  }
 
   @Override
   public String toString() {

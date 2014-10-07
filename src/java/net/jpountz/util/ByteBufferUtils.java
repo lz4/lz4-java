@@ -25,7 +25,7 @@ public enum ByteBufferUtils {
 
   public static void checkRange(ByteBuffer buf, int off) {
     if (off < 0 || off >= buf.capacity()) {
-      throw new ArrayIndexOutOfBoundsException(off);
+      throw new IndexOutOfBoundsException(off + "is outside of the buffer valid positions: [" + 0 + "," + buf.capacity() + "[");
     }
   }
 
@@ -51,6 +51,11 @@ public enum ByteBufferUtils {
     return src.getLong(srcOff);
   }
 
+  public static long readLongLE(ByteBuffer src, int i) {
+    assert src.order() == ByteOrder.LITTLE_ENDIAN;
+    return readLong(src, i);
+  }
+
   public static void writeLong(ByteBuffer dest, int destOff, long value) {
     dest.putLong(destOff, value);
   }
@@ -59,12 +64,9 @@ public enum ByteBufferUtils {
     return src.getInt(srcOff);
   }
 
-  public static int readIntLE(ByteBuffer src, int srcOff) {
-    int i = readInt(src, srcOff);
-    if (src.order() == ByteOrder.BIG_ENDIAN) {
-      i = reverseBytes(i);
-    }
-    return i;
+  public static int readIntLE(ByteBuffer src, int i) {
+    assert src.order() == ByteOrder.LITTLE_ENDIAN;
+    return readInt(src, i);
   }
 
   public static void writeInt(ByteBuffer dest, int destOff, int value) {
@@ -88,6 +90,16 @@ public enum ByteBufferUtils {
   }
   
   public static ByteBuffer inNativeOrder(ByteBuffer buf) {
-    return (buf.order() == NATIVE_BYTE_ORDER) ? buf : buf.duplicate().order(NATIVE_BYTE_ORDER);
+    if (buf.order() != NATIVE_BYTE_ORDER) {
+      buf = buf.duplicate().order(NATIVE_BYTE_ORDER);
+    }
+    return buf;
+  }
+
+  public static ByteBuffer inLittleEndianOrder(ByteBuffer buf) {
+    if (buf.order() != ByteOrder.LITTLE_ENDIAN) {
+      buf = buf.duplicate().order(ByteOrder.LITTLE_ENDIAN);
+    }
+    return buf;
   }
 }

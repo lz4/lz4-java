@@ -14,6 +14,8 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
+import java.nio.ByteBuffer;
+
 import net.jpountz.util.Native;
 
 enum XXHashJNI {
@@ -26,6 +28,7 @@ enum XXHashJNI {
 
   private static native void init();
   static native int XXH32(byte[] input, int offset, int len, int seed);
+  static native int XXH32BB(ByteBuffer input, int offset, int len, int seed);
   static native long XXH32_init(int seed);
   static native void XXH32_update(long state, byte[] input, int offset, int len);
   static native int XXH32_intermediateDigest(long state);
@@ -33,6 +36,7 @@ enum XXHashJNI {
   static native void XXH32_free(long state);
 
   static native long XXH64(byte[] input, int offset, int len, long seed);
+  static native long XXH64BB(ByteBuffer input, int offset, int len, long seed);
   static native long XXH64_init(long seed);
   static native void XXH64_update(long state, byte[] input, int offset, int len);
   static native long XXH64_intermediateDigest(long state);

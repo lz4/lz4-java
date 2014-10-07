@@ -14,17 +14,16 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
+import java.nio.ByteBuffer;
+
+import net.jpountz.lz4.AbstractLZ4Test;
 import net.jpountz.util.Utils;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import com.carrotsearch.randomizedtesting.RandomizedRunner;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
-@RunWith(RandomizedRunner.class)
-public class XXHash32Test extends RandomizedTest {
+public class XXHash32Test extends AbstractLZ4Test {
 
   private static abstract class StreamingXXHash32Adapter extends XXHash32 {
 
@@ -51,6 +50,19 @@ public class XXHash32Test extends RandomizedTest {
         }
       }
       return h.getValue();
+    }
+
+    @Override
+    public int hash(ByteBuffer buf, int off, int len, int seed) {
+      byte[] bytes = new byte[len];
+      int originalPosition = buf.position();
+      try {
+        buf.position(off);
+        buf.get(bytes, 0, len);
+        return hash(bytes, 0, len, seed);
+      } finally {
+        buf.position(originalPosition);
+      }
     }
 
     public String toString() {
@@ -85,6 +97,7 @@ public class XXHash32Test extends RandomizedTest {
     final int seed = randomInt();
     for (XXHash32 xxHash : INSTANCES) {
       xxHash.hash(new byte[0], 0, 0, seed);
+      xxHash.hash(copyOf(new byte[0], 0, 0), 0, 0, seed);
     }
   }
 
@@ -94,14 +107,12 @@ public class XXHash32Test extends RandomizedTest {
     final int seed = randomInt();
     final int max = randomBoolean() ? 32 : 1000;
     final int bufLen = randomIntBetween(1, max);
-    final byte[] buf = new byte[bufLen];
-    for (int i = 0; i < buf.length; ++i) {
-      buf[i] = randomByte();
-    }
+    final byte[] buf = randomArray(bufLen, 256);
     final int off = randomInt(buf.length - 1);
     final int len = randomInt(buf.length - off);
     for (XXHash32 xxHash : INSTANCES) {
       xxHash.hash(buf, off, len, seed);
+      xxHash.hash(copyOf(buf, off, len), off, len, seed);
     }
   }
 
@@ -110,10 +121,7 @@ public class XXHash32Test extends RandomizedTest {
   public void testInstances() {
     final int maxLenLog = randomInt(20);
     final int bufLen = randomInt(1 << maxLenLog);
-    byte[] buf = new byte[bufLen];
-    for (int i = 0; i < bufLen; ++i) {
-      buf[i] = randomByte();
-    }
+    byte[] buf = randomArray(bufLen, 256);
     final int seed = randomInt();
     final int off = randomIntBetween(0, Math.max(0, bufLen - 1));
     final int len = randomIntBetween(0, bufLen - off);
@@ -122,6 +130,11 @@ public class XXHash32Test extends RandomizedTest {
     for (XXHash32 hash : INSTANCES) {
       final int h = hash.hash(buf, off, len, seed);
       assertEquals(hash.toString(), ref, h);
+      final ByteBuffer copy = copyOf(buf, off, len);
+      final int h2 = hash.hash(copy, off, len, seed);
+      assertEquals(off, copy.position());
+      assertEquals(len, copy.remaining());
+      assertEquals(hash.toString(), ref, h2);
     }
   }
 

@@ -58,6 +58,29 @@ JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32
 
 /*
  * Class:     net_jpountz_xxhash_XXHashJNI
+ * Method:    XXH32BB
+ * Signature: (Ljava/nio/ByteBuffer;III)I
+ */
+JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32BB
+  (JNIEnv *env, jclass cls, jobject buf, jint off, jint len, jint seed) {
+
+  char* in;
+  jint h32;
+
+  in = (char*) (*env)->GetDirectBufferAddress(env, buf);
+  if (in == NULL) {
+    throw_OOM(env);
+    return 0;
+  }
+
+  h32 = XXH32(in + off, len, seed);
+
+  return h32;
+
+}
+
+/*
+ * Class:     net_jpountz_xxhash_XXHashJNI
  * Method:    XXH32_init
  * Signature: (I)J
  */
@@ -146,6 +169,29 @@ JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64
   (*env)->ReleasePrimitiveArrayCritical(env, buf, in, 0);
 
   return h64;
+}
+
+/*
+ * Class:     net_jpountz_xxhash_XXHashJNI
+ * Method:    XXH64BB
+ * Signature: (Ljava/nio/ByteBuffer;IIJ)J
+ */
+JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64BB
+  (JNIEnv *env, jclass cls, jobject buf, jint off, jint len, jlong seed) {
+
+  char* in;
+  jlong h64;
+
+  in = (char*) (*env)->GetDirectBufferAddress(env, buf);
+  if (in == NULL) {
+    throw_OOM(env);
+    return 0;
+  }
+
+  h64 = XXH64(in + off, len, seed);
+
+  return h64;
+
 }
 
 /*

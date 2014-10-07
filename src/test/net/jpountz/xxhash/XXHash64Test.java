@@ -14,17 +14,16 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
+import java.nio.ByteBuffer;
+
+import net.jpountz.lz4.AbstractLZ4Test;
 import net.jpountz.util.Utils;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import com.carrotsearch.randomizedtesting.RandomizedRunner;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
-@RunWith(RandomizedRunner.class)
-public class XXHash64Test extends RandomizedTest {
+public class XXHash64Test extends AbstractLZ4Test {
 
   private static abstract class StreamingXXHash64Adapter extends XXHash64 {
 
@@ -51,6 +50,19 @@ public class XXHash64Test extends RandomizedTest {
         }
       }
       return h.getValue();
+    }
+
+    @Override
+    public long hash(ByteBuffer buf, int off, int len, long seed) {
+      byte[] bytes = new byte[len];
+      int originalPosition = buf.position();
+      try {
+        buf.position(off);
+        buf.get(bytes, 0, len);
+        return hash(bytes, 0, len, seed);
+      } finally {
+        buf.position(originalPosition);
+      }
     }
 
     public String toString() {
@@ -85,6 +97,7 @@ public class XXHash64Test extends RandomizedTest {
     final long seed = randomLong();
     for (XXHash64 xxHash : INSTANCES) {
       xxHash.hash(new byte[0], 0, 0, seed);
+      xxHash.hash(copyOf(new byte[0], 0, 0), 0, 0, seed);
     }
   }
 
@@ -122,6 +135,11 @@ public class XXHash64Test extends RandomizedTest {
     for (XXHash64 hash : INSTANCES) {
       final long h = hash.hash(buf, off, len, seed);
       assertEquals(hash.toString(), ref, h);
+      final ByteBuffer copy = copyOf(buf, off, len);
+      final long h2 = hash.hash(copy, off, len, seed);
+      assertEquals(off, copy.position());
+      assertEquals(len, copy.remaining());
+      assertEquals(hash.toString(), ref, h2);
     }
   }
 
