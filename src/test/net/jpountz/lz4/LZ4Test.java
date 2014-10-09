@@ -21,6 +21,7 @@ import static net.jpountz.lz4.Instances.SAFE_DECOMPRESSORS;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -313,6 +314,51 @@ public class LZ4Test extends AbstractLZ4RoundtripTest {
       final int compressedLen = decompressor.decompressWithPrefix64k(compressed, 0, restored, 6, restored.capacity() - 6);
       assertEquals(compressed.capacity(), compressedLen);
       assertTrue(original.equals(restored.duplicate().position(6)));
+    }
+  }
+  
+  @Test
+  public void testWriteToReadOnlyBuffer() {
+    byte[] input = "AAB AAAAAC BBAAAAAA.".getBytes();
+    byte[] compressed = LZ4Factory.safeInstance().fastCompressor().compress(input);
+    ByteBuffer src = ByteBuffer.allocate(100);
+    ByteBuffer cmp = ByteBuffer.allocate(100);
+    src.put(input);
+    src.flip();
+    cmp.put(compressed);
+    cmp.flip();
+    for (ByteBuffer dst: Arrays.asList(
+        ByteBuffer.allocate(100).asReadOnlyBuffer(),
+        ByteBuffer.allocateDirect(100).asReadOnlyBuffer())) {
+      for (LZ4Factory lz4 : Arrays.asList(
+          LZ4Factory.nativeInstance(),
+          LZ4Factory.unsafeInstance(),
+          LZ4Factory.safeInstance())) {
+        try {
+          lz4.fastCompressor().compress(src, 0, src.limit(), dst, 0, dst.capacity());
+          fail("Should not write to read-only buffer.");
+        } catch (ReadOnlyBufferException e) {
+          // expected
+        }
+        try {
+          lz4.highCompressor().compress(src, 0, src.limit(), dst, 0, dst.capacity());
+          fail("Should not write to read-only buffer.");
+        } catch (ReadOnlyBufferException e) {
+          // expected
+        }
+        try {
+          lz4.fastDecompressor().decompress(cmp, 0, dst, 0, src.remaining());
+          fail("Should not write to read-only buffer.");
+        } catch (ReadOnlyBufferException e) {
+          // expected
+        }
+        try {
+          lz4.safeDecompressor().decompress(cmp, 0, cmp.limit(), dst, 0);
+          fail("Should not write to read-only buffer.");
+        } catch (ReadOnlyBufferException e) {
+          // expected
+        }
+      }
     }
   }
 }

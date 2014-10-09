@@ -14,11 +14,11 @@ package net.jpountz.util;
  * limitations under the License.
  */
 
-import static java.lang.Integer.reverseBytes;
 import static net.jpountz.util.Utils.NATIVE_BYTE_ORDER;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.ReadOnlyBufferException;
 
 public enum ByteBufferUtils {
   ;
@@ -40,6 +40,12 @@ public enum ByteBufferUtils {
   public static void checkLength(int len) {
     if (len < 0) {
       throw new IllegalArgumentException("lengths must be >= 0");
+    }
+  }
+
+  public static void checkNotReadOnly(ByteBuffer buf) {
+    if (buf.isReadOnly()) {
+      throw new ReadOnlyBufferException();
     }
   }
 

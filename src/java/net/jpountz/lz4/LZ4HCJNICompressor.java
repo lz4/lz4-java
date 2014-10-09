@@ -14,6 +14,8 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import static net.jpountz.util.ByteBufferUtils.checkNotReadOnly;
+import static net.jpountz.util.ByteBufferUtils.checkRange;
 import static net.jpountz.util.Utils.checkRange;
 
 import java.nio.ByteBuffer;
@@ -41,6 +43,12 @@ final class LZ4HCJNICompressor extends LZ4Compressor {
 
   @Override
   public int compress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
+    checkRange(src, srcOff, srcLen);
+    checkRange(dest, destOff, maxDestLen);
+    checkNotReadOnly(dest);
+    if (!src.isDirect()) {
+      checkNotReadOnly(src);
+    }
     int result = LZ4JNI.LZ4_compressHC(
         ByteBufferUtils.getArray(src), src, srcOff, srcLen,
         ByteBufferUtils.getArray(dest), dest, destOff, maxDestLen);

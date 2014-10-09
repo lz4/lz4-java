@@ -49,6 +49,9 @@ public abstract class LZ4Compressor {
    * Compress <code>src[srcOff:srcOff+srcLen]</code> into
    * <code>dest[destOff:destOff+destLen]</code> and return the compressed
    * length. Neither buffer's position is moved.
+   * <br/>
+   * Note: The JNI instances cannot read from read-only heap buffers and will throw a
+   * <code>ReadOnlyBufferException</code> if one is passed as source.
    *
    * This method will throw a {@link LZ4Exception} if this compressor is unable
    * to compress the input into less than the remaining bytes in <code>dest</code>. To
@@ -56,6 +59,7 @@ public abstract class LZ4Compressor {
    * <code>dest.remaining() >= maxCompressedLength(srcLen)</code>.
    *
    * @throws LZ4Exception if dest is too small
+   * @throws ReadOnlyBufferException if dest is read-only or src is a read-only heap buffer.
    * @return the compressed size
    */
   public abstract int compress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen);

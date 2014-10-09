@@ -11,6 +11,7 @@ import static net.jpountz.lz4.LZ4Utils.hash;
 import static net.jpountz.lz4.LZ4Utils.hash64k;
 import static net.jpountz.util.Utils.checkRange;
 import static net.jpountz.util.ByteBufferUtils.checkRange;
+import static net.jpountz.util.ByteBufferUtils.checkNotReadOnly;
 
 /**
  * Compressor. 

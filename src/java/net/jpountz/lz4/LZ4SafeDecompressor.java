@@ -49,10 +49,14 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
    * <code>dest[destOff:destOff+maxDestLen]</code> and returns the number of
    * decompressed bytes written into <code>dest</code>.
    * Neither buffer's position is moved.
+   * <br/>
+   * Note: The JNI instances cannot read from read-only heap buffers and will throw a
+   * <code>ReadOnlyBufferException</code> if one is passed as source.
    *
    * @param srcLen the exact size of the compressed stream
    * @return the original input size
    * @throws LZ4Exception if maxDestLen is too small
+   * @throws ReadOnlyBufferException if dest is read-only or src is a read-only heap buffer.
    */
   public abstract int decompress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen);
 

@@ -1,8 +1,16 @@
 package net.jpountz.lz4;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.ReadOnlyBufferException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Assert;
 
@@ -155,6 +163,66 @@ public abstract class AbstractLZ4RoundtripTest extends AbstractLZ4Test {
       }
     }
 
+  protected static class ReadOnlyHeapBufferTester extends HeapBufferTester {
+    ReadOnlyHeapBufferTester(LZ4Compressor compressor, LZ4FastDecompressor decompressor, LZ4SafeDecompressor decompressor2) {
+      super(compressor, decompressor, decompressor2);
+    }
+
+    @Override
+    ByteBuffer copy(byte[] src) {
+      return super.copy(src).asReadOnlyBuffer();
+    }
+  }
+
+  protected static class ReadOnlyDirectBufferTester extends DirectBufferTester {
+    ReadOnlyDirectBufferTester(LZ4Compressor compressor, LZ4FastDecompressor decompressor, LZ4SafeDecompressor decompressor2) {
+      super(compressor, decompressor, decompressor2);
+    }
+
+    @Override
+    ByteBuffer copy(byte[] src) {
+      return super.copy(src).asReadOnlyBuffer();
+    }
+  }
+
+  protected static class MappedBufferTester extends DirectBufferTester {
+    MappedBufferTester(LZ4Compressor compressor, LZ4FastDecompressor decompressor, LZ4SafeDecompressor decompressor2) {
+      super(compressor, decompressor, decompressor2);
+    }
+
+    @Override
+    ByteBuffer copy(byte[] src) {
+      try {
+        if (src.length == 0) {
+          return allocate(0);
+        }
+        File tmp = File.createTempFile("test", ".tmp");
+        tmp.deleteOnExit();
+        FileOutputStream os = new FileOutputStream(tmp);
+        os.write(src);
+        os.close();
+
+        @SuppressWarnings("resource")
+        FileChannel channel = new RandomAccessFile(tmp, "r").getChannel();
+        MappedByteBuffer buf = channel.map(MapMode.READ_ONLY, 0L, tmp.length());
+        return buf;
+      } catch (IOException e) {
+        throw new AssertionError(e);
+      }
+    }
+  }
+
+  protected List<Tester<?>> getTesters(LZ4Compressor compressor,
+      LZ4FastDecompressor decompressor, LZ4SafeDecompressor decompressor2) {
+    return Arrays.asList(
+        new ByteArrayTester(compressor, decompressor, decompressor2),
+        new HeapBufferTester(compressor, decompressor, decompressor2),
+        new DirectBufferTester(compressor, decompressor, decompressor2),
+        new ReadOnlyHeapBufferTester(compressor, decompressor, decompressor2),
+        new ReadOnlyDirectBufferTester(compressor, decompressor, decompressor2),
+        new MappedBufferTester(compressor, decompressor, decompressor2));
+  }
+
   public static void assertEquals(Object expected, Object actual) {
     if (expected instanceof byte[]) {
       assertArrayEquals((byte[]) expected, (byte[]) actual);
@@ -258,11 +326,13 @@ public abstract class AbstractLZ4RoundtripTest extends AbstractLZ4Test {
 
   public void testRoundTrip(byte[] data, int off, int len,
       LZ4Compressor compressor, LZ4FastDecompressor decompressor, LZ4SafeDecompressor decompressor2) {
-        for (Tester<?> allocator : Arrays.asList(
-            new ByteArrayTester(compressor, decompressor, decompressor2),
-            new HeapBufferTester(compressor, decompressor, decompressor2),
-            new DirectBufferTester(compressor, decompressor, decompressor2))) {
-          testRoundTrip(data, off, len, allocator);
+        for (Tester<?> allocator : getTesters(compressor, decompressor, decompressor2)) {
+          try {
+            testRoundTrip(data, off, len, allocator);
+          } catch (ReadOnlyBufferException e) {
+            // JNI versions cannot access read-only buffers.
+            assertTrue(decompressor instanceof LZ4JNIFastDecompressor);
+          }
         }
       }
 
@@ -380,5 +450,4 @@ public abstract class AbstractLZ4RoundtripTest extends AbstractLZ4Test {
   public AbstractLZ4RoundtripTest() {
     super();
   }
-
 }

@@ -15,6 +15,8 @@ package net.jpountz.lz4;
  */
 
 import static net.jpountz.util.Utils.checkRange;
+import static net.jpountz.util.ByteBufferUtils.checkRange;
+import static net.jpountz.util.ByteBufferUtils.checkNotReadOnly;
 
 import java.nio.ByteBuffer;
 
@@ -52,6 +54,12 @@ final class LZ4JNISafeDecompressor extends LZ4SafeDecompressor {
 
   @Override
   public int decompress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
+    checkRange(src, srcOff, srcLen);
+    checkRange(dest, destOff, maxDestLen);
+    checkNotReadOnly(dest);
+    if (!src.isDirect()) {
+      checkNotReadOnly(src);
+    }
     int result = LZ4JNI.LZ4_decompress_safe(
         ByteBufferUtils.getArray(src), src, srcOff, srcLen,
         ByteBufferUtils.getArray(dest), dest, destOff, maxDestLen);
@@ -63,6 +71,12 @@ final class LZ4JNISafeDecompressor extends LZ4SafeDecompressor {
 
   @Override
   public int decompressWithPrefix64k(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
+    checkRange(src, srcOff, srcLen);
+    checkRange(dest, destOff, maxDestLen);
+    checkNotReadOnly(dest);
+    if (!src.isDirect()) {
+      checkNotReadOnly(src);
+    }
     int result = LZ4JNI.LZ4_decompress_safe_withPrefix64k(
         ByteBufferUtils.getArray(src), src, srcOff, srcLen,
         ByteBufferUtils.getArray(dest), dest, destOff, maxDestLen);

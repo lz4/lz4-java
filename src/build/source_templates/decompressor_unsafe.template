@@ -8,6 +8,7 @@ import static net.jpountz.lz4.LZ4UnsafeUtils@{TypeSuffix}.*;
 import static net.jpountz.util.UnsafeUtils@{TypeSuffix}.*;
 import static net.jpountz.util.Utils.checkRange;
 import static net.jpountz.util.ByteBufferUtils.checkRange;
+import static net.jpountz.util.ByteBufferUtils.checkNotReadOnly;
 @else{}
 import static net.jpountz.lz4.LZ4Utils.*;
 import static net.jpountz.util.Utils.*;
