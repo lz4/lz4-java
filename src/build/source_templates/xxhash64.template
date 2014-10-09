@@ -9,6 +9,7 @@ import static net.jpountz.util.ByteBufferUtils.*;
 @if{ type == "Unsafe" }
 import static net.jpountz.util.UnsafeUtils.*;
 import static net.jpountz.util.Utils.checkRange;
+import static net.jpountz.util.ByteBufferUtils.checkRange;
 import static net.jpountz.util.Utils.rotateLeft;
 @else{}
 import static net.jpountz.util.Utils.*;

@@ -10,6 +10,7 @@ import static java.lang.Integer.rotateLeft;
 @if{ type == "Unsafe" }
 import static net.jpountz.util.UnsafeUtils.*;
 import static net.jpountz.util.Utils.checkRange;
+import static net.jpountz.util.ByteBufferUtils.checkRange;
 @else{}
 import static net.jpountz.util.Utils.*;
 @end{}
