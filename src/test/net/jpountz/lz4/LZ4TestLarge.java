@@ -16,14 +16,12 @@ package net.jpountz.lz4;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.jpountz.util.UnsafeBase;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.carrotsearch.randomizedtesting.RandomizedRunner;
 
 public class LZ4TestLarge extends AbstractLZ4RoundtripTest {
 
@@ -54,4 +52,9 @@ public class LZ4TestLarge extends AbstractLZ4RoundtripTest {
     assertEquals(v, v);
   }
 
+  protected List<Tester<?>> getTesters(LZ4Compressor compressor,
+      LZ4FastDecompressor decompressor, LZ4SafeDecompressor decompressor2) {
+    return Collections.<Tester<?>>singletonList(
+        new DirectBufferTester(compressor, decompressor, decompressor2));
+  }
 }

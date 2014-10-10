@@ -53,6 +53,7 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
    * @param srcLen the exact size of the compressed stream
    * @return the original input size
    * @throws LZ4Exception if maxDestLen is too small
+   * @throws ReadOnlyBufferException if dest is read-only
    */
   public abstract int decompress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen);
 

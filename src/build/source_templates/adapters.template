@@ -15,17 +15,18 @@
       ByteBuffer destBuf, final int destOffBuf, int destLen) {
     checkRange(srcBuf, srcOffBuf@if{WithSrcLen}, srcLen@end{});
     checkRange(destBuf, destOffBuf, destLen);
-    
+    checkNotReadOnly(destBuf);
+
     @{OffsetType} srcOff = srcOffBuf;
     @{OffsetType} destOff = destOffBuf;
-    byte[] src;
-    if (srcBuf.hasArray()) {
-      src = srcBuf.array();
-      srcOff += srcBuf.arrayOffset();
+
+    byte[] src = getReadOnlyBufferArray(srcBuf);
+    if (src != null) {
+      srcOff += getReadOnlyBufferArrayOffset(srcBuf);
     } else {
-      src = null;
       srcOff += getBufferOffsetFromNull(srcBuf);
     }
+
     byte[] dest;
     if (destBuf.hasArray()) {
       dest = destBuf.array();

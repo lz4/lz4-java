@@ -56,6 +56,7 @@ public abstract class LZ4Compressor {
    * <code>dest.remaining() >= maxCompressedLength(srcLen)</code>.
    *
    * @throws LZ4Exception if dest is too small
+   * @throws ReadOnlyBufferException if dest is read-only
    * @return the compressed size
    */
   public abstract int compress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen);

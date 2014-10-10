@@ -16,6 +16,7 @@ package net.jpountz.util;
 
 import java.lang.reflect.Field;
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
 
 import sun.misc.Unsafe;
 
@@ -29,6 +30,8 @@ public class UnsafeBase {
   protected static final long SHORT_ARRAY_OFFSET;
   protected static final int SHORT_ARRAY_SCALE;
   protected static final long BUFFER_ADDRESS_OFFSET;
+  protected static final long BUFFER_ARRAY_OFFSET;
+  protected static final long BUFFER_ARRAYOFFSET_OFFSET;
 
   public static final String POINTER_SIZE_SUFFIX;
   
@@ -47,6 +50,10 @@ public class UnsafeBase {
       POINTER_SIZE_SUFFIX = UNSAFE.addressSize() == 4 ? "" : "Long";
       Field addressField = Buffer.class.getDeclaredField("address");
       BUFFER_ADDRESS_OFFSET = UNSAFE.objectFieldOffset(addressField);
+      Field arrayField = ByteBuffer.class.getDeclaredField("hb");
+      BUFFER_ARRAY_OFFSET = UNSAFE.objectFieldOffset(arrayField);
+      Field arrayOffsetField = ByteBuffer.class.getDeclaredField("offset");
+      BUFFER_ARRAYOFFSET_OFFSET = UNSAFE.objectFieldOffset(arrayOffsetField);
     } catch (IllegalAccessException e) {
       throw new ExceptionInInitializerError("Cannot access Unsafe");
     } catch (NoSuchFieldException e) {
@@ -54,5 +61,15 @@ public class UnsafeBase {
     } catch (SecurityException e) {
       throw new ExceptionInInitializerError("Cannot access Unsafe");
     }
+  }
+
+  public static byte[] getReadOnlyBufferArray(ByteBuffer buffer)
+  {
+      return (byte[]) UNSAFE.getObject(buffer, BUFFER_ARRAY_OFFSET);
+  }
+
+  public static int getReadOnlyBufferArrayOffset(ByteBuffer buffer)
+  {
+      return UNSAFE.getInt(buffer, BUFFER_ARRAYOFFSET_OFFSET);
   }
 }

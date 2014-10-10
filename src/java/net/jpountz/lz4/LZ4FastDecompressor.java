@@ -46,6 +46,7 @@ public abstract class LZ4FastDecompressor implements LZ4Decompressor {
    * <code>destLen</code> must be exactly the size of the decompressed data.
    * Neither buffer's position is moved.
    *
+   * @throws ReadOnlyBufferException if dest is read-only
    * @param destLen the <b>exact</b> size of the original input
    * @return the number of bytes read to restore the original input
    */
