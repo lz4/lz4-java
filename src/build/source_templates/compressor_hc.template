@@ -20,12 +20,12 @@ import net.jpountz.lz4.LZ4Utils.Match;
 /**
  * High compression compressor.
  */
-final class LZ4HCJava${type}Compressor extends LZ4HCCompressor {
+final class LZ4HCJava${type}Compressor extends LZ4Compressor {
 
   public static final LZ4Compressor INSTANCE = new LZ4HCJava${type}Compressor();
 
   private final int maxAttempts;
-  private final int compressionLevel;
+  final int compressionLevel;
   
   LZ4HCJava${type}Compressor() { this(DEFAULT_COMPRESSION_LEVEL); }
   LZ4HCJava${type}Compressor(int compressionLevel) {
@@ -299,8 +299,4 @@ final class LZ4HCJava${type}Compressor extends LZ4HCCompressor {
     return dOff - destOff;
   }
 
-  @Override
-  public int getCompressionLevel() {
-    return compressionLevel;
-  }
 }

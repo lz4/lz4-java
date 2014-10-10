@@ -21,7 +21,7 @@ import static net.jpountz.util.Utils.checkRange;
  * High compression {@link LZ4Compressor}s implemented with JNI bindings to the
  * original C implementation of LZ4.
  */
-final class LZ4HCJNICompressor extends LZ4HCCompressor {
+final class LZ4HCJNICompressor extends LZ4Compressor {
 
   public static final LZ4Compressor INSTANCE = new LZ4HCJNICompressor();
 
@@ -43,8 +43,4 @@ final class LZ4HCJNICompressor extends LZ4HCCompressor {
     return result;
   }
 
-  @Override
-  public int getCompressionLevel() {
-    return compressionLevel;
-  }
 }

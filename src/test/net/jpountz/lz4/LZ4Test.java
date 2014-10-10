@@ -212,8 +212,10 @@ public class LZ4Test extends AbstractLZ4Test {
     } else if (compressor == LZ4Factory.unsafeInstance().highCompressor()
         || compressor == LZ4Factory.safeInstance().highCompressor()) {
       refCompressor = LZ4Factory.nativeInstance().highCompressor();
-    } else if (compressor instanceof LZ4HCCompressor) {
-      refCompressor = LZ4Factory.nativeInstance().highCompressor(((LZ4HCCompressor)compressor).getCompressionLevel());
+    } else if (compressor instanceof LZ4HCJavaSafeCompressor) {
+      refCompressor = LZ4Factory.nativeInstance().highCompressor(((LZ4HCJavaSafeCompressor)compressor).compressionLevel);
+    } else if (compressor instanceof LZ4HCJavaUnsafeCompressor) {
+      refCompressor = LZ4Factory.nativeInstance().highCompressor(((LZ4HCJavaUnsafeCompressor)compressor).compressionLevel);
     } else {
       throw new AssertionError();
     }
