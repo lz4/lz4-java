@@ -1,0 +1,119 @@
+package net.jpountz.util;
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import static java.lang.Integer.reverseBytes;
+import static net.jpountz.util.Utils.NATIVE_BYTE_ORDER;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+public class UnsafeUtils@{TypeSuffix} extends UnsafeBase {
+
+  public static byte readByte(byte[] src, @{OffsetType} srcOff) {
+    return UNSAFE.getByte(src, BYTE_ARRAY_OFFSET + BYTE_ARRAY_SCALE * srcOff);
+  }
+
+  public static void writeByte(byte[] src, @{OffsetType} srcOff, byte value) {
+    UNSAFE.putByte(src, BYTE_ARRAY_OFFSET + BYTE_ARRAY_SCALE * srcOff, (byte) value);
+  }
+
+  public static void writeByte(byte[] src, @{OffsetType} srcOff, int value) {
+    writeByte(src, srcOff, (byte) value);
+  }
+
+  public static long readLong(byte[] src, @{OffsetType} srcOff) {
+    return UNSAFE.getLong(src, BYTE_ARRAY_OFFSET + srcOff);
+  }
+
+  public static long readLongLE(byte[] src, @{OffsetType} srcOff) {
+    long i = readLong(src, srcOff);
+    if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
+      i = Long.reverseBytes(i);
+    }
+    return i;
+  }
+
+  public static void writeLong(byte[] dest, @{OffsetType} destOff, long value) {
+    UNSAFE.putLong(dest, BYTE_ARRAY_OFFSET + destOff, value);
+  }
+
+  public static int readInt(byte[] src, @{OffsetType} srcOff) {
+    return UNSAFE.getInt(src, BYTE_ARRAY_OFFSET + srcOff);
+  }
+
+  public static int readIntLE(byte[] src, @{OffsetType} srcOff) {
+    int i = readInt(src, srcOff);
+    if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
+      i = reverseBytes(i);
+    }
+    return i;
+  }
+
+  public static void writeInt(byte[] dest, @{OffsetType} destOff, int value) {
+    UNSAFE.putInt(dest, BYTE_ARRAY_OFFSET + destOff, value);
+  }
+
+  public static short readShort(byte[] src, @{OffsetType} srcOff) {
+    return UNSAFE.getShort(src, BYTE_ARRAY_OFFSET + srcOff);
+  }
+
+  public static void writeShort(byte[] dest, @{OffsetType} destOff, short value) {
+    UNSAFE.putShort(dest, BYTE_ARRAY_OFFSET + destOff, value);
+  }
+
+  public static int readInt(int[] src, int srcOff) {
+    return UNSAFE.getInt(src, INT_ARRAY_OFFSET + INT_ARRAY_SCALE * srcOff);
+  }
+
+  public static void writeInt(int[] dest, int destOff, @{OffsetType} value) {
+    UNSAFE.putInt(dest, INT_ARRAY_OFFSET + INT_ARRAY_SCALE * destOff, (int) value);
+  }
+
+  public static int readShort(short[] src, int srcOff) {
+    return UNSAFE.getShort(src, SHORT_ARRAY_OFFSET + SHORT_ARRAY_SCALE * srcOff) & 0xFFFF;
+  }
+
+  public static void writeShort(short[] dest, int destOff, @{OffsetType} value) {
+    UNSAFE.putShort(dest, SHORT_ARRAY_OFFSET + SHORT_ARRAY_SCALE * destOff, (short) value);
+  }
+
+  public static @{OffsetType} getBufferOffsetFromNull(ByteBuffer buffer)
+  {
+      return (@{OffsetType}) (UNSAFE.getLong(buffer, BUFFER_ADDRESS_OFFSET) - BYTE_ARRAY_OFFSET);
+  }
+
+  public static class Match {
+    public @{OffsetType} start, ref;
+    public int len;
+
+    public void fix(int correction) {
+      start += correction;
+      ref += correction;
+      len -= correction;
+    }
+
+    public @{OffsetType} end() {
+      return start + len;
+    }
+  }
+
+  public static void copyTo(Match m1, Match m2) {
+    m2.len = m1.len;
+    m2.start = m1.start;
+    m2.ref = m1.ref;
+  }
+
+}

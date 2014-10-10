@@ -17,6 +17,10 @@ package net.jpountz.lz4;
 import static net.jpountz.lz4.LZ4Constants.DEFAULT_COMPRESSION_LEVEL;
 import static net.jpountz.util.Utils.checkRange;
 
+import java.nio.ByteBuffer;
+
+import net.jpountz.util.ByteBufferUtils;
+
 /**
  * High compression {@link LZ4Compressor}s implemented with JNI bindings to the
  * original C implementation of LZ4.
@@ -36,7 +40,18 @@ final class LZ4HCJNICompressor extends LZ4Compressor {
   public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);
-    final int result = LZ4JNI.LZ4_compressHC(src, srcOff, srcLen, dest, destOff, maxDestLen, compressionLevel);
+    final int result = LZ4JNI.LZ4_compressHC(src, null, srcOff, srcLen, dest, null, destOff, maxDestLen, compressionLevel);
+    if (result <= 0) {
+      throw new LZ4Exception();
+    }
+    return result;
+  }
+
+  @Override
+  public int compress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
+    int result = LZ4JNI.LZ4_compressHC(
+        ByteBufferUtils.getArray(src), src, srcOff, srcLen,
+        ByteBufferUtils.getArray(dest), dest, destOff, maxDestLen, compressionLevel);
     if (result <= 0) {
       throw new LZ4Exception();
     }

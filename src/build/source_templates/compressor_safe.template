@@ -1,0 +1,28 @@
+// Auto-generated: DO NOT EDIT
+
+package net.jpountz.lz4;
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import static net.jpountz.lz4.LZ4Constants.*;
+import static net.jpountz.lz4.LZ4Utils.*;
+import static net.jpountz.util.Utils.*;
+import static net.jpountz.lz4.LZ4ByteBufferUtils.*;
+import static net.jpountz.util.ByteBufferUtils.*;
+
+/**
+ * Compressor. 
+ */
+final class LZ4JavaSafeCompressor extends LZ4Compressor {
+
+  public static final LZ4Compressor INSTANCE = new LZ4JavaSafeCompressor();
+
+@include{"compress64k.template"; Storage = "byte[]"; OffsetType = "int"}
+  @Override
+@include{"compress.template"; Storage = "byte[]"; OffsetType = "int"; NameSuffix = ""; Visibility = "public"}
+
+@include{"compress64k.template"; Storage = "ByteBuffer"; OffsetType = "int"}
+  @Override
+@include{"compress.template"; Storage = "ByteBuffer"; OffsetType = "int"; NameSuffix = ""; Visibility = "public"}
+}
+

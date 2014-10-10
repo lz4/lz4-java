@@ -17,32 +17,32 @@ import java.nio.ByteBuffer;
  */
 
 /**
- * A 32-bits hash.
+ * A 64-bits hash.
  * <p>
  * Instances of this class are thread-safe.
  */
-public abstract class XXHash32 {
+public abstract class XXHash64 {
 
   /**
-   * Compute the 32-bits hash of <code>buf[off:off+len]</code> using seed
+   * Compute the 64-bits hash of <code>buf[off:off+len]</code> using seed
    * <code>seed</code>.
    */
-  public abstract int hash(byte[] buf, int off, int len, int seed);
+  public abstract long hash(byte[] buf, int off, int len, long seed);
 
   /**
    * Compute the hash of the given slice of the {@link ByteBuffer}.
    * {@link ByteBuffer#position() position} and {@link ByteBuffer#limit() limit}
    * are not modified. 
    */
-  public abstract int hash(ByteBuffer buf, int off, int len, int seed);
+  public abstract long hash(ByteBuffer buf, int off, int len, long seed);
 
   /**
    * Compute the hash of the given {@link ByteBuffer}. The
    * {@link ByteBuffer#position() position} is moved in order to reflect bytes
    * which have been read.
    */
-  public final int hash(ByteBuffer buf, int seed) {
-    final int hash = hash(buf, buf.position(), buf.remaining(), seed);
+  public final long hash(ByteBuffer buf, long seed) {
+    final long hash = hash(buf, buf.position(), buf.remaining(), seed);
     buf.position(buf.limit());
     return hash;
   }

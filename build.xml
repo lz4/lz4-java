@@ -41,6 +41,9 @@
   <condition property="platform" value="darwin">
    <os family="mac"/>
   </condition>
+  <condition property="64bit">
+   <contains string="${sun.arch.data.model}" substring="64"/>
+  </condition>
 
   <target name="clean" description="clean working copy">
     <delete dir="${build}" />
@@ -111,15 +114,6 @@
   </target>
 
   <target name="compile-java" depends="init, generate-sources">
-    <mkdir dir="${build}/classes" />
-    <javac
-      includeAntRuntime="false"
-      srcdir="${src}/java"
-      source="${javac.source}"
-      target="${javac.target}"
-      encoding="UTF-8"
-      debug="true"
-      destdir="${build}/classes"/>
     <mkdir dir="${build}/unsafe-classes" />
     <javac
       includeAntRuntime="false"
@@ -130,6 +124,19 @@
       debug="true"
       classpath="${build}/classes"
       destdir="${build}/unsafe-classes"/>
+    <mkdir dir="${build}/classes" />
+    <javac
+      includeAntRuntime="false"
+      srcdir="${src}/java"
+      source="${javac.source}"
+      target="${javac.target}"
+      encoding="UTF-8"
+      debug="true"
+      destdir="${build}/classes">
+      <classpath>
+        <pathelement location="${build}/unsafe-classes" />
+      </classpath>
+    </javac>
     <mkdir dir="${build}/generated-classes" />
     <javac
       includeAntRuntime="false"
@@ -219,6 +226,48 @@
       </classpath>
       <fileset dir="${build}/test-classes/">
         <include name="**/*Test.class" />
+        <exclude name="**/*$*" />
+        <exclude name="**/Abstract*" />
+      </fileset>
+      <listeners>
+        <junit4:report-text
+        showThrowable="true"
+        showStackTraces="true"
+        showOutput="never"
+
+        showStatusOk="true"
+        showStatusError="true"
+        showStatusFailure="true"
+        showStatusIgnored="true"
+
+        showSuiteSummary="false" />
+        <!-- For enkins -->
+        <junit4:report-ant-xml dir="${build}/tests" />
+      </listeners>
+    </junit4:junit4>
+  </target>
+
+  <target name="test-large" description="run large tests" depends="compile-tests, install-junit4" if="64bit">
+    <mkdir dir="${build}/tests" />
+    <junit4:junit4
+      dir="${java.io.tmpdir}"
+      maxmemory="6000m"
+      parallelism="auto">
+      <assertions>
+        <enable package="net.jpountz.lz4"/>
+      </assertions>
+      <classpath>
+        <path location="${src}/resources" />
+        <path location="${src}/test-resources" />
+        <path location="${build}/classes" />
+        <path location="${build}/unsafe-classes" />
+        <path location="${build}/generated-classes" />
+        <path location="${build}/test-classes" />
+        <path location="${build}/jni" />
+        <fileset dir="${lib}" includes="*.jar" />
+      </classpath>
+      <fileset dir="${build}/test-classes/">
+        <include name="**/*TestLarge.class" />
         <exclude name="**/*$*" />
         <exclude name="**/Abstract*" />
       </fileset>

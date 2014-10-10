@@ -2,89 +2,93 @@
 
 package net.jpountz.lz4;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import static net.jpountz.lz4.LZ4Constants.*;
-@if{ type == "Unsafe" }
-import static net.jpountz.lz4.LZ4UnsafeUtils.*;
-import static net.jpountz.util.UnsafeUtils.*;
+import static net.jpountz.util.ByteBufferUtils.checkRange;
 import static net.jpountz.util.Utils.checkRange;
+@if{ type == "Unsafe" }
+import static net.jpountz.lz4.LZ4UnsafeUtils@{TypeSuffix}.*;
+import static net.jpountz.util.UnsafeUtils@{TypeSuffix}.*;
 import static net.jpountz.lz4.LZ4Utils.hashHC;
-import static net.jpountz.lz4.LZ4Utils.copyTo;
+
+import net.jpountz.util.UnsafeUtils@{TypeSuffix}.Match;
 @else{}
 import static net.jpountz.lz4.LZ4Utils.*;
 import static net.jpountz.util.Utils.*;
-@end{}
 
 import net.jpountz.lz4.LZ4Utils.Match;
+@end{}
+
 
 /**
  * High compression compressor.
  */
-final class LZ4HCJava${type}Compressor extends LZ4Compressor {
+final class LZ4HCJava${type}@{TypeSuffix}Compressor extends LZ4Compressor {
 
-  public static final LZ4Compressor INSTANCE = new LZ4HCJava${type}Compressor();
+  public static final LZ4Compressor INSTANCE = new LZ4HCJava${type}@{TypeSuffix}Compressor();
 
   private final int maxAttempts;
   final int compressionLevel;
   
-  LZ4HCJava${type}Compressor() { this(DEFAULT_COMPRESSION_LEVEL); }
-  LZ4HCJava${type}Compressor(int compressionLevel) {
+  LZ4HCJava${type}@{TypeSuffix}Compressor() { this(DEFAULT_COMPRESSION_LEVEL); }
+  LZ4HCJava${type}@{TypeSuffix}Compressor(int compressionLevel) {
     this.maxAttempts = 1<<(compressionLevel-1);
     this.compressionLevel = compressionLevel;
   }
 
   private class HashTable {
     static final int MASK = MAX_DISTANCE - 1;
-    int nextToUpdate;
-    private final int base;
-    private final int[] hashTable;
+    @{OffsetType} nextToUpdate;
+    private final @{OffsetType} base;
+    private final @{OffsetType}[] hashTable;
     private final short[] chainTable;
 
-    HashTable(int base) {
+    HashTable(@{OffsetType} base) {
       this.base = base;
       nextToUpdate = base;
-      hashTable = new int[HASH_TABLE_SIZE_HC];
+      hashTable = new @{OffsetType}[HASH_TABLE_SIZE_HC];
       Arrays.fill(hashTable, -1);
       chainTable = new short[MAX_DISTANCE];
     }
 
-    private int hashPointer(byte[] bytes, int off) {
+    private @{OffsetType} hashPointer(byte[] bytes, @{OffsetType} off) {
       final int v = readInt(bytes, off);
       final int h = hashHC(v);
       return hashTable[h];
     }
 
-    private int next(int off) {
-      return off - (chainTable[off & MASK] & 0xFFFF);
+    private @{OffsetType} next(@{OffsetType} off) {
+      return off - (chainTable[(int)(off & MASK)] & 0xFFFF);
     }
 
-    private void addHash(byte[] bytes, int off) {
+    private void addHash(byte[] bytes, @{OffsetType} off) {
       final int v = readInt(bytes, off);
       final int h = hashHC(v);
-      int delta = off - hashTable[h];
+      @{OffsetType} delta = off - hashTable[h];
       assert delta > 0 : delta;
       if (delta >= MAX_DISTANCE) {
         delta = MAX_DISTANCE - 1;
       }
-      chainTable[off & MASK] = (short) delta;
+      chainTable[(int)(off & MASK)] = (short) delta;
       hashTable[h] = off;
     }
 
-    void insert(int off, byte[] bytes) {
+    void insert(@{OffsetType} off, byte[] bytes) {
       for (; nextToUpdate < off; ++nextToUpdate) {
         addHash(bytes, nextToUpdate);
       }
     }
 
-    boolean insertAndFindBestMatch(byte[] buf, int off, int matchLimit, Match match) {
+    boolean insertAndFindBestMatch(byte[] buf, @{OffsetType} off, @{OffsetType} matchLimit, Match match) {
       match.start = off;
       match.len = 0;
-      int delta = 0;
+      @{OffsetType} delta = 0;
       int repl = 0;
 
       insert(off, buf);
 
-      int ref = hashPointer(buf, off);
+      @{OffsetType} ref = hashPointer(buf, off);
 
       if (ref >= off - 4 && ref <= off && ref >= base) { // potential repetition
         if (readIntEquals(buf, ref, off)) { // confirmed
@@ -99,7 +103,7 @@ final class LZ4HCJava${type}Compressor extends LZ4Compressor {
         if (ref < Math.max(base, off - MAX_DISTANCE + 1) || ref > off) {
           break;
         }
-        if (buf[ref + match.len] == buf[off + match.len] && readIntEquals(buf, ref, off)) {
+        if (readByte(buf, ref + match.len) == readByte(buf, off + match.len) && readIntEquals(buf, ref, off)) {
           final int matchLen = MIN_MATCH + commonBytes(buf, ref + MIN_MATCH, off + MIN_MATCH, matchLimit);
           if (matchLen > match.len) {
             match.ref = ref;
@@ -110,14 +114,14 @@ final class LZ4HCJava${type}Compressor extends LZ4Compressor {
       }
 
       if (repl != 0) {
-        int ptr = off;
-        final int end = off + repl - (MIN_MATCH - 1);
+        @{OffsetType} ptr = off;
+        final @{OffsetType} end = off + repl - (MIN_MATCH - 1);
         while (ptr < end - delta) {
-          chainTable[ptr & MASK] = (short) delta; // pre load
+          chainTable[(int)(ptr & MASK)] = (short) delta; // pre load
           ++ptr;
         }
         do {
-          chainTable[ptr & MASK] = (short) delta;
+          chainTable[(int)(ptr & MASK)] = (short) delta;
           hashTable[hashHC(readInt(buf, ptr))] = ptr;
           ++ptr;
         } while (ptr < end);
@@ -127,18 +131,18 @@ final class LZ4HCJava${type}Compressor extends LZ4Compressor {
       return match.len != 0;
     }
 
-    boolean insertAndFindWiderMatch(byte[] buf, int off, int startLimit, int matchLimit, int minLen, Match match) {
+    boolean insertAndFindWiderMatch(byte[] buf, @{OffsetType} off, @{OffsetType} startLimit, @{OffsetType} matchLimit, int minLen, Match match) {
       match.len = minLen;
 
       insert(off, buf);
 
-      final int delta = off - startLimit;
-      int ref = hashPointer(buf, off);
+      final @{OffsetType} delta = off - startLimit;
+      @{OffsetType} ref = hashPointer(buf, off);
       for (int i = 0; i < maxAttempts; ++i) {
         if (ref < Math.max(base, off - MAX_DISTANCE + 1) || ref > off) {
           break;
         }
-        if (buf[ref - delta + match.len] == buf[startLimit + match.len]
+        if (readByte(buf, ref - delta + match.len) == readByte(buf, startLimit + match.len)
             && readIntEquals(buf, ref, off)) {
           final int matchLenForward = MIN_MATCH + commonBytes(buf, ref + MIN_MATCH, off + MIN_MATCH, matchLimit);
           final int matchLenBackward = commonBytesBackward(buf, ref, off, base, startLimit);
@@ -157,21 +161,18 @@ final class LZ4HCJava${type}Compressor extends LZ4Compressor {
 
   }
 
-  @Override
-  public int compress(byte[] src, int srcOff, int srcLen, byte[] dest,
-      int destOff, int maxDestLen) {
+  private int compressUnchecked(
+      byte[] src, @{OffsetType} srcOff, int srcLen,
+      byte[] dest, @{OffsetType} destOff, int maxDestLen) {
 
-    checkRange(src, srcOff, srcLen);
-    checkRange(dest, destOff, maxDestLen);
+    final @{OffsetType} srcEnd = srcOff + srcLen;
+    final @{OffsetType} destEnd = destOff + maxDestLen;
+    final @{OffsetType} mfLimit = srcEnd - MF_LIMIT;
+    final @{OffsetType} matchLimit = srcEnd - LAST_LITERALS;
 
-    final int srcEnd = srcOff + srcLen;
-    final int destEnd = destOff + maxDestLen;
-    final int mfLimit = srcEnd - MF_LIMIT;
-    final int matchLimit = srcEnd - LAST_LITERALS;
-
-    int sOff = srcOff;
-    int dOff = destOff;
-    int anchor = sOff++;
+    @{OffsetType} sOff = srcOff;
+    @{OffsetType} dOff = destOff;
+    @{OffsetType} anchor = sOff++;
 
     final HashTable ht = new HashTable(srcOff);
     final Match match0 = new Match();
@@ -220,9 +221,9 @@ final class LZ4HCJava${type}Compressor extends LZ4Compressor {
               newMatchLen = OPTIMAL_ML;
             }
             if (match1.start + newMatchLen > match2.end() - MIN_MATCH) {
-              newMatchLen = match2.start - match1.start + match2.len - MIN_MATCH;
+              newMatchLen = (int) (match2.start - match1.start + match2.len - MIN_MATCH);
             }
-            final int correction = newMatchLen - (match2.start - match1.start);
+            final int correction = newMatchLen - (int) (match2.start - match1.start);
             if (correction > 0) {
               match2.fix(correction);
             }
@@ -232,7 +233,7 @@ final class LZ4HCJava${type}Compressor extends LZ4Compressor {
               || !ht.insertAndFindWiderMatch(src, match2.end() - 3, match2.start, matchLimit, match2.len, match3)) {
             // no better match -> 2 sequences to encode
             if (match2.start < match1.end()) {
-              match1.len = match2.start - match1.start;
+              match1.len = (int) (match2.start - match1.start);
             }
             // encode seq 1
             dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
@@ -246,7 +247,7 @@ final class LZ4HCJava${type}Compressor extends LZ4Compressor {
           if (match3.start < match1.end() + 3) { // Not enough space for match 2 : remove it
             if (match3.start >= match1.end()) { // // can write Seq1 immediately ==> Seq2 is removed, so Seq3 becomes Seq1
               if (match2.start < match1.end()) {
-                final int correction = match1.end() - match2.start;
+                final int correction = (int) (match1.end() - match2.start);
                 match2.fix(correction);
                 if (match2.len < MIN_MATCH) {
                   copyTo(match3, match2);
@@ -273,12 +274,12 @@ final class LZ4HCJava${type}Compressor extends LZ4Compressor {
                 match1.len = OPTIMAL_ML;
               }
               if (match1.end() > match2.end() - MIN_MATCH) {
-                match1.len = match2.end() - match1.start - MIN_MATCH;
+                match1.len = (int) (match2.end() - match1.start - MIN_MATCH);
               }
-              final int correction = match1.end() - match2.start;
+              final int correction = (int) (match1.end() - match2.start);
               match2.fix(correction);
             } else {
-              match1.len = match2.start - match1.start;
+              match1.len = (int) (match2.start - match1.start);
             }
           }
 
@@ -295,8 +296,59 @@ final class LZ4HCJava${type}Compressor extends LZ4Compressor {
 
     }
 
-    dOff = lastLiterals(src, anchor, srcEnd - anchor, dest, dOff, destEnd);
-    return dOff - destOff;
+    dOff = lastLiterals(src, anchor, (int) (srcEnd - anchor), dest, dOff, destEnd);
+    return (int) (dOff - destOff);
   }
+  
+@if{ type == "Safe" }
+  @Override
+  public int compress(
+      byte[] src, int srcOff, int srcLen,
+      byte[] dest, int destOff, int maxDestLen) {
+
+    checkRange(src, srcOff, srcLen);
+    checkRange(dest, destOff, maxDestLen);
+
+    return compressUnchecked(src, srcOff, srcLen, dest, destOff, maxDestLen);
+  }
+
+  @Override
+  public int compress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dst, int dstOff, int dstLen) {
+    // The process is complex enough that copying the arrays gives better performance than
+    // operating on the buffers directly.
+    checkRange(src, srcOff, srcLen);
+    checkRange(dst, dstOff, dstLen);
+    byte[] srcArray;
+    if (src.hasArray()) {
+      srcArray = src.array();
+      srcOff += src.arrayOffset();
+      src.position(src.limit());
+    } else {
+      srcArray = new byte[srcLen];
+      src = src.duplicate();
+      src.limit(srcLen + srcOff).position(srcOff);
+      src.get(srcArray);
+      srcOff = 0;
+    }
+    byte[] dstArray;
+    int dstArrayOff = dstOff;
+    if (dst.hasArray()) {
+      dstArray = dst.array();
+      dstArrayOff += dst.arrayOffset();
+    } else {
+      dstArray = new byte[dstLen];
+      dstArrayOff = 0;
+    }
+    int len = compressUnchecked(srcArray, srcOff, srcLen, dstArray, dstArrayOff, dstLen);
+    if (!dst.hasArray()) {
+      dst = dst.duplicate();
+      dst.limit(dstOff + dstLen).position(dstOff);
+      dst.put(dstArray);
+    }
+    return len;
+  }
+@else{}
+@include{"adapters.template"; Method = "compress"; WithSrcLen = true }
+@end{}  
 
 }

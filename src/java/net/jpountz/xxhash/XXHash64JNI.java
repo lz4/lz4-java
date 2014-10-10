@@ -19,28 +19,28 @@ import static net.jpountz.util.Utils.checkRange;
 
 import java.nio.ByteBuffer;
 
-final class XXHash32JNI extends XXHash32 {
+final class XXHash64JNI extends XXHash64 {
 
-  public static final XXHash32 INSTANCE = new XXHash32JNI();
-  private static XXHash32 SAFE_INSTANCE;
+  public static final XXHash64 INSTANCE = new XXHash64JNI();
+  private static XXHash64 SAFE_INSTANCE;
 
   @Override
-  public int hash(byte[] buf, int off, int len, int seed) {
+  public long hash(byte[] buf, int off, int len, long seed) {
     checkRange(buf, off, len);
-    return XXHashJNI.XXH32(buf, off, len, seed);
+    return XXHashJNI.XXH64(buf, off, len, seed);
   }
 
   @Override
-  public int hash(ByteBuffer buf, int off, int len, int seed) {
+  public long hash(ByteBuffer buf, int off, int len, long seed) {
     if (buf.isDirect()) {
       checkRange(buf, off, len);
-      return XXHashJNI.XXH32BB(buf, off, len, seed);
+      return XXHashJNI.XXH64BB(buf, off, len, seed);
     } else if (buf.hasArray()) {
       return hash(buf.array(), off, len, seed);
     } else {
-      XXHash32 safeInstance = SAFE_INSTANCE;
+      XXHash64 safeInstance = SAFE_INSTANCE;
       if (safeInstance == null) {
-        safeInstance = SAFE_INSTANCE = XXHashFactory.safeInstance().hash32();
+        safeInstance = SAFE_INSTANCE = XXHashFactory.safeInstance().hash64();
       }
       return safeInstance.hash(buf, off, len, seed);
     }

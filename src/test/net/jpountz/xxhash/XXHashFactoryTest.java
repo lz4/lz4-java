@@ -25,6 +25,12 @@ public class XXHashFactoryTest extends TestCase {
     assertTrue(XXHashFactory.unsafeInstance().newStreamingHash32(0) instanceof StreamingXXHash32JavaUnsafe);
     assertEquals(XXHash32JavaSafe.INSTANCE, XXHashFactory.safeInstance().hash32());
     assertTrue(XXHashFactory.safeInstance().newStreamingHash32(0) instanceof StreamingXXHash32JavaSafe);
+    assertEquals(XXHash64JNI.INSTANCE, XXHashFactory.nativeInstance().hash64());
+    assertTrue(XXHashFactory.nativeInstance().newStreamingHash64(0) instanceof StreamingXXHash64JNI);
+    assertEquals(XXHash64JavaUnsafe.INSTANCE, XXHashFactory.unsafeInstance().hash64());
+    assertTrue(XXHashFactory.unsafeInstance().newStreamingHash64(0) instanceof StreamingXXHash64JavaUnsafe);
+    assertEquals(XXHash64JavaSafe.INSTANCE, XXHashFactory.safeInstance().hash64());
+    assertTrue(XXHashFactory.safeInstance().newStreamingHash64(0) instanceof StreamingXXHash64JavaSafe);
   }
 
 }

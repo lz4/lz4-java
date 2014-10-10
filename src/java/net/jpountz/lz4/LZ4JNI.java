@@ -14,6 +14,8 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import java.nio.ByteBuffer;
+
 import net.jpountz.util.Native;
 
 
@@ -29,12 +31,12 @@ enum LZ4JNI {
   }
 
   static native void init();
-  static native int LZ4_compress_limitedOutput(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
-  static native int LZ4_compressHC(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen, int compressionLevel);
-  static native int LZ4_decompress_fast(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
-  static native int LZ4_decompress_fast_withPrefix64k(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
-  static native int LZ4_decompress_safe(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
-  static native int LZ4_decompress_safe_withPrefix64k(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
+  static native int LZ4_compress_limitedOutput(byte[] srcArray, ByteBuffer srcBuffer, int srcOff, int srcLen, byte[] destArray, ByteBuffer destBuffer, int destOff, int maxDestLen);
+  static native int LZ4_compressHC(byte[] srcArray, ByteBuffer srcBuffer, int srcOff, int srcLen, byte[] destArray, ByteBuffer destBuffer, int destOff, int maxDestLen, int compressionLevel);
+  static native int LZ4_decompress_fast(byte[] srcArray, ByteBuffer srcBuffer, int srcOff, byte[] destArray, ByteBuffer destBuffer, int destOff, int destLen);
+  static native int LZ4_decompress_fast_withPrefix64k(byte[] srcArray, ByteBuffer srcBuffer, int srcOff, byte[] destArray, ByteBuffer destBuffer, int destOff, int destLen);
+  static native int LZ4_decompress_safe(byte[] srcArray, ByteBuffer srcBuffer, int srcOff, int srcLen, byte[] destArray, ByteBuffer destBuffer, int destOff, int maxDestLen);
+  static native int LZ4_decompress_safe_withPrefix64k(byte[] srcArray, ByteBuffer srcBuffer, int srcOff, int srcLen, byte[] destArray, ByteBuffer destBuffer, int destOff, int maxDestLen);
   static native int LZ4_compressBound(int len);
 
 }

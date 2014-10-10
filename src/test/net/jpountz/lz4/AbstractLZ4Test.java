@@ -17,10 +17,11 @@ package net.jpountz.lz4;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 
-abstract class AbstractLZ4Test extends RandomizedTest {
+public abstract class AbstractLZ4Test extends RandomizedTest {
 
   protected class RandomBytes {
     private final byte[] bytes;
@@ -65,6 +66,22 @@ abstract class AbstractLZ4Test extends RandomizedTest {
       result[i] = randomBytes.next();
     }
     return result;
+  }
+
+  protected ByteBuffer copyOf(byte[] bytes, int offset, int len) {
+    ByteBuffer buffer;
+    if (randomBoolean()) {
+      buffer = ByteBuffer.allocate(bytes.length);
+    } else {
+      buffer = ByteBuffer.allocateDirect(bytes.length);
+    }
+    buffer.put(bytes);
+    buffer.position(offset);
+    buffer.limit(offset + len);
+    if (randomBoolean()) {
+      buffer = buffer.asReadOnlyBuffer();
+    }
+    return buffer;
   }
 
 }

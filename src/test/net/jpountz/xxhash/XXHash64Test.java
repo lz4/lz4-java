@@ -14,28 +14,27 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
+import java.nio.ByteBuffer;
+
+import net.jpountz.lz4.AbstractLZ4Test;
 import net.jpountz.util.Utils;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import com.carrotsearch.randomizedtesting.RandomizedRunner;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
-@RunWith(RandomizedRunner.class)
-public class XXHashTest extends RandomizedTest {
+public class XXHash64Test extends AbstractLZ4Test {
 
-  private static abstract class StreamingXXHash32Adapter extends XXHash32 {
+  private static abstract class StreamingXXHash64Adapter extends XXHash64 {
 
-    protected abstract StreamingXXHash32 streamingHash(int seed);
+    protected abstract StreamingXXHash64 streamingHash(long seed);
 
     @Override
-    public int hash(byte[] buf, int off, int len, int seed) {
+    public long hash(byte[] buf, int off, int len, long seed) {
       Utils.checkRange(buf, off, len);
       int originalOff = off;
       int remainingPasses = randomInt(5);
-      StreamingXXHash32 h = streamingHash(seed);
+      StreamingXXHash64 h = streamingHash(seed);
       final int end = off + len;
       while (off < end) {
         final int l = randomIntBetween(off, end) - off;
@@ -53,46 +52,60 @@ public class XXHashTest extends RandomizedTest {
       return h.getValue();
     }
 
+    @Override
+    public long hash(ByteBuffer buf, int off, int len, long seed) {
+      byte[] bytes = new byte[len];
+      int originalPosition = buf.position();
+      try {
+        buf.position(off);
+        buf.get(bytes, 0, len);
+        return hash(bytes, 0, len, seed);
+      } finally {
+        buf.position(originalPosition);
+      }
+    }
+
     public String toString() {
       return streamingHash(0).toString();
     }
 
   }
 
-  private static XXHash32[] INSTANCES = new XXHash32[] {
-    XXHashFactory.nativeInstance().hash32(),
-    XXHashFactory.unsafeInstance().hash32(),
-    XXHashFactory.safeInstance().hash32(),
-    new StreamingXXHash32Adapter() {
-      protected StreamingXXHash32 streamingHash(int seed) {
-        return XXHashFactory.nativeInstance().newStreamingHash32(seed);
+  private static XXHash64[] INSTANCES = new XXHash64[] {
+    XXHashFactory.nativeInstance().hash64(),
+    XXHashFactory.unsafeInstance().hash64(),
+    XXHashFactory.safeInstance().hash64(),
+    new StreamingXXHash64Adapter() {
+      protected StreamingXXHash64 streamingHash(long seed) {
+        return XXHashFactory.nativeInstance().newStreamingHash64(seed);
       }
     },
-    new StreamingXXHash32Adapter() {
-      protected StreamingXXHash32 streamingHash(int seed) {
-        return XXHashFactory.unsafeInstance().newStreamingHash32(seed);
+    new StreamingXXHash64Adapter() {
+      protected StreamingXXHash64 streamingHash(long seed) {
+        return XXHashFactory.unsafeInstance().newStreamingHash64(seed);
       }
     },
-    new StreamingXXHash32Adapter() {
-      protected StreamingXXHash32 streamingHash(int seed) {
-        return XXHashFactory.safeInstance().newStreamingHash32(seed);
+    new StreamingXXHash64Adapter() {
+      protected StreamingXXHash64 streamingHash(long seed) {
+        return XXHashFactory.safeInstance().newStreamingHash64(seed);
       }
     }
   };
 
   @Test
   public void testEmpty() {
-    final int seed = randomInt();
-    for (XXHash32 xxHash : INSTANCES) {
+    final long seed = randomLong();
+    for (XXHash64 xxHash : INSTANCES) {
       xxHash.hash(new byte[0], 0, 0, seed);
+      xxHash.hash(copyOf(new byte[0], 0, 0), 0, 0, seed);
     }
   }
 
   @Test
   @Repeat(iterations = 20)
   public void testAIOOBE() {
-    final int seed = randomInt();
-    final int max = randomBoolean() ? 32 : 1000;
+    final long seed = randomLong();
+    final int max = randomBoolean() ? 64 : 1000;
     final int bufLen = randomIntBetween(1, max);
     final byte[] buf = new byte[bufLen];
     for (int i = 0; i < buf.length; ++i) {
@@ -100,7 +113,7 @@ public class XXHashTest extends RandomizedTest {
     }
     final int off = randomInt(buf.length - 1);
     final int len = randomInt(buf.length - off);
-    for (XXHash32 xxHash : INSTANCES) {
+    for (XXHash64 xxHash : INSTANCES) {
       xxHash.hash(buf, off, len, seed);
     }
   }
@@ -114,14 +127,19 @@ public class XXHashTest extends RandomizedTest {
     for (int i = 0; i < bufLen; ++i) {
       buf[i] = randomByte();
     }
-    final int seed = randomInt();
+    final long seed = randomLong();
     final int off = randomIntBetween(0, Math.max(0, bufLen - 1));
     final int len = randomIntBetween(0, bufLen - off);
 
-    final int ref = XXHashFactory.nativeInstance().hash32().hash(buf, off, len, seed);
-    for (XXHash32 hash : INSTANCES) {
-      final int h = hash.hash(buf, off, len, seed);
+    final long ref = XXHashFactory.nativeInstance().hash64().hash(buf, off, len, seed);
+    for (XXHash64 hash : INSTANCES) {
+      final long h = hash.hash(buf, off, len, seed);
       assertEquals(hash.toString(), ref, h);
+      final ByteBuffer copy = copyOf(buf, off, len);
+      final long h2 = hash.hash(copy, off, len, seed);
+      assertEquals(off, copy.position());
+      assertEquals(len, copy.remaining());
+      assertEquals(hash.toString(), ref, h2);
     }
   }
 
@@ -134,10 +152,10 @@ public class XXHashTest extends RandomizedTest {
     final int off = randomInt(5);
     final int len = randomIntBetween(bytes.length - off - 1024, bytes.length - off);
     long totalLen = 0;
-    final int seed = randomInt();
-    StreamingXXHash32 hash1 = XXHashFactory.nativeInstance().newStreamingHash32(seed);
-    StreamingXXHash32 hash2 = XXHashFactory.unsafeInstance().newStreamingHash32(seed);
-    StreamingXXHash32 hash3 = XXHashFactory.safeInstance().newStreamingHash32(seed);
+    final long seed = randomLong();
+    StreamingXXHash64 hash1 = XXHashFactory.nativeInstance().newStreamingHash64(seed);
+    StreamingXXHash64 hash2 = XXHashFactory.unsafeInstance().newStreamingHash64(seed);
+    StreamingXXHash64 hash3 = XXHashFactory.safeInstance().newStreamingHash64(seed);
     while (totalLen < (1L << 33)) {
       hash1.update(bytes, off, len);
       hash2.update(bytes, off, len);

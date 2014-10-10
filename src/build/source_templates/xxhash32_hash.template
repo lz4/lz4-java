@@ -1,27 +1,14 @@
-// Auto-generated: DO NOT EDIT
-
-package net.jpountz.xxhash;
-
-import static net.jpountz.xxhash.XXHashConstants.*;
-import static java.lang.Integer.rotateLeft;
-@if{ type == "Unsafe" }
-import static net.jpountz.util.UnsafeUtils.*;
-import static net.jpountz.util.Utils.checkRange;
-@else{}
-import static net.jpountz.util.Utils.*;
-@end{}
-
-/**
- * {@link XXHash32} implementation.
- */
-final class XXHash32Java${type} extends XXHash32 {
-
-  public static final XXHash32 INSTANCE = new XXHash32Java${type}();
-
   @Override
-  public int hash(byte[] buf, int off, int len, int seed) {
+  public int hash(${Storage} buf, int off, int len, int seed) {
+@if{Storage == "ByteBuffer"}
+    if (buf.hasArray()) {
+      return hash(buf.array(), off, len, seed);
+    }
     checkRange(buf, off, len);
-
+    buf = inLittleEndianOrder(buf);
+@else{}
+    checkRange(buf, off, len);
+@end{}
     final int end = off + len;
     int h32;
 
@@ -67,7 +54,7 @@ final class XXHash32Java${type} extends XXHash32 {
     }
 
     while (off < end) {
-      h32 += (buf[off] & 0xFF) * PRIME5;
+      h32 += (readByte(buf, off) & 0xFF) * PRIME5;
       h32 = rotateLeft(h32, 11) * PRIME1;
       ++off;
     }
@@ -80,6 +67,3 @@ final class XXHash32Java${type} extends XXHash32 {
 
     return h32;
   }
-
-}
-

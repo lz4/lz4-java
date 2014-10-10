@@ -1,5 +1,7 @@
 package net.jpountz.lz4;
 
+import java.nio.ByteBuffer;
+
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +40,23 @@ public abstract class LZ4FastDecompressor implements LZ4Decompressor {
    * providing LZ4 with a dictionary that can be reused during decompression.
    */
   public abstract int decompressWithPrefix64k(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
+
+  /** Decompress <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>
+   * and return the number of bytes read from <code>src</code>.
+   * <code>destLen</code> must be exactly the size of the decompressed data.
+   * Neither buffer's position is moved.
+   *
+   * @param destLen the <b>exact</b> size of the original input
+   * @return the number of bytes read to restore the original input
+   */
+  public abstract int decompress(ByteBuffer src, int srcOff, ByteBuffer dest, int destOff, int destLen);
+
+  /**
+   * Same as {@link #decompress(ByteBuffer, int, ByteBuffer, int, int)} except that up
+   * to 64 KB before <code>srcOff</code> in <code>src</code>. This is useful for
+   * providing LZ4 with a dictionary that can be reused during decompression.
+   */
+  public abstract int decompressWithPrefix64k(ByteBuffer src, int srcOff, ByteBuffer dest, int destOff, int destLen);
 
   /**
    * Convenience method, equivalent to calling
@@ -82,6 +101,17 @@ public abstract class LZ4FastDecompressor implements LZ4Decompressor {
     return decompress(src, 0, destLen);
   }
 
+
+  /**
+   * Convenience method for processing ByteBuffers using their positions and limits.
+   * The positions in both buffers are moved to reflect the bytes read/written.
+   */
+  public final void decompress(ByteBuffer src, ByteBuffer dest) {
+    int result = decompress(src, src.position(), dest, dest.position(), dest.remaining());
+    src.position(src.position() + result);
+    dest.position(dest.limit());
+  }
+  
   @Override
   public String toString() {
     return getClass().getSimpleName();

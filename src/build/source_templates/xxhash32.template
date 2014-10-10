@@ -1,0 +1,29 @@
+// Auto-generated: DO NOT EDIT
+
+package net.jpountz.xxhash;
+
+import java.nio.ByteBuffer;
+
+import static net.jpountz.xxhash.XXHashConstants.*;
+import static net.jpountz.util.ByteBufferUtils.*;
+import static java.lang.Integer.rotateLeft;
+@if{ type == "Unsafe" }
+import static net.jpountz.util.UnsafeUtils.*;
+import static net.jpountz.util.Utils.checkRange;
+import static net.jpountz.util.ByteBufferUtils.checkRange;
+@else{}
+import static net.jpountz.util.Utils.*;
+@end{}
+
+/**
+ * {@link XXHash32} implementation.
+ */
+final class XXHash32Java${type} extends XXHash32 {
+
+  public static final XXHash32 INSTANCE = new XXHash32Java${type}();
+
+@include{"xxhash32_hash.template"; Storage = "byte[]"}
+@include{"xxhash32_hash.template"; Storage = "ByteBuffer"}
+
+}
+
