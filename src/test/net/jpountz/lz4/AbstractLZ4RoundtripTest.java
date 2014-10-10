@@ -327,12 +327,7 @@ public abstract class AbstractLZ4RoundtripTest extends AbstractLZ4Test {
   public void testRoundTrip(byte[] data, int off, int len,
       LZ4Compressor compressor, LZ4FastDecompressor decompressor, LZ4SafeDecompressor decompressor2) {
         for (Tester<?> allocator : getTesters(compressor, decompressor, decompressor2)) {
-          try {
-            testRoundTrip(data, off, len, allocator);
-          } catch (ReadOnlyBufferException e) {
-            // JNI versions cannot access read-only buffers.
-            assertTrue(decompressor instanceof LZ4JNIFastDecompressor);
-          }
+          testRoundTrip(data, off, len, allocator);
         }
       }
 

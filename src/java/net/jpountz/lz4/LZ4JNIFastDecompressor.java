@@ -57,9 +57,12 @@ final class LZ4JNIFastDecompressor extends LZ4FastDecompressor {
     checkRange(src, srcOff);
     checkRange(dest, destOff, destLen);
     checkNotReadOnly(dest);
-    if (!src.isDirect()) {
-        checkNotReadOnly(src);
+    if (!src.isDirect() && src.isReadOnly()) {
+      // JNI can't access data in this case. Fall back to Java implementation.
+      return LZ4Factory.fastestJavaInstance().fastDecompressor().
+          decompress(src, srcOff, dest, destOff, destLen);
     }
+
     int result = LZ4JNI.LZ4_decompress_fast(
         ByteBufferUtils.getArray(src), src, srcOff,
         ByteBufferUtils.getArray(dest), dest, destOff, destLen);
@@ -74,9 +77,12 @@ final class LZ4JNIFastDecompressor extends LZ4FastDecompressor {
     checkRange(src, srcOff);
     checkRange(dest, destOff,destLen);
     checkNotReadOnly(dest);
-    if (!src.isDirect()) {
-      checkNotReadOnly(src);
+    if (!src.isDirect() && src.isReadOnly()) {
+      // JNI can't access data in this case. Fall back to Java implementation.
+      return LZ4Factory.fastestJavaInstance().fastDecompressor().
+          decompressWithPrefix64k(src, srcOff, dest, destOff, destLen);
     }
+
     int result = LZ4JNI.LZ4_decompress_fast_withPrefix64k(
         ByteBufferUtils.getArray(src), src, srcOff,
         ByteBufferUtils.getArray(dest), dest, destOff, destLen);

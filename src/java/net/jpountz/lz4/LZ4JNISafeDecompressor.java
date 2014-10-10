@@ -57,9 +57,12 @@ final class LZ4JNISafeDecompressor extends LZ4SafeDecompressor {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);
     checkNotReadOnly(dest);
-    if (!src.isDirect()) {
-      checkNotReadOnly(src);
+    if (!src.isDirect() && src.isReadOnly()) {
+      // JNI can't access data in this case. Fall back to Java implementation.
+      return LZ4Factory.fastestJavaInstance().safeDecompressor().
+          decompress(src, srcOff, srcLen, dest, destOff, maxDestLen);
     }
+
     int result = LZ4JNI.LZ4_decompress_safe(
         ByteBufferUtils.getArray(src), src, srcOff, srcLen,
         ByteBufferUtils.getArray(dest), dest, destOff, maxDestLen);
@@ -74,9 +77,12 @@ final class LZ4JNISafeDecompressor extends LZ4SafeDecompressor {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);
     checkNotReadOnly(dest);
-    if (!src.isDirect()) {
-      checkNotReadOnly(src);
+    if (!src.isDirect() && src.isReadOnly()) {
+      // JNI can't access data in this case. Fall back to Java implementation.
+      return LZ4Factory.fastestJavaInstance().safeDecompressor().
+          decompressWithPrefix64k(src, srcOff, srcLen, dest, destOff, maxDestLen);
     }
+
     int result = LZ4JNI.LZ4_decompress_safe_withPrefix64k(
         ByteBufferUtils.getArray(src), src, srcOff, srcLen,
         ByteBufferUtils.getArray(dest), dest, destOff, maxDestLen);

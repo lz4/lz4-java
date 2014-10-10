@@ -46,9 +46,12 @@ final class LZ4HCJNICompressor extends LZ4Compressor {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);
     checkNotReadOnly(dest);
-    if (!src.isDirect()) {
-      checkNotReadOnly(src);
+    if (!src.isDirect() && src.isReadOnly()) {
+      // JNI can't access data in this case. Fall back to Java implementation.
+      return LZ4Factory.fastestJavaInstance().highCompressor().
+          compress(src, srcOff, srcLen, dest, destOff, maxDestLen);
     }
+
     int result = LZ4JNI.LZ4_compressHC(
         ByteBufferUtils.getArray(src), src, srcOff, srcLen,
         ByteBufferUtils.getArray(dest), dest, destOff, maxDestLen);

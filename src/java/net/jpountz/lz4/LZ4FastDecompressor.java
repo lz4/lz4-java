@@ -45,11 +45,8 @@ public abstract class LZ4FastDecompressor implements LZ4Decompressor {
    * and return the number of bytes read from <code>src</code>.
    * <code>destLen</code> must be exactly the size of the decompressed data.
    * Neither buffer's position is moved.
-   * <br/>
-   * Note: The JNI instances cannot read from read-only heap buffers and will throw a
-   * <code>ReadOnlyBufferException</code> if one is passed as source.
    *
-   * @throws ReadOnlyBufferException if dest is read-only or src is a read-only heap buffer.
+   * @throws ReadOnlyBufferException if dest is read-only
    * @param destLen the <b>exact</b> size of the original input
    * @return the number of bytes read to restore the original input
    */
