@@ -54,10 +54,12 @@
 **************************************/
 /* 32 or 64 bits ? */
 #if (defined(__x86_64__) || defined(_M_X64) || defined(_WIN64) \
+  || defined(__64BIT__)  || defined(__mips64) \
   || defined(__powerpc64__) || defined(__powerpc64le__) \
   || defined(__ppc64__) || defined(__ppc64le__) \
   || defined(__PPC64__) || defined(__PPC64LE__) \
-  || defined(__ia64) || defined(__itanium__) || defined(_M_IA64) )   /* Detects 64 bits mode */
+  || defined(__ia64) || defined(__itanium__) || defined(_M_IA64) \
+  || defined(__s390x__) )   /* Detects 64 bits mode */
 #  define LZ4_ARCH64 1
 #else
 #  define LZ4_ARCH64 0
@@ -400,7 +402,10 @@ FORCE_INLINE void LZ4HC_Insert (LZ4HC_Data_Structure* hc4, const BYTE* ip)
 char* LZ4_slideInputBufferHC(void* LZ4HC_Data)
 {
     LZ4HC_Data_Structure* hc4 = (LZ4HC_Data_Structure*)LZ4HC_Data;
-    U32 distance = (U32)(hc4->end - hc4->inputBuffer) - 64 KB;
+    size_t distance = (hc4->end - 64 KB) - hc4->inputBuffer;
+
+    if (hc4->end <= hc4->inputBuffer + 64 KB) return (char*)(hc4->end);   /* no update : less than 64KB within buffer */
+
     distance = (distance >> 16) << 16;   /* Must be a multiple of 64 KB */
     LZ4HC_Insert(hc4, hc4->end - MINMATCH);
     memcpy((void*)(hc4->end - 64 KB - distance), (const void*)(hc4->end - 64 KB), 64 KB);

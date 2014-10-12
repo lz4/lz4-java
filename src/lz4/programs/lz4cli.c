@@ -48,6 +48,10 @@
 #  pragma warning(disable : 4127)      // disable: C4127: conditional expression is constant
 #endif
 
+#ifdef __clang__
+#  pragma clang diagnostic ignored "-Wunused-const-variable"   // const variable one is really used !
+#endif
+
 #define _FILE_OFFSET_BITS 64   // Large file support on 32-bits unix
 #define _POSIX_SOURCE 1        // for fileno() within <stdio.h> on unix
 
@@ -91,7 +95,7 @@
 
 #if defined(_MSC_VER)    // Visual Studio
 #  define swap32 _byteswap_ulong
-#elif GCC_VERSION >= 403
+#elif (GCC_VERSION >= 403) || defined(__clang__)
 #  define swap32 __builtin_bswap32
 #else
   static inline unsigned int swap32(unsigned int x)
@@ -109,7 +113,7 @@
 //****************************
 #define COMPRESSOR_NAME "LZ4 Compression CLI"
 #ifndef LZ4_VERSION
-#  define LZ4_VERSION "v1.2.0"
+#  define LZ4_VERSION "r122"
 #endif
 #define AUTHOR "Yann Collet"
 #define WELCOME_MESSAGE "*** %s %i-bits %s, by %s (%s) ***\n", COMPRESSOR_NAME, (int)(sizeof(void*)*8), LZ4_VERSION, AUTHOR, __DATE__
@@ -175,7 +179,7 @@ int LZ4IO_compressFilename_Legacy(char* input_filename, char* output_filename, i
 //****************************
 // Functions
 //****************************
-int usage()
+int usage(void)
 {
     DISPLAY( "Usage :\n");
     DISPLAY( "      %s [arg] [input] [output]\n", programName);
@@ -192,7 +196,7 @@ int usage()
     return 0;
 }
 
-int usage_advanced()
+int usage_advanced(void)
 {
     DISPLAY(WELCOME_MESSAGE);
     usage();
@@ -223,7 +227,7 @@ int usage_advanced()
     return 0;
 }
 
-int usage_longhelp()
+int usage_longhelp(void)
 {
     DISPLAY( "\n");
     DISPLAY( "Which values can get [output] ? \n");
@@ -273,7 +277,7 @@ int usage_longhelp()
     return 0;
 }
 
-int badusage()
+int badusage(void)
 {
     DISPLAYLEVEL(1, "Incorrect parameters\n");
     if (displayLevel >= 1) usage();
@@ -281,7 +285,7 @@ int badusage()
 }
 
 
-void waitEnter()
+void waitEnter(void)
 {
     DISPLAY("Press enter to continue...\n");
     getchar();
@@ -377,7 +381,7 @@ int main(int argc, char** argv)
                 case 'c': forceStdout=1; output_filename=stdoutmark; displayLevel=1; break;
 
                     // Test
-                case 't': decode=1; output_filename=nulmark; break;
+                case 't': decode=1; LZ4IO_setOverwrite(1); output_filename=nulmark; break;
 
                     // Overwrite
                 case 'f': LZ4IO_setOverwrite(1); break;

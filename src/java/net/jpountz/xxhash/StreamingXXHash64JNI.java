@@ -51,7 +51,7 @@ final class StreamingXXHash64JNI extends StreamingXXHash64 {
   @Override
   public long getValue() {
     checkState();
-    return XXHashJNI.XXH64_intermediateDigest(state);
+    return XXHashJNI.XXH64_digest(state);
   }
 
   @Override

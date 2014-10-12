@@ -2,9 +2,9 @@
 
 ## 1.3.0
 
- - lz4 r119
+ - lz4 r123
 
- - xxhash r34
+ - xxhash r37
 
  - [#23](http://github.com/jpountz/lz4-java/issues/23)
    Added the ability for the decompressors to use preset dictionaries as a 64kb

@@ -87,7 +87,14 @@ JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32BB
 JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1init
   (JNIEnv *env, jclass cls, jint seed) {
 
-  return (jlong) XXH32_init(seed);
+  XXH32_state_t *state = XXH32_createState();
+  if (XXH32_reset(state, seed) != XXH_OK) {
+    XXH32_freeState(state);
+    throw_OOM(env);
+    return 0;
+  }
+
+  return (jlong) state;
 
 }
 
@@ -113,25 +120,13 @@ JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1update
 
 /*
  * Class:     net_jpountz_xxhash_XXHashJNI
- * Method:    XXH32_intermediateDigest
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1intermediateDigest
-  (JNIEnv *env, jclass cls, jlong state) {
-
-  return XXH32_intermediateDigest((void*) state);
-
-}
-
-/*
- * Class:     net_jpountz_xxhash_XXHashJNI
  * Method:    XXH32_digest
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1digest
   (JNIEnv *env, jclass cls, jlong state) {
 
-  return XXH32_digest((void*) state);
+  return XXH32_digest((XXH32_state_t*) state);
 
 }
 
@@ -143,7 +138,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1digest
 JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1free
   (JNIEnv *env, jclass cls, jlong state) {
 
-  free((void*) state);
+  XXH32_freeState((XXH32_state_t*) state);
 
 }
 
@@ -202,7 +197,15 @@ JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64BB
 JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1init
   (JNIEnv *env, jclass cls, jlong seed) {
 
-  return (jlong) XXH64_init(seed);
+  XXH64_state_t *state = XXH64_createState();
+  if (XXH64_reset(state, seed) != XXH_OK) {
+    XXH64_freeState(state);
+    throw_OOM(env);
+    return 0;
+  }
+
+  return (jlong) state;
+
 }
 
 /*
@@ -219,21 +222,9 @@ JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1update
     return;
   }
 
-  XXH64_update((void*) state, in + off, len);
+  XXH64_update((XXH64_state_t*) state, in + off, len);
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
-
-}
-
-/*
- * Class:     net_jpountz_xxhash_XXHashJNI
- * Method:    XXH64_intermediateDigest
- * Signature: (J)J
- */
-JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1intermediateDigest
-  (JNIEnv *env, jclass cls, jlong state) {
-
-  return XXH64_intermediateDigest((void*) state);
 
 }
 
@@ -245,7 +236,7 @@ JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1intermediateDig
 JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1digest
   (JNIEnv *env, jclass cls, jlong state) {
 
-  return XXH64_digest((void*) state);
+  return XXH64_digest((XXH64_state_t*) state);
 
 }
 
@@ -257,6 +248,6 @@ JNIEXPORT jlong JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1digest
 JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1free
   (JNIEnv *env, jclass cls, jlong state) {
 
-  free((void*) state);
+  XXH64_freeState((XXH64_state_t*) state);
 
 }

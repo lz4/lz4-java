@@ -31,16 +31,18 @@
 # ################################################################
 
 # Version numbers
-export RELEASE=r119
-LIBVER_MAJOR=1
-LIBVER_MINOR=2
-LIBVER_PATCH=0
+VERSION=123
+export RELEASE=r$(VERSION)
+LIBVER_MAJOR=`sed -n '/define LZ4_VERSION_MAJOR/s/.*[[:blank:]]\([0-9][0-9]*\).*/\1/p' < lz4.h`
+LIBVER_MINOR=`sed -n '/define LZ4_VERSION_MINOR/s/.*[[:blank:]]\([0-9][0-9]*\).*/\1/p' < lz4.h`
+LIBVER_PATCH=`sed -n '/define LZ4_VERSION_RELEASE/s/.*[[:blank:]]\([0-9][0-9]*\).*/\1/p' < lz4.h`
 LIBVER=$(LIBVER_MAJOR).$(LIBVER_MINOR).$(LIBVER_PATCH)
 
-DESTDIR=
-PREFIX = /usr
-CC    := $(CC)
-CFLAGS+= -I. -std=c99 -O3 -Wall -W -Wundef -DLZ4_VERSION=\"$(RELEASE)\"
+DESTDIR?=
+PREFIX ?= /usr
+CC     := $(CC)
+CFLAGS ?= -O3
+CFLAGS += -I. -std=c99 -Wall -Wextra -Wundef -Wshadow -Wstrict-prototypes -DLZ4_VERSION=\"$(RELEASE)\"
 
 LIBDIR?= $(PREFIX)/lib
 INCLUDEDIR=$(PREFIX)/include
@@ -58,10 +60,10 @@ endif
 # OS X linker doesn't support -soname, and use different extension
 # see : https://developer.apple.com/library/mac/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/DynamicLibraryDesignGuidelines.html
 ifeq ($(shell uname), Darwin)
-	SONAME_FLAGS =
 	SHARED_EXT = dylib
 	SHARED_EXT_MAJOR = $(LIBVER_MAJOR).$(SHARED_EXT)
 	SHARED_EXT_VER = $(LIBVER).$(SHARED_EXT)
+	SONAME_FLAGS = -install_name $(PREFIX)/lib/liblz4.$(SHARED_EXT_MAJOR) -compatibility_version $(LIBVER_MAJOR) -current_version $(LIBVER)
 else
 	SONAME_FLAGS = -Wl,-soname=liblz4.$(SHARED_EXT).$(LIBVER_MAJOR)
 	SHARED_EXT = so
@@ -70,9 +72,11 @@ else
 endif
 
 TEXT = lz4.c lz4.h lz4hc.c lz4hc.h \
-	lz4_format_description.txt Makefile NEWS LICENSE README.md \
+	liblz4.pc.in Makefile \
+	lz4_format_description.txt NEWS LICENSE README.md \
 	cmake_unofficial/CMakeLists.txt \
-	$(PRGDIR)/fullbench.c $(PRGDIR)/fuzzer.c $(PRGDIR)/lz4cli.c \
+	$(PRGDIR)/fullbench.c $(PRGDIR)/lz4cli.c \
+	$(PRGDIR)/datagen.c $(PRGDIR)/fuzzer.c \
 	$(PRGDIR)/lz4io.c $(PRGDIR)/lz4io.h \
 	$(PRGDIR)/bench.c $(PRGDIR)/bench.h \
 	$(PRGDIR)/xxhash.c $(PRGDIR)/xxhash.h \
@@ -92,28 +96,39 @@ lz4programs: lz4.c lz4hc.c
 
 liblz4: lz4.c lz4hc.c
 	@echo compiling static library
-	@$(CC) $(CFLAGS) -c $^
+	@$(CC) $(CPPFLAGS) $(CFLAGS) -c $^
 	@$(AR) rcs liblz4.a lz4.o lz4hc.o
 	@echo compiling dynamic library
-	@$(CC) $(CFLAGS) -shared $^ -fPIC $(SONAME_FLAGS) -o $@.$(SHARED_EXT_VER)
+	@$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared $^ -fPIC $(SONAME_FLAGS) -o $@.$(SHARED_EXT_VER)
 	@echo creating versioned links
 	@ln -sf $@.$(SHARED_EXT_VER) $@.$(SHARED_EXT_MAJOR)
 	@ln -sf $@.$(SHARED_EXT_VER) $@.$(SHARED_EXT)
 
 clean:
-	@rm -f core *.o *.a *.$(SHARED_EXT) *.$(SHARED_EXT).* $(DISTRIBNAME) *.sha1
+	@rm -f core *.o *.a *.$(SHARED_EXT) *.$(SHARED_EXT).* $(DISTRIBNAME) *.sha1 liblz4.pc
 	@cd $(PRGDIR); $(MAKE) clean
+	@cd examples; $(MAKE) clean
 	@echo Cleaning completed
 
 
-#make install option is designed for Linux & OSX targets only
-ifneq (,$(filter $(shell uname),Linux Darwin))
+#------------------------------------------------------------------------
+#make install is validated only for Linux, OSX, kFreeBSD and Hurd targets
+ifneq (,$(filter $(shell uname),Linux Darwin GNU/kFreeBSD GNU))
 
-install: liblz4
-	@install -d -m 755 $(DESTDIR)$(LIBDIR)/ $(DESTDIR)$(INCLUDEDIR)/
+liblz4.pc: liblz4.pc.in Makefile
+	@echo creating pkgconfig
+	@sed -e 's|@PREFIX@|$(PREFIX)|' \
+            -e 's|@LIBDIR@|$(LIBDIR)|' \
+            -e 's|@INCLUDEDIR@|$(INCLUDEDIR)|' \
+            -e 's|@VERSION@|$(VERSION)|' \
+             $< >$@
+
+install: liblz4 liblz4.pc
+	@install -d -m 755 $(DESTDIR)$(LIBDIR)/pkgconfig/ $(DESTDIR)$(INCLUDEDIR)/
 	@install -m 755 liblz4.$(SHARED_EXT_VER) $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT_VER)
 	@cp -a liblz4.$(SHARED_EXT_MAJOR) $(DESTDIR)$(LIBDIR)
 	@cp -a liblz4.$(SHARED_EXT) $(DESTDIR)$(LIBDIR)
+	@cp -a liblz4.pc $(DESTDIR)$(LIBDIR)/pkgconfig/
 	@install -m 644 liblz4.a $(DESTDIR)$(LIBDIR)/liblz4.a
 	@install -m 644 lz4.h $(DESTDIR)$(INCLUDEDIR)/lz4.h
 	@install -m 644 lz4hc.h $(DESTDIR)$(INCLUDEDIR)/lz4hc.h
@@ -123,6 +138,7 @@ install: liblz4
 uninstall:
 	rm -f $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT)
 	rm -f $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT_MAJOR)
+	rm -f $(DESTDIR)$(LIBDIR)/pkgconfig/liblz4.pc
 	[ -x $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT_VER) ] && rm -f $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT_VER)
 	[ -f $(DESTDIR)$(LIBDIR)/liblz4.a ] && rm -f $(DESTDIR)$(LIBDIR)/liblz4.a
 	[ -f $(DESTDIR)$(INCLUDEDIR)/lz4.h ] && rm -f $(DESTDIR)$(INCLUDEDIR)/lz4.h
@@ -146,7 +162,8 @@ dist: clean
 	@sha1sum $(DISTRIBNAME) > $(DISTRIBNAME).sha1
 	@echo Distribution $(DISTRIBNAME) built
 
-test: lz4programs
+test:
+	@cd examples; $(MAKE) -e $@
 	@cd $(PRGDIR); $(MAKE) -e $@
 
 endif
