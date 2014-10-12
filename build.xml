@@ -84,6 +84,14 @@
     <property name="forbidden-apis.available" value="true"/>
   </target>
 
+  <target name="install-bnd" unless="bnd.available">
+    <!-- using bnd 1.50.0 because more recent versions have broken JAR wrapping -->
+    <ivy:cachepath organisation="biz.aQute" module="bnd" revision="1.50.0"
+      inline="true" conf="default" transitive="true" pathid="bnd.classpath"/>
+    <taskdef resource="aQute/bnd/ant/taskdef.properties" classpathref="bnd.classpath"/>
+    <property name="bnd.available" value="true"/> 
+  </target>
+
   <target name="init">
     <tstamp />
     <ivy:resolve conf="test" />
@@ -320,13 +328,32 @@
   <target name="jar" description="generate JAR" depends="compile">
     <mkdir dir="${dist}" />
     <jar
-      destfile="${dist}/${ivy.module}-${ivy.revision}.jar">
+      destfile="${dist}/${ivy.module}.jar">
       <fileset dir="${src}/resources" erroronmissingdir="false" />
       <fileset dir="${build}/classes" />
       <fileset dir="${build}/unsafe-classes" />
       <fileset dir="${build}/generated-classes" />
       <fileset dir="${build}/jni" erroronmissingdir="false" />
     </jar>
+  </target>
+
+  <target name="bundle" description="makes the JAR a valid OSGi bundle" depends="install-bnd, jar">
+    <taskdef resource="aQute/bnd/ant/taskdef.properties" classpathref="bnd.classpath"/>
+    <property name="packages.version" value="${ivy.revision}"/>
+    <!-- We need to remove potential -SNAPSHOT qualifiers as package versions... -->
+    <script language="javascript">
+            <![CDATA[
+                // lz4 is the ant project name
+                version = lz4.getProperty("packages.version");
+                lz4.setProperty("packages.version", version.replace("-SNAPSHOT", ""));
+            ]]>
+    </script>
+    <!-- wrap the JAR as a bundle and set the proper name -->
+    <bndwrap definitions="${basedir}" output="${dist}/${ivy.module}-${ivy.revision}.jar" trace="true">
+      <fileset dir="${dist}/" includes="${ivy.module}.jar"/>
+    </bndwrap>
+    <!-- remove plain JAR -->
+    <delete file="${dist}/${ivy.module}.jar"/>
   </target>
 
   <target name="makepom" description="generate a pom file">
@@ -339,7 +366,7 @@
     </ivy:makepom>
   </target>
 
-  <target name="dist" description="package" depends="jar,docs,sources,makepom" />
+  <target name="dist" description="package" depends="bundle,docs,sources,makepom" />
 
   <target name="forbidden-apis" description="check API usage" depends="install-forbidden-apis,compile">
     <forbidden-apis internalRuntimeForbidden="true" classpathref="forbidden-apis.classpath">

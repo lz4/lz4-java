@@ -1,0 +1,5 @@
+Bundle-SymbolicName: lz4-java
+Bundle-Name: LZ4 Java Compression
+Bundle-Version:${ivy.revision}
+Export-Package: net.jpountz.*;version:=${packages.version}
+
