@@ -145,6 +145,19 @@ If ivy is not installed yet, ant can take care of it for you, just run
 
 ## Instructions
 
-Then run `ant`. It will compile C and Java code and generate a self-contained
-JAR file under the dist directory.
+Then run `ant`. It will:
 
+ - generate some Java source files in `build/java` from the templates that are
+   located under `src/build`,
+ - compile the lz4 and xxhash libraries and their JNI (Java Native Interface)
+   bindings,
+ - compile Java sources in `src/java` (normal sources), `src/java-unsafe`
+   (sources that make use of `sun.misc.Unsafe`) and `build/java`
+   (auto-generated sources) to `build/classes`, `build/unsafe-classes` and
+   `build/generated-classes`,
+ - generate a JAR file called lz4-${version}.jar under the `dist` directory.
+
+The JAR file that is generated contains Java class files, the native library
+and the JNI bindings. If you add this JAR to your classpath, the native library
+will be copied to a temporary directory and dynamically linked to your Java
+application.
