@@ -13,6 +13,7 @@
  */
 
 #include "lz4.h"
+#include "lz4hc.h"
 #include "net_jpountz_lz4_LZ4JNI.h"
 
 static jclass OutOfMemoryError;
@@ -81,7 +82,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress_1limitedOutput
  * Signature: ([BII[BI)I
  */
 JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
-  (JNIEnv *env, jclass cls, jbyteArray srcArray, jobject srcBuffer, jint srcOff, jint srcLen, jbyteArray destArray, jobject destBuffer, jint destOff, jint maxDestLen) {
+  (JNIEnv *env, jclass cls, jbyteArray srcArray, jobject srcBuffer, jint srcOff, jint srcLen, jbyteArray destArray, jobject destBuffer, jint destOff, jint maxDestLen, jint compressionLevel) {
 
   char* in;
   char* out;
@@ -106,7 +107,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
     return 0;
   }
 
-  compressed = LZ4_compressHC_limitedOutput(in + srcOff, out + destOff, srcLen, maxDestLen);
+  compressed = LZ4_compressHC2_limitedOutput(in + srcOff, out + destOff, srcLen, maxDestLen, compressionLevel);
 
   if (destArray != NULL) {
 	  (*env)->ReleasePrimitiveArrayCritical(env, destArray, out, 0);

@@ -89,6 +89,10 @@ public abstract class AbstractLZ4RoundtripTest extends AbstractLZ4Test {
         } else if (compressor == LZ4Factory.unsafeInstance().highCompressor()
             || compressor == LZ4Factory.safeInstance().highCompressor()) {
           return LZ4Factory.nativeInstance().highCompressor();
+        } else if (compressor instanceof LZ4HCJavaSafeCompressor) {
+          return LZ4Factory.nativeInstance().highCompressor(((LZ4HCJavaSafeCompressor)compressor).compressionLevel);
+        } else if (compressor instanceof LZ4HCJavaUnsafeCompressor) {
+          return LZ4Factory.nativeInstance().highCompressor(((LZ4HCJavaUnsafeCompressor)compressor).compressionLevel);
         }
         return null;
       }
@@ -333,9 +337,9 @@ public abstract class AbstractLZ4RoundtripTest extends AbstractLZ4Test {
 
   public void testRoundTrip(byte[] data, int off, int len,
       LZ4Factory lz4) {
-        for (LZ4Compressor compressor : Arrays.asList(
-            lz4.fastCompressor(), lz4.highCompressor())) {
-          testRoundTrip(data, off, len, compressor, lz4.fastDecompressor(), lz4.safeDecompressor());
+        testRoundTrip(data, off, len, lz4.fastCompressor(), lz4.fastDecompressor(), lz4.safeDecompressor());
+        for (int level : Arrays.asList(1, 5, 9, 13)) { //Test compression level 1, 5, 9(default) and 13 only. Should be ok.
+          testRoundTrip(data, off, len, lz4.highCompressor(level), lz4.fastDecompressor(), lz4.safeDecompressor());
         }
       }
 
