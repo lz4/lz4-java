@@ -14,12 +14,16 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import net.jpountz.util.Native;
 import net.jpountz.util.UnsafeBase;
 import net.jpountz.util.Utils;
+import static net.jpountz.lz4.LZ4Constants.DEFAULT_COMPRESSION_LEVEL;
+import static net.jpountz.lz4.LZ4Constants.MAX_COMPRESSION_LEVEL;
 
 /**
  * Entry point for the LZ4 API.
@@ -153,13 +157,20 @@ public final class LZ4Factory {
   private final LZ4Compressor highCompressor;
   private final LZ4FastDecompressor fastDecompressor;
   private final LZ4SafeDecompressor safeDecompressor;
+  private final LZ4Compressor[] highCompressors = new LZ4Compressor[MAX_COMPRESSION_LEVEL+1];
 
-  private LZ4Factory(String impl) throws ClassNotFoundException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+  private LZ4Factory(String impl) throws ClassNotFoundException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, NoSuchMethodException, InstantiationException, InvocationTargetException {
     this.impl = impl;
     fastCompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "Compressor");
     highCompressor = classInstance("net.jpountz.lz4.LZ4HC" + impl + "Compressor");
     fastDecompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "FastDecompressor");
     safeDecompressor = classInstance("net.jpountz.lz4.LZ4" + impl + "SafeDecompressor");
+    Constructor<? extends LZ4Compressor> highConstructor = highCompressor.getClass().getDeclaredConstructor(int.class);
+    highCompressors[DEFAULT_COMPRESSION_LEVEL] = highCompressor;
+    for(int level = 1; level <= MAX_COMPRESSION_LEVEL; level++) {
+      if(level == DEFAULT_COMPRESSION_LEVEL) continue;
+      highCompressors[level] = highConstructor.newInstance(level);
+    }
 
     // quickly test that everything works as expected
     final byte[] original = new byte[] {'a','b','c','d',' ',' ',' ',' ',' ',' ','a','b','c','d','e','f','g','h','i','j'};
@@ -190,6 +201,24 @@ public final class LZ4Factory {
    * {@link #fastCompressor()} and is slower but compresses more efficiently. */
   public LZ4Compressor highCompressor() {
     return highCompressor;
+  }
+
+  /** Return a {@link LZ4Compressor} which requires more memory than
+   * {@link #fastCompressor()} and is slower but compresses more efficiently.
+   * The compression level can be customized.
+   * <p>For current implementations, the following is true about compression level:<ol>
+   *   <li>It should be in range [1, 17]</li>
+   *   <li>A compression level higher than 17 would be treated as 17.</li>
+   *   <li>A compression level lower than 1 would be treated as 9.</li>
+   * </ol></p>
+   */
+  public LZ4Compressor highCompressor(int compressionLevel) {
+    if(compressionLevel > MAX_COMPRESSION_LEVEL) {
+      compressionLevel = MAX_COMPRESSION_LEVEL;
+    } else if(compressionLevel < 1) {
+      compressionLevel = DEFAULT_COMPRESSION_LEVEL;
+    }
+    return highCompressors[compressionLevel];
   }
 
   /** Return a {@link LZ4FastDecompressor} instance. */
