@@ -8,7 +8,30 @@
 
  - [#23](http://github.com/jpountz/lz4-java/issues/23)
    Added the ability for the decompressors to use preset dictionaries as a 64kb
-   buffer in front of the buffer to decompress.
+   buffer in front of the buffer to decompress. (Adrien Grand)
+
+ - [#49](https://github.com/jpountz/lz4-java/pull/49)
+   All compression and decompression routines as well as xxhash can now work
+   with java.nio.ByteBuffer. (Branimir Lambov)
+
+ - [#46](https://github.com/jpountz/lz4-java/pull/46)
+   Fixed incorrect usage of ReleasePrimitiveArrayCritical. (Xiaoguang Sun)
+
+ - [#44](https://github.com/jpountz/lz4-java/pull/44)
+   Added support for xxhash64. (Linnaea Von Lavia)
+
+ - [#43](https://github.com/jpountz/lz4-java/pull/43)
+   The compression level for high compression is now configurable.
+   (Linnaea Von Lavia)
+
+ - [#39](https://github.com/jpountz/lz4-java/pull/39)
+   The JAR is now a valid OSGI bundle. (Simon Chemouil)
+
+ - [#33](https://github.com/jpountz/lz4-java/pull/33)
+   The implementation based on Java's sun.misc.Unsafe relies on unaligned
+   memory access and is now only used on platforms that support it.
+   (Dmitry Shohov)
+
 
 ## 1.2.0
 
