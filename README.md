@@ -136,7 +136,7 @@ speed at which they compress/decompress/hash bytes.
 
 ## Requirements
 
- - JDK version 6 or newer,
+ - JDK version 7 or newer,
  - ant,
  - ivy.
 
