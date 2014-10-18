@@ -42,17 +42,6 @@ final class LZ4JNISafeDecompressor extends LZ4SafeDecompressor {
   }
 
   @Override
-  public final int decompressWithPrefix64k(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
-    checkRange(src, srcOff, srcLen);
-    checkRange(dest, destOff, maxDestLen);
-    final int result = LZ4JNI.LZ4_decompress_safe_withPrefix64k(src, null, srcOff, srcLen, dest, null, destOff, maxDestLen);
-    if (result < 0) {
-      throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
-    }
-    return result;
-  }
-
-  @Override
   public int decompress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);
@@ -64,26 +53,6 @@ final class LZ4JNISafeDecompressor extends LZ4SafeDecompressor {
     }
 
     int result = LZ4JNI.LZ4_decompress_safe(
-        ByteBufferUtils.getArray(src), src, srcOff, srcLen,
-        ByteBufferUtils.getArray(dest), dest, destOff, maxDestLen);
-    if (result < 0) {
-      throw new LZ4Exception("Error decoding offset " + (src.position() - result) + " of input buffer");
-    }
-    return result;
-  }
-
-  @Override
-  public int decompressWithPrefix64k(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
-    checkRange(src, srcOff, srcLen);
-    checkRange(dest, destOff, maxDestLen);
-    checkNotReadOnly(dest);
-    if (!src.isDirect() && src.isReadOnly()) {
-      // JNI can't access data in this case. Fall back to Java implementation.
-      return LZ4Factory.fastestJavaInstance().safeDecompressor().
-          decompressWithPrefix64k(src, srcOff, srcLen, dest, destOff, maxDestLen);
-    }
-
-    int result = LZ4JNI.LZ4_decompress_safe_withPrefix64k(
         ByteBufferUtils.getArray(src), src, srcOff, srcLen,
         ByteBufferUtils.getArray(dest), dest, destOff, maxDestLen);
     if (result < 0) {

@@ -40,17 +40,6 @@ final class LZ4JNIFastDecompressor extends LZ4FastDecompressor {
     }
     return result;
   }
-
-  @Override
-  public final int decompressWithPrefix64k(byte[] src, int srcOff, byte[] dest, int destOff, int destLen) {
-    checkRange(src, srcOff);
-    checkRange(dest, destOff, destLen);
-    final int result = LZ4JNI.LZ4_decompress_fast_withPrefix64k(src, null, srcOff, dest, null, destOff, destLen);
-    if (result < 0) {
-      throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
-    }
-    return result;
-  }
   
   @Override
   public int decompress(ByteBuffer src, int srcOff, ByteBuffer dest, int destOff, int destLen) {
@@ -64,26 +53,6 @@ final class LZ4JNIFastDecompressor extends LZ4FastDecompressor {
     }
 
     int result = LZ4JNI.LZ4_decompress_fast(
-        ByteBufferUtils.getArray(src), src, srcOff,
-        ByteBufferUtils.getArray(dest), dest, destOff, destLen);
-    if (result < 0) {
-      throw new LZ4Exception("Error decoding offset " + (src.position() - result) + " of input buffer");
-    }
-    return result;
-  }
-
-  @Override
-  public int decompressWithPrefix64k(ByteBuffer src, int srcOff, ByteBuffer dest, int destOff, int destLen) {
-    checkRange(src, srcOff);
-    checkRange(dest, destOff,destLen);
-    checkNotReadOnly(dest);
-    if (!src.isDirect() && src.isReadOnly()) {
-      // JNI can't access data in this case. Fall back to Java implementation.
-      return LZ4Factory.fastestJavaInstance().fastDecompressor().
-          decompressWithPrefix64k(src, srcOff, dest, destOff, destLen);
-    }
-
-    int result = LZ4JNI.LZ4_decompress_fast_withPrefix64k(
         ByteBufferUtils.getArray(src), src, srcOff,
         ByteBufferUtils.getArray(dest), dest, destOff, destLen);
     if (result < 0) {

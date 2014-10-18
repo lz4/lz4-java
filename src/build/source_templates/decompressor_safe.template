@@ -20,11 +20,7 @@ final class LZ4Java@{type}${size}Decompressor extends LZ4${size}Decompressor {
   @Override
 @include{"decompress.template"; prefix = false; Storage = "byte[]"; OffsetType = "int"; NameSuffix = ""; Visibility = "public"}
   @Override
-@include{"decompress.template"; prefix = true; Storage = "byte[]"; OffsetType = "int"; NameSuffix = "WithPrefix64k"; Visibility = "public"}
-  @Override
 @include{"decompress.template"; prefix = false; Storage = "ByteBuffer"; OffsetType = "int"; NameSuffix = ""; Visibility = "public"}
-  @Override
-@include{"decompress.template"; prefix = true; Storage = "ByteBuffer"; OffsetType = "int"; NameSuffix = "WithPrefix64k"; Visibility = "public"}
 
 }
 

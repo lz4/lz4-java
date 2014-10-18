@@ -6,10 +6,6 @@
 
  - xxhash r37
 
- - [#23](http://github.com/jpountz/lz4-java/issues/23)
-   Added the ability for the decompressors to use preset dictionaries as a 64kb
-   buffer in front of the buffer to decompress. (Adrien Grand)
-
  - [#49](https://github.com/jpountz/lz4-java/pull/49)
    All compression and decompression routines as well as xxhash can now work
    with java.nio.ByteBuffer. (Branimir Lambov)

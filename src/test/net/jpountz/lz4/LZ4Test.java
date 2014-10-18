@@ -274,48 +274,6 @@ public class LZ4Test extends AbstractLZ4RoundtripTest {
       };
     testRoundTrip(data, 9, data.length - 9);
   }
-
-  @Test
-  public void testDecompressWithPrefix64k() {
-    final byte[] compressed = new byte[] {
-      16, 42, 7,0, 80, 1,2,3,4,5  
-    };
-    final byte[] original = new byte[] {
-        42,1,2,3,4,1,2,3,4,5
-    };
-    for (LZ4FastDecompressor decompressor : FAST_DECOMPRESSORS) {
-      final byte[] restored = new byte[16];
-      restored[0] = 1;
-      restored[1] = 2;
-      restored[2] = 3;
-      restored[3] = 4;
-      restored[4] = 5;
-      final int compressedLen = decompressor.decompressWithPrefix64k(compressed, 0, restored, 6, restored.length - 6);
-      assertEquals(compressed.length, compressedLen);
-      assertArrayEquals(original, Arrays.copyOfRange(restored, 6, restored.length));
-    }
-  }
-
-  @Test
-  public void testByteBufferDecompressWithPrefix64k() {
-    final ByteBuffer compressed = ByteBuffer.wrap(new byte[] {
-      16, 42, 7,0, 80, 1,2,3,4,5  
-    });
-    final ByteBuffer original = ByteBuffer.wrap(new byte[] {
-        42,1,2,3,4,1,2,3,4,5
-    });
-    for (LZ4FastDecompressor decompressor : FAST_DECOMPRESSORS) {
-      final ByteBuffer restored = ByteBuffer.wrap(new byte[16]);
-      restored.put(0, (byte) 1);
-      restored.put(1, (byte) 2);
-      restored.put(2, (byte) 3);
-      restored.put(3, (byte) 4);
-      restored.put(4, (byte) 5);
-      final int compressedLen = decompressor.decompressWithPrefix64k(compressed, 0, restored, 6, restored.capacity() - 6);
-      assertEquals(compressed.capacity(), compressedLen);
-      assertTrue(original.equals(restored.duplicate().position(6)));
-    }
-  }
   
   @Test
   public void testWriteToReadOnlyBuffer() {

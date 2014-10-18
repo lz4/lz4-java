@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
-import java.nio.ReadOnlyBufferException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
@@ -29,9 +28,7 @@ public abstract class AbstractLZ4RoundtripTest extends AbstractLZ4Test {
       
       abstract int compress(T src, int srcOff, int srcLen, T dst, int dstOff, int dstLen);
       abstract int decompress(T src, int srcOff, T dst, int dstOff, int dstLen);
-      abstract int decompressWithPrefix64k(T src, int srcOff, T dst, int dstOff, int dstLen);
       abstract int decompress2(T src, int srcOff, int srcLen, T dst, int dstOff);
-      abstract int decompress2WithPrefix64k(T src, int srcOff, int srcLen, T dst, int dstOff);
       abstract LZ4Compressor refCompressor();
       abstract byte[] bytes(T src, int len);
     }
@@ -73,14 +70,8 @@ public abstract class AbstractLZ4RoundtripTest extends AbstractLZ4Test {
       int decompress(byte[] src, int srcOff, byte[] dst, int dstOff, int dstLen) {
         return decompressor.decompress(src, srcOff, dst, dstOff, dstLen);
       }
-      int decompressWithPrefix64k(byte[] src, int srcOff, byte[] dst, int dstOff, int dstLen) {
-        return decompressor.decompressWithPrefix64k(src, srcOff, dst, dstOff, dstLen);
-      }
       int decompress2(byte[] src, int srcOff, int srcLen, byte[] dst, int dstOff) {
         return decompressor2.decompress(src, srcOff, srcLen, dst, dstOff);
-      }
-      int decompress2WithPrefix64k(byte[] src, int srcOff, int srcLen, byte[] dst, int dstOff) {
-        return decompressor2.decompressWithPrefix64k(src, srcOff, srcLen, dst, dstOff);
       }
       LZ4Compressor refCompressor() {
         if (compressor == LZ4Factory.unsafeInstance().fastCompressor()
@@ -129,14 +120,8 @@ public abstract class AbstractLZ4RoundtripTest extends AbstractLZ4Test {
       int decompress(ByteBuffer src, int srcOff, ByteBuffer dst, int dstOff, int dstLen) {
         return decompressor.decompress(src, srcOff, dst, dstOff, dstLen);
       }
-      int decompressWithPrefix64k(ByteBuffer src, int srcOff, ByteBuffer dst, int dstOff, int dstLen) {
-        return decompressor.decompressWithPrefix64k(src, srcOff, dst, dstOff, dstLen);
-      }
       int decompress2(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dst, int dstOff) {
         return decompressor2.decompress(src, srcOff, srcLen, dst, dstOff);
-      }
-      int decompress2WithPrefix64k(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dst, int dstOff) {
-        return decompressor2.decompressWithPrefix64k(src, srcOff, srcLen, dst, dstOff);
       }
       LZ4Compressor refCompressor() {
         return compressor;    // Will be used on byte arrays.
@@ -263,11 +248,6 @@ public abstract class AbstractLZ4RoundtripTest extends AbstractLZ4Test {
         assertEquals(compressedLen, tester.decompress(compressed, 0, restored, 0, len));
         assertEquals(tester.slice(data, off, off + len), restored);
       
-        // test decompression with prefix
-        tester.fillBuffer(restored, randomByte());
-        assertEquals(compressedLen, tester.decompressWithPrefix64k(compressed, 0, restored, 0, len));
-        assertEquals(tester.slice(data, off, off + len), restored);
-      
         if (len > 0) {
           // dest is too small
           try {
@@ -291,12 +271,8 @@ public abstract class AbstractLZ4RoundtripTest extends AbstractLZ4Test {
         if (len > 0) {
           tester.fillBuffer(restored, randomByte());
           assertEquals(len, tester.decompress2(compressed, 0, compressedLen, restored, 0));
-      
-          tester.fillBuffer(restored, randomByte());
-          assertEquals(len, tester.decompress2WithPrefix64k(compressed, 0, compressedLen, restored, 0));
         } else {
           assertEquals(0, tester.decompress2(compressed, 0, compressedLen, tester.allocate(1), 0));
-          assertEquals(0, tester.decompress2WithPrefix64k(compressed, 0, compressedLen, tester.allocate(1), 0));
         }
       
         // over-estimated compressed length

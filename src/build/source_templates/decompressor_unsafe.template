@@ -27,8 +27,6 @@ final class LZ4Java@{type}@{TypeSuffix}${size}Decompressor extends LZ4${size}Dec
 
 @include{"decompress.template"; prefix = false; Storage = "byte[]"; OffsetType = AddressType; NameSuffix = "Unchecked"; Visibility = "private"}
 @include{"adapters.template"; OffsetType = AddressType; Method = "decompress"; WithSrcLen = size == "Safe" }
-@include{"decompress.template"; prefix = true; Storage = "byte[]"; OffsetType = AddressType; NameSuffix = "WithPrefix64kUnchecked"; Visibility = "private"}
-@include{"adapters.template"; OffsetType = AddressType; Method = "decompressWithPrefix64k"; WithSrcLen = size == "Safe" }
 
 }
 
