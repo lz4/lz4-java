@@ -19,26 +19,22 @@ import static net.jpountz.lz4.LZ4Constants.LAST_LITERALS;
 import static net.jpountz.lz4.LZ4Constants.ML_BITS;
 import static net.jpountz.lz4.LZ4Constants.ML_MASK;
 import static net.jpountz.lz4.LZ4Constants.RUN_MASK;
-import static net.jpountz.util.@{Kind}Utils@{TypeSuffix}.readByte;
-import static net.jpountz.util.@{Kind}Utils@{TypeSuffix}.readInt;
-import static net.jpountz.util.@{Kind}Utils@{TypeSuffix}.readLong;
-import static net.jpountz.util.@{Kind}Utils@{TypeSuffix}.readShort;
-import static net.jpountz.util.@{Kind}Utils@{TypeSuffix}.writeByte;
-import static net.jpountz.util.@{Kind}Utils@{TypeSuffix}.writeInt;
-import static net.jpountz.util.@{Kind}Utils@{TypeSuffix}.writeLong;
-import static net.jpountz.util.@{Kind}Utils@{TypeSuffix}.writeShort;
-@if{Kind == "Unsafe"}
+import static net.jpountz.util.UnsafeUtils.readByte;
+import static net.jpountz.util.UnsafeUtils.readInt;
+import static net.jpountz.util.UnsafeUtils.readLong;
+import static net.jpountz.util.UnsafeUtils.readShort;
+import static net.jpountz.util.UnsafeUtils.writeByte;
+import static net.jpountz.util.UnsafeUtils.writeInt;
+import static net.jpountz.util.UnsafeUtils.writeLong;
+import static net.jpountz.util.UnsafeUtils.writeShort;
 import static net.jpountz.util.Utils.NATIVE_BYTE_ORDER;
-@else{}
-import java.nio.ByteBuffer;
-@end{}
 
 import java.nio.ByteOrder;
 
-enum LZ4@{Kind}Utils@{TypeSuffix} {
+enum LZ4UnsafeUtils {
   ;
 
-  static void safeArraycopy(@{Storage} src, @{OffsetType} srcOff, @{Storage} dest, @{OffsetType} destOff, int len) {
+  static void safeArraycopy(byte[] src, int srcOff, byte[] dest, int destOff, int len) {
     final int fastLen = len & 0xFFFFFFF8;
     wildArraycopy(src, srcOff, dest, destOff, fastLen);
     for (int i = 0, slowLen = len & 0x7; i < slowLen; i += 1) {
@@ -46,13 +42,13 @@ enum LZ4@{Kind}Utils@{TypeSuffix} {
     }
   }
 
-  static void wildArraycopy(@{Storage} src, @{OffsetType} srcOff, @{Storage} dest, @{OffsetType} destOff, int len) {
+  static void wildArraycopy(byte[] src, int srcOff, byte[] dest, int destOff, int len) {
     for (int i = 0; i < len; i += 8) {
       writeLong(dest, destOff + i, readLong(src, srcOff + i));
     }
   }
 
-  static void wildIncrementalCopy(@{Storage} dest, @{OffsetType} matchOff, @{OffsetType} dOff, @{OffsetType} matchCopyEnd) {
+  static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
     if (dOff - matchOff < 4) {
       for (int i = 0; i < 4; ++i) {
         writeByte(dest, dOff+i, readByte(dest, matchOff+i));
@@ -61,7 +57,7 @@ enum LZ4@{Kind}Utils@{TypeSuffix} {
       matchOff += 4;
       int dec = 0;
       assert dOff >= matchOff && dOff - matchOff < 8;
-      switch ((int)(dOff - matchOff)) {
+      switch (dOff - matchOff) {
       case 1:
         matchOff -= 3;
         break;
@@ -98,76 +94,57 @@ enum LZ4@{Kind}Utils@{TypeSuffix} {
     }
   }
 
-  static void safeIncrementalCopy(@{Storage} dest, @{OffsetType} matchOff, @{OffsetType} dOff, int matchLen) {
+  static void safeIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
     for (int i = 0; i < matchLen; ++i) {
+      dest[dOff + i] = dest[matchOff + i];
       writeByte(dest, dOff + i, readByte(dest, matchOff + i));
     }
   }
 
-  static int readShortLittleEndian(@{Storage} buf, @{OffsetType} srcOff) {
-    short s = readShort(buf, srcOff);
-    if (@{Order} == ByteOrder.BIG_ENDIAN) {
+  static int readShortLittleEndian(byte[] src, int srcOff) {
+    short s = readShort(src, srcOff);
+    if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
       s = Short.reverseBytes(s);
     }
     return s & 0xFFFF;
   }
 
-  static void writeShortLittleEndian(@{Storage} buf, @{OffsetType} destOff, @{OffsetType} value) {
+  static void writeShortLittleEndian(byte[] dest, int destOff, int value) {
     short s = (short) value;
-    if (@{Order} == ByteOrder.BIG_ENDIAN) {
+    if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
       s = Short.reverseBytes(s);
     }
-    writeShort(buf, destOff, s);
+    writeShort(dest, destOff, s);
   }
 
-  static boolean readIntEquals(@{Storage} src, @{OffsetType} ref, @{OffsetType} sOff) {
+  static boolean readIntEquals(byte[] src, int ref, int sOff) {
     return readInt(src, ref) == readInt(src, sOff);
   }
 
-  static int commonBytes(@{Storage} buf, @{OffsetType} ref, @{OffsetType} sOff, @{OffsetType} srcLimit) {
+  static int commonBytes(byte[] src, int ref, int sOff, int srcLimit) {
     int matchLen = 0;
     while (sOff <= srcLimit - 8) {
-      if (readLong(buf, sOff) == readLong(buf, ref)) {
+      if (readLong(src, sOff) == readLong(src, ref)) {
         matchLen += 8;
         ref += 8;
         sOff += 8;
       } else {
         final int zeroBits;
-        if (@{Order} == ByteOrder.BIG_ENDIAN) {
-          zeroBits = Long.numberOfLeadingZeros(readLong(buf, sOff) ^ readLong(buf, ref));
+        if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
+          zeroBits = Long.numberOfLeadingZeros(readLong(src, sOff) ^ readLong(src, ref));
         } else {
-          zeroBits = Long.numberOfTrailingZeros(readLong(buf, sOff) ^ readLong(buf, ref));
+          zeroBits = Long.numberOfTrailingZeros(readLong(src, sOff) ^ readLong(src, ref));
         }
         return matchLen + (zeroBits >>> 3);
       }
     }
-    while (sOff < srcLimit && readByte(buf, ref++) == readByte(buf, sOff++)) {
+    while (sOff < srcLimit && readByte(src, ref++) == readByte(src, sOff++)) {
       ++matchLen;
     }
     return matchLen;
   }
 
-  static @{OffsetType} lastLiterals(@{Storage} src, @{OffsetType} sOff, int srcLen, @{Storage} dest, @{OffsetType} dOff, @{OffsetType} destEnd) {
-    final int runLen = srcLen;
-
-    if (dOff + runLen + 1 + (runLen + 255 - RUN_MASK) / 255 > destEnd) {
-      throw new LZ4Exception();
-    }
-
-    if (runLen >= RUN_MASK) {
-      writeByte(dest, dOff++, (byte) (RUN_MASK << ML_BITS));
-      dOff = writeLen(runLen - RUN_MASK, dest, dOff);
-    } else {
-      writeByte(dest, dOff++, (byte) (runLen << ML_BITS));
-    }
-    // copy literals
-    safeArraycopy(src, sOff, dest, dOff, runLen);
-    dOff += runLen;
-
-    return dOff;
-  }
-
-  static @{OffsetType} writeLen(int len, @{Storage} dest, @{OffsetType} dOff) {
+  static int writeLen(int len, byte[] dest, int dOff) {
     while (len >= 0xFF) {
       writeByte(dest, dOff++, 0xFF);
       len -= 0xFF;
@@ -176,9 +153,9 @@ enum LZ4@{Kind}Utils@{TypeSuffix} {
     return dOff;
   }
 
-  static @{OffsetType} encodeSequence(@{Storage} src, @{OffsetType} anchor, @{OffsetType} matchOff, @{OffsetType} matchRef, int matchLen, @{Storage} dest, @{OffsetType} dOff, @{OffsetType} destEnd) {
-    final int runLen = (int)(matchOff - anchor);
-    final @{OffsetType} tokenOff = dOff++;
+  static int encodeSequence(byte[] src, int anchor, int matchOff, int matchRef, int matchLen, byte[] dest, int dOff, int destEnd) {
+    final int runLen = matchOff - anchor;
+    final int tokenOff = dOff++;
     int token;
 
     if (runLen >= RUN_MASK) {
@@ -193,9 +170,9 @@ enum LZ4@{Kind}Utils@{TypeSuffix} {
     dOff += runLen;
 
     // encode offset
-    final int matchDec = (int)(matchOff - matchRef);
-    writeByte(dest, dOff++, (byte) matchDec);
-    writeByte(dest, dOff++, (byte) (matchDec >>> 8));
+    final int matchDec = matchOff - matchRef;
+    dest[dOff++] = (byte) matchDec;
+    dest[dOff++] = (byte) (matchDec >>> 8);
 
     // encode match len
     matchLen -= 4;
@@ -209,17 +186,21 @@ enum LZ4@{Kind}Utils@{TypeSuffix} {
       token |= matchLen;
     }
 
-    writeByte(dest, tokenOff, (byte) token);
+    dest[tokenOff] = (byte) token;
 
     return dOff;
   }
 
-  static int commonBytesBackward(@{Storage} b, @{OffsetType} o1, @{OffsetType} o2, @{OffsetType} l1, @{OffsetType} l2) {
+  static int commonBytesBackward(byte[] b, int o1, int o2, int l1, int l2) {
     int count = 0;
     while (o1 > l1 && o2 > l2 && readByte(b, --o1) == readByte(b, --o2)) {
       ++count;
     }
     return count;
+  }
+
+  static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff, int destEnd) {
+    return LZ4Utils.lastLiterals(src, sOff, srcLen, dest, dOff, destEnd);
   }
 
 }

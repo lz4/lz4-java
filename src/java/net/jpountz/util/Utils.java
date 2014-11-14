@@ -14,6 +14,7 @@ package net.jpountz.util;
  * limitations under the License.
  */
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public enum Utils {
@@ -77,7 +78,7 @@ public enum Utils {
          | ((buf[i+4] & 0xFFL) << 32) | ((buf[i+5] & 0xFFL) << 40) | ((buf[i+6] & 0xFFL) << 48) | ((buf[i+7] & 0xFFL) << 56);
   }
 
-  public static void writeShortLittleEndian(byte[] buf, int off, int v) {
+  public static void writeShortLE(byte[] buf, int off, int v) {
     buf[off++] = (byte) v;
     buf[off++] = (byte) (v >>> 8);
   }
@@ -98,11 +99,11 @@ public enum Utils {
     buf[off] = (short) v;
   }
 
-  public static int readShort(short[] buf, int off) {
-    return buf[off] & 0xFFFF;
+  public static int readShortLE(byte[] buf, int i) {
+    return (buf[i] & 0xFF) | ((buf[i+1] & 0xFF) << 8);
   }
 
-  public static long rotateLeft(long val, int x) {
-    return (val << x) | (val >>> (64-x));
+  public static int readShort(short[] buf, int off) {
+    return buf[off] & 0xFFFF;
   }
 }

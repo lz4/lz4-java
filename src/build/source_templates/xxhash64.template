@@ -10,10 +10,10 @@ import static net.jpountz.util.ByteBufferUtils.*;
 import static net.jpountz.util.UnsafeUtils.*;
 import static net.jpountz.util.Utils.checkRange;
 import static net.jpountz.util.ByteBufferUtils.checkRange;
-import static net.jpountz.util.Utils.rotateLeft;
 @else{}
 import static net.jpountz.util.Utils.*;
 @end{}
+import static java.lang.Long.rotateLeft;
 
 /**
  * {@link XXHash64} implementation.

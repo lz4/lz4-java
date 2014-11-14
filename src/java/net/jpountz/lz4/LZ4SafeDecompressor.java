@@ -27,7 +27,7 @@ import java.util.Arrays;
 public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor {
 
   /**
-   * Uncompress <code>src[srcOff:srcLen]</code> into
+   * Decompress <code>src[srcOff:srcLen]</code> into
    * <code>dest[destOff:destOff+maxDestLen]</code> and returns the number of
    * decompressed bytes written into <code>dest</code>.
    *
@@ -41,12 +41,10 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
    * Uncompress <code>src[srcOff:srcLen]</code> into
    * <code>dest[destOff:destOff+maxDestLen]</code> and returns the number of
    * decompressed bytes written into <code>dest</code>.
-   * Neither buffer's position is moved.
    *
    * @param srcLen the exact size of the compressed stream
    * @return the original input size
    * @throws LZ4Exception if maxDestLen is too small
-   * @throws ReadOnlyBufferException if dest is read-only
    */
   public abstract int decompress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen);
 
@@ -100,25 +98,17 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
     return decompress(src, 0, src.length, maxDestLen);
   }
 
-
   /**
-   * Convenience method for processing ByteBuffers using their positions and limits.
-   * The positions in both buffers are moved to reflect the bytes read/written.
+   * Decompress <code>src</code> into <code>dest</code>. <code>src</code>'s
+   * {@link ByteBuffer#remaining()} must be exactly the size of the compressed
+   * data. This method moves the positions of the buffers.
    */
   public final void decompress(ByteBuffer src, ByteBuffer dest) {
-    int result = decompress(src, src.position(), src.remaining(), dest, dest.position(), dest.remaining());
+    final int decompressed = decompress(src, src.position(), src.remaining(), dest, dest.position(), dest.remaining());
     src.position(src.limit());
-    dest.position(dest.position() + result);
+    dest.position(dest.position() + decompressed);
   }
 
-  /**
-   * Convenience method, equivalent to calling
-   * {@link #decompress(ByteBuffer, int, int, ByteBuffer, int, int) decompress(src, srcOff, srcLen, dest, destOff, dest.capacity() - destOff)}.
-   */
-  public final int decompress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff) {
-    return decompress(src, srcOff, srcLen, dest, destOff, dest.capacity() - destOff);
-  }
-  
   @Override
   public String toString() {
     return getClass().getSimpleName();

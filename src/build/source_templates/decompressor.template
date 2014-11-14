@@ -3,8 +3,14 @@
 package net.jpountz.lz4;
 
 import static net.jpountz.lz4.LZ4Constants.*;
+@if{ type == "Unsafe" }
+import static net.jpountz.lz4.LZ4UnsafeUtils.*;
+import static net.jpountz.util.UnsafeUtils.*;
+import static net.jpountz.util.Utils.checkRange;
+@else{}
 import static net.jpountz.lz4.LZ4Utils.*;
 import static net.jpountz.util.Utils.*;
+@end{}
 import static net.jpountz.lz4.LZ4ByteBufferUtils.*;
 import static net.jpountz.util.ByteBufferUtils.*;
 
@@ -17,10 +23,8 @@ final class LZ4Java@{type}${size}Decompressor extends LZ4${size}Decompressor {
 
   public static final LZ4${size}Decompressor INSTANCE = new LZ4Java${type}${size}Decompressor();
 
-  @Override
-@include{"decompress.template"; prefix = false; Storage = "byte[]"; OffsetType = "int"; NameSuffix = ""; Visibility = "public"}
-  @Override
-@include{"decompress.template"; prefix = false; Storage = "ByteBuffer"; OffsetType = "int"; NameSuffix = ""; Visibility = "public"}
+@include{"decompress.template"; Storage = "byte[]"}
+@include{"decompress.template"; Storage = "ByteBuffer"}
 
 }
 

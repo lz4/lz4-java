@@ -37,9 +37,8 @@ public abstract class LZ4FastDecompressor implements LZ4Decompressor {
   /** Decompress <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>
    * and return the number of bytes read from <code>src</code>.
    * <code>destLen</code> must be exactly the size of the decompressed data.
-   * Neither buffer's position is moved.
+   * The positions and limits of the {@link ByteBuffer}s remain unchanged.
    *
-   * @throws ReadOnlyBufferException if dest is read-only
    * @param destLen the <b>exact</b> size of the original input
    * @return the number of bytes read to restore the original input
    */
@@ -88,17 +87,17 @@ public abstract class LZ4FastDecompressor implements LZ4Decompressor {
     return decompress(src, 0, destLen);
   }
 
-
   /**
-   * Convenience method for processing ByteBuffers using their positions and limits.
-   * The positions in both buffers are moved to reflect the bytes read/written.
+   * Decompress <code>src</code> into <code>dest</code>. <code>dest</code>'s
+   * {@link ByteBuffer#remaining()} must be exactly the size of the decompressed
+   * data. This method moves the positions of the buffers.
    */
   public final void decompress(ByteBuffer src, ByteBuffer dest) {
-    int result = decompress(src, src.position(), dest, dest.position(), dest.remaining());
-    src.position(src.position() + result);
+    final int read = decompress(src, src.position(), dest, dest.position(), dest.remaining());
     dest.position(dest.limit());
+    src.position(src.position() + read);
   }
-  
+
   @Override
   public String toString() {
     return getClass().getSimpleName();

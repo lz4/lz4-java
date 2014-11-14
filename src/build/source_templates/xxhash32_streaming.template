@@ -10,6 +10,7 @@ import static net.jpountz.util.Utils.checkRange;
 @else{}
 import static net.jpountz.util.Utils.*;
 @end{}
+import static java.lang.Integer.rotateLeft;
 
 /**
  * Streaming xxhash.

@@ -38,26 +38,18 @@ static void throw_OOM(JNIEnv *env) {
  * Signature: ([BII[BII)I
  */
 JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress_1limitedOutput
-  (JNIEnv *env, jclass cls, jbyteArray srcArray, jobject srcBuffer, jint srcOff, jint srcLen, jbyteArray destArray, jobject destBuffer, jint destOff, jint maxDestLen) {
+  (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff, jint maxDestLen) {
 
   char* in;
   char* out;
   jint compressed;
   
-  if (srcArray != NULL) {
-	  in = (char*) (*env)->GetPrimitiveArrayCritical(env, srcArray, 0);
-  } else {
-	  in = (char*) (*env)->GetDirectBufferAddress(env, srcBuffer);
-  }
+  in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
   if (in == NULL) {
-	throw_OOM(env);
-	return 0;
+    throw_OOM(env);
+    return 0;
   }
-  if (destArray != NULL) {
-	  out = (char*) (*env)->GetPrimitiveArrayCritical(env, destArray, 0);
-  } else {
-	  out = (char*) (*env)->GetDirectBufferAddress(env, destBuffer);
-  }
+  out = (char*) (*env)->GetPrimitiveArrayCritical(env, dest, 0);
   if (out == NULL) {
     throw_OOM(env);
     return 0;
@@ -65,12 +57,8 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress_1limitedOutput
 
   compressed = LZ4_compress_limitedOutput(in + srcOff, out + destOff, srcLen, maxDestLen);
 
-  if (destArray != NULL) {
-	  (*env)->ReleasePrimitiveArrayCritical(env, destArray, out, 0);
-  }
-  if (srcArray != NULL) {
-	  (*env)->ReleasePrimitiveArrayCritical(env, srcArray, in, 0);
-  }
+  (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
+  (*env)->ReleasePrimitiveArrayCritical(env, dest, out, 0);
 
   return compressed;
 
@@ -82,26 +70,18 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress_1limitedOutput
  * Signature: ([BII[BI)I
  */
 JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
-  (JNIEnv *env, jclass cls, jbyteArray srcArray, jobject srcBuffer, jint srcOff, jint srcLen, jbyteArray destArray, jobject destBuffer, jint destOff, jint maxDestLen, jint compressionLevel) {
+  (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff, jint maxDestLen, jint compressionLevel) {
 
   char* in;
   char* out;
   jint compressed;
-
-  if (srcArray != NULL) {
-	  in = (char*) (*env)->GetPrimitiveArrayCritical(env, srcArray, 0);
-  } else {
-	  in = (char*) (*env)->GetDirectBufferAddress(env, srcBuffer);
-  }
+  
+  in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
   if (in == NULL) {
-	throw_OOM(env);
-	return 0;
-  }
-  if (destArray != NULL) {
-	  out = (char*) (*env)->GetPrimitiveArrayCritical(env, destArray, 0);
-  } else {
-	  out = (char*) (*env)->GetDirectBufferAddress(env, destBuffer);
-  }
+    throw_OOM(env);
+    return 0;
+  } 
+  out = (char*) (*env)->GetPrimitiveArrayCritical(env, dest, 0);
   if (out == NULL) {
     throw_OOM(env);
     return 0;
@@ -109,12 +89,8 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
 
   compressed = LZ4_compressHC2_limitedOutput(in + srcOff, out + destOff, srcLen, maxDestLen, compressionLevel);
 
-  if (destArray != NULL) {
-	  (*env)->ReleasePrimitiveArrayCritical(env, destArray, out, 0);
-  }
-  if (srcArray != NULL) {
-	  (*env)->ReleasePrimitiveArrayCritical(env, srcArray, in, 0);
-  }
+  (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
+  (*env)->ReleasePrimitiveArrayCritical(env, dest, out, 0);
 
   return compressed;
 
@@ -126,26 +102,18 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
  * Signature: ([BI[BII)I
  */
 JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1fast
-  (JNIEnv *env, jclass cls, jbyteArray srcArray, jobject srcBuffer, jint srcOff, jbyteArray destArray, jobject destBuffer, jint destOff, jint destLen) {
+  (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jbyteArray dest, jint destOff, jint destLen) {
 
   char* in;
   char* out;
   jint compressed;
   
-  if (srcArray != NULL) {
-	  in = (char*) (*env)->GetPrimitiveArrayCritical(env, srcArray, 0);
-  } else {
-	  in = (char*) (*env)->GetDirectBufferAddress(env, srcBuffer);
-  }
+  in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
   if (in == NULL) {
-	throw_OOM(env);
-	return 0;
+    throw_OOM(env);
+    return 0;
   }
-  if (destArray != NULL) {
-	  out = (char*) (*env)->GetPrimitiveArrayCritical(env, destArray, 0);
-  } else {
-	  out = (char*) (*env)->GetDirectBufferAddress(env, destBuffer);
-  }
+  out = (char*) (*env)->GetPrimitiveArrayCritical(env, dest, 0);
   if (out == NULL) {
     throw_OOM(env);
     return 0;
@@ -153,12 +121,8 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1fast
 
   compressed = LZ4_decompress_fast(in + srcOff, out + destOff, destLen);
 
-  if (destArray != NULL) {
-	  (*env)->ReleasePrimitiveArrayCritical(env, destArray, out, 0);
-  }
-  if (srcArray != NULL) {
-	  (*env)->ReleasePrimitiveArrayCritical(env, srcArray, in, 0);
-  }
+  (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
+  (*env)->ReleasePrimitiveArrayCritical(env, dest, out, 0);
 
   return compressed;
 
@@ -170,26 +134,18 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1fast
  * Signature: ([BII[BI)I
  */
 JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1safe
-  (JNIEnv *env, jclass cls, jbyteArray srcArray, jobject srcBuffer, jint srcOff, jint srcLen, jbyteArray destArray, jobject destBuffer, jint destOff, jint maxDestLen) {
+  (JNIEnv *env, jclass cls, jbyteArray src, jint srcOff, jint srcLen, jbyteArray dest, jint destOff, jint maxDestLen) {
 
   char* in;
   char* out;
   jint decompressed;
 
-  if (srcArray != NULL) {
-	  in = (char*) (*env)->GetPrimitiveArrayCritical(env, srcArray, 0);
-  } else {
-	  in = (char*) (*env)->GetDirectBufferAddress(env, srcBuffer);
-  }
+  in = (char*) (*env)->GetPrimitiveArrayCritical(env, src, 0);
   if (in == NULL) {
-	throw_OOM(env);
-	return 0;
+    throw_OOM(env);
+    return 0;
   }
-  if (destArray != NULL) {
-	  out = (char*) (*env)->GetPrimitiveArrayCritical(env, destArray, 0);
-  } else {
-	  out = (char*) (*env)->GetDirectBufferAddress(env, destBuffer);
-  }
+  out = (char*) (*env)->GetPrimitiveArrayCritical(env, dest, 0);
   if (out == NULL) {
     throw_OOM(env);
     return 0;
@@ -197,12 +153,8 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1safe
 
   decompressed = LZ4_decompress_safe(in + srcOff, out + destOff, srcLen, maxDestLen);
 
-  if (destArray != NULL) {
-	  (*env)->ReleasePrimitiveArrayCritical(env, destArray, out, 0);
-  }
-  if (srcArray != NULL) {
-	  (*env)->ReleasePrimitiveArrayCritical(env, srcArray, in, 0);
-  }
+  (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
+  (*env)->ReleasePrimitiveArrayCritical(env, dest, out, 0);
 
   return decompressed;
 

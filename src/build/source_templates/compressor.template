@@ -1,0 +1,28 @@
+// Auto-generated: DO NOT EDIT
+
+package net.jpountz.lz4;
+
+import java.util.Arrays;
+import static net.jpountz.lz4.LZ4Constants.*;
+@if{ type == "Unsafe" }
+import static net.jpountz.lz4.LZ4UnsafeUtils.*;
+import static net.jpountz.util.UnsafeUtils.*;
+import static net.jpountz.util.Utils.checkRange;
+import static net.jpountz.lz4.LZ4Utils.hash;
+import static net.jpountz.lz4.LZ4Utils.hash64k;
+@else{}
+import static net.jpountz.lz4.LZ4Utils.*;
+import static net.jpountz.util.Utils.*;
+@end{}
+import java.nio.ByteBuffer;
+
+/**
+ * Compressor. 
+ */
+final class LZ4Java${type}Compressor extends LZ4Compressor {
+
+  public static final LZ4Compressor INSTANCE = new LZ4Java${type}Compressor();
+
+@include{"compress.template"; Storage = "byte[]"}
+@include{"compress.template"; Storage = "ByteBuffer"}
+}

@@ -14,105 +14,93 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.lz4.LZ4Constants.HASH_LOG;
-import static net.jpountz.lz4.LZ4Constants.HASH_LOG_64K;
-import static net.jpountz.lz4.LZ4Constants.HASH_LOG_HC;
 import static net.jpountz.lz4.LZ4Constants.LAST_LITERALS;
-import static net.jpountz.lz4.LZ4Constants.MIN_MATCH;
 import static net.jpountz.lz4.LZ4Constants.ML_BITS;
 import static net.jpountz.lz4.LZ4Constants.ML_MASK;
 import static net.jpountz.lz4.LZ4Constants.RUN_MASK;
-import static net.jpountz.util.Utils.readInt;
+import static net.jpountz.util.ByteBufferUtils.*;
+import static net.jpountz.util.UnsafeUtils.readByte;
+import static net.jpountz.util.UnsafeUtils.readLong;
+import static net.jpountz.util.Utils.*;
 
-enum LZ4Utils {
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+enum LZ4ByteBufferUtils {
   ;
-
-  private static final int MAX_INPUT_SIZE = 0x7E000000;
-
-  static int maxCompressedLength(int length) {
-    if (length < 0) {
-      throw new IllegalArgumentException("length must be >= 0, got " + length);
-    } else if (length >= MAX_INPUT_SIZE) {
-        throw new IllegalArgumentException("length must be < " + MAX_INPUT_SIZE);
-    }
-    return length + length / 255 + 16;
+  static int hash(ByteBuffer buf, int i) {
+    return LZ4Utils.hash(readInt(buf, i));
   }
 
-  static int hash(int i) {
-    return (i * -1640531535) >>> ((MIN_MATCH * 8) - HASH_LOG);
+  static int hash64k(ByteBuffer buf, int i) {
+    return LZ4Utils.hash64k(readInt(buf, i));
   }
 
-  static int hash64k(int i) {
-    return (i * -1640531535) >>> ((MIN_MATCH * 8) - HASH_LOG_64K);
+  static boolean readIntEquals(ByteBuffer buf, int i, int j) {
+    return buf.getInt(i) == buf.getInt(j);
   }
 
-  static int hashHC(int i) {
-    return (i * -1640531535) >>> ((MIN_MATCH * 8) - HASH_LOG_HC);
-  }
-
-  static int hash(byte[] buf, int i) {
-    return hash(readInt(buf, i));
-  }
-
-  static int hash64k(byte[] buf, int i) {
-    return hash64k(readInt(buf, i));
-  }
-
-  static boolean readIntEquals(byte[] buf, int i, int j) {
-    return buf[i] == buf[j] && buf[i+1] == buf[j+1] && buf[i+2] == buf[j+2] && buf[i+3] == buf[j+3];
-  }
-
-  static void safeIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
+  static void safeIncrementalCopy(ByteBuffer dest, int matchOff, int dOff, int matchLen) {
     for (int i = 0; i < matchLen; ++i) {
-      dest[dOff + i] = dest[matchOff + i];
+      dest.put(matchOff + i, dest.get(dOff + i));
     }
   }
 
-  static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
+  static void wildIncrementalCopy(ByteBuffer dest, int matchOff, int dOff, int matchCopyEnd) {
     do {
-      copy8Bytes(dest, matchOff, dest, dOff);
+      dest.putLong(matchOff, dest.getLong(dOff));
       matchOff += 8;
       dOff += 8;
     } while (dOff < matchCopyEnd);
   }
 
-  static void copy8Bytes(byte[] src, int sOff, byte[] dest, int dOff) {
-    for (int i = 0; i < 8; ++i) {
-      dest[dOff + i] = src[sOff + i];
+  static int commonBytes(ByteBuffer src, int ref, int sOff, int srcLimit) {
+    int matchLen = 0;
+    while (sOff <= srcLimit - 8) {
+      if (readLong(src, sOff) == readLong(src, ref)) {
+        matchLen += 8;
+        ref += 8;
+        sOff += 8;
+      } else {
+        final int zeroBits;
+        if (src.order() == ByteOrder.BIG_ENDIAN) {
+          zeroBits = Long.numberOfLeadingZeros(readLong(src, sOff) ^ readLong(src, ref));
+        } else {
+          zeroBits = Long.numberOfTrailingZeros(readLong(src, sOff) ^ readLong(src, ref));
+        }
+        return matchLen + (zeroBits >>> 3);
+      }
     }
+    while (sOff < srcLimit && readByte(src, ref++) == readByte(src, sOff++)) {
+      ++matchLen;
+    }
+    return matchLen;
   }
 
-  static int commonBytes(byte[] b, int o1, int o2, int limit) {
+  static int commonBytesBackward(ByteBuffer b, int o1, int o2, int l1, int l2) {
     int count = 0;
-    while (o2 < limit && b[o1++] == b[o2++]) {
+    while (o1 > l1 && o2 > l2 && b.get(--o1) == b.get(--o2)) {
       ++count;
     }
     return count;
   }
 
-  static int commonBytesBackward(byte[] b, int o1, int o2, int l1, int l2) {
-    int count = 0;
-    while (o1 > l1 && o2 > l2 && b[--o1] == b[--o2]) {
-      ++count;
-    }
-    return count;
-  }
-
-  static void safeArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
+  static void safeArraycopy(ByteBuffer src, int sOff, ByteBuffer dest, int dOff, int len) {
     System.arraycopy(src, sOff, dest, dOff, len);
   }
 
-  static void wildArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
+  static void wildArraycopy(ByteBuffer src, int sOff, ByteBuffer dest, int dOff, int len) {
     try {
       for (int i = 0; i < len; i += 8) {
-        copy8Bytes(src, sOff + i, dest, dOff + i);
+        // TODO
+        //copy8Bytes(src, sOff + i, dest, dOff + i);
       }
     } catch (ArrayIndexOutOfBoundsException e) {
       throw new LZ4Exception("Malformed input at offset " + sOff);
     }
   }
 
-  static int encodeSequence(byte[] src, int anchor, int matchOff, int matchRef, int matchLen, byte[] dest, int dOff, int destEnd) {
+  static int encodeSequence(ByteBuffer src, int anchor, int matchOff, int matchRef, int matchLen, ByteBuffer dest, int dOff, int destEnd) {
     final int runLen = matchOff - anchor;
     final int tokenOff = dOff++;
 
@@ -134,8 +122,8 @@ enum LZ4Utils {
 
     // encode offset
     final int matchDec = matchOff - matchRef;
-    dest[dOff++] = (byte) matchDec;
-    dest[dOff++] = (byte) (matchDec >>> 8);
+    dest.put(dOff++, (byte) matchDec);
+    dest.put(dOff++, (byte) (matchDec >>> 8));
 
     // encode match len
     matchLen -= 4;
@@ -149,12 +137,12 @@ enum LZ4Utils {
       token |= matchLen;
     }
 
-    dest[tokenOff] = (byte) token;
+    dest.put(tokenOff, (byte) token);
 
     return dOff;
   }
 
-  static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff, int destEnd) {
+  static int lastLiterals(ByteBuffer src, int sOff, int srcLen, ByteBuffer dest, int dOff, int destEnd) {
     final int runLen = srcLen;
 
     if (dOff + runLen + 1 + (runLen + 255 - RUN_MASK) / 255 > destEnd) {
@@ -174,7 +162,7 @@ enum LZ4Utils {
     return dOff;
   }
 
-  static int writeLen(int len, byte[] dest, int dOff) {
+  static int writeLen(int len, ByteBuffer dest, int dOff) {
     while (len >= 0xFF) {
       dest[dOff++] = (byte) 0xFF;
       len -= 0xFF;
