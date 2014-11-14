@@ -218,10 +218,12 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
    */
   @Override
   public void flush() throws IOException {
-    if (syncFlush) {
-      flushBufferedData();
+    if (out != null) {
+      if (syncFlush) {
+        flushBufferedData();
+      }
+      out.flush();
     }
-    out.flush();
   }
 
   /**
