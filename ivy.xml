@@ -22,5 +22,6 @@
 
   <dependencies>
     <dependency org="com.carrotsearch.randomizedtesting" name="junit4-ant" rev="2.0.9" transitive="true" conf="test->*,!sources,!javadoc" />
+    <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.4.3"/>
   </dependencies>
 </ivy-module>
