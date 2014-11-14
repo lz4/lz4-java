@@ -20,7 +20,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import net.jpountz.util.Native;
-import net.jpountz.util.UnsafeBase;
 import net.jpountz.util.Utils;
 import static net.jpountz.lz4.LZ4Constants.DEFAULT_COMPRESSION_LEVEL;
 import static net.jpountz.lz4.LZ4Constants.MAX_COMPRESSION_LEVEL;
@@ -98,7 +97,7 @@ public final class LZ4Factory {
    *  and decompression. */
   public static synchronized LZ4Factory unsafeInstance() {
     if (JAVA_UNSAFE_INSTANCE == null) {
-      JAVA_UNSAFE_INSTANCE = instance("JavaUnsafe" + UnsafeBase.POINTER_SIZE_SUFFIX);
+      JAVA_UNSAFE_INSTANCE = instance("JavaUnsafe");
     }
     return JAVA_UNSAFE_INSTANCE;
   }

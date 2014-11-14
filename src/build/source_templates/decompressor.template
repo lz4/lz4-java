@@ -1,0 +1,23 @@
+// Auto-generated: DO NOT EDIT
+
+package net.jpountz.lz4;
+
+import static net.jpountz.lz4.LZ4Constants.*;
+
+import java.nio.ByteBuffer;
+
+import net.jpountz.util.ByteBufferUtils;
+import net.jpountz.util.${type}Utils;
+
+/**
+ * Decompressor.
+ */
+final class LZ4Java@{type}${size}Decompressor extends LZ4${size}Decompressor {
+
+  public static final LZ4${size}Decompressor INSTANCE = new LZ4Java${type}${size}Decompressor();
+
+@include{"decompress.template"; storage = "byte[]"; utils = "${type}Utils"}
+@include{"decompress.template"; storage = "ByteBuffer"; utils = "ByteBufferUtils"}
+
+}
+

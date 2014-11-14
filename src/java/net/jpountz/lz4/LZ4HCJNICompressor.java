@@ -14,14 +14,12 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.util.ByteBufferUtils.checkNotReadOnly;
-import static net.jpountz.util.ByteBufferUtils.checkRange;
 import static net.jpountz.lz4.LZ4Constants.DEFAULT_COMPRESSION_LEVEL;
-import static net.jpountz.util.Utils.checkRange;
 
 import java.nio.ByteBuffer;
 
 import net.jpountz.util.ByteBufferUtils;
+import net.jpountz.util.SafeUtils;
 
 /**
  * High compression {@link LZ4Compressor}s implemented with JNI bindings to the
@@ -29,7 +27,8 @@ import net.jpountz.util.ByteBufferUtils;
  */
 final class LZ4HCJNICompressor extends LZ4Compressor {
 
-  public static final LZ4Compressor INSTANCE = new LZ4HCJNICompressor();
+  public static final LZ4HCJNICompressor INSTANCE = new LZ4HCJNICompressor();
+  private static LZ4Compressor SAFE_INSTANCE;
 
   private final int compressionLevel;
 
@@ -40,8 +39,8 @@ final class LZ4HCJNICompressor extends LZ4Compressor {
 
   @Override
   public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
-    checkRange(src, srcOff, srcLen);
-    checkRange(dest, destOff, maxDestLen);
+    SafeUtils.checkRange(src, srcOff, srcLen);
+    SafeUtils.checkRange(dest, destOff, maxDestLen);
     final int result = LZ4JNI.LZ4_compressHC(src, null, srcOff, srcLen, dest, null, destOff, maxDestLen, compressionLevel);
     if (result <= 0) {
       throw new LZ4Exception();
@@ -51,22 +50,35 @@ final class LZ4HCJNICompressor extends LZ4Compressor {
 
   @Override
   public int compress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
-    checkRange(src, srcOff, srcLen);
-    checkRange(dest, destOff, maxDestLen);
-    checkNotReadOnly(dest);
-    if (!src.isDirect() && src.isReadOnly()) {
-      // JNI can't access data in this case. Fall back to Java implementation.
-      return LZ4Factory.safeInstance().highCompressor(compressionLevel).
-          compress(src, srcOff, srcLen, dest, destOff, maxDestLen);
+    ByteBufferUtils.checkNotReadOnly(dest);
+    ByteBufferUtils.checkRange(src, srcOff, srcLen);
+    ByteBufferUtils.checkRange(dest, destOff, maxDestLen);
+
+    byte[] srcArr = null, destArr = null;
+    ByteBuffer srcBuf = null, destBuf = null;
+    if (src.hasArray()) {
+      srcArr = src.array();
+    } else if (src.isDirect()) {
+      srcBuf = src;
+    }
+    if (dest.hasArray()) {
+      destArr = dest.array();
+    } else if (dest.isDirect()) {
+      destBuf = dest;
     }
 
-    int result = LZ4JNI.LZ4_compressHC(
-        ByteBufferUtils.getArray(src), src, srcOff, srcLen,
-        ByteBufferUtils.getArray(dest), dest, destOff, maxDestLen, compressionLevel);
-    if (result <= 0) {
-      throw new LZ4Exception();
+    if ((srcArr != null || srcBuf != null) && (destArr != null || destBuf != null)) {
+      final int result = LZ4JNI.LZ4_compressHC(srcArr, srcBuf, srcOff, srcLen, destArr, destBuf, destOff, maxDestLen, compressionLevel);
+      if (result <= 0) {
+        throw new LZ4Exception();
+      }
+      return result;
+    } else {
+      LZ4Compressor safeInstance = SAFE_INSTANCE;
+      if (safeInstance == null) {
+        safeInstance = SAFE_INSTANCE = LZ4Factory.safeInstance().highCompressor(compressionLevel);
+      }
+      return safeInstance.compress(src, srcOff, srcLen, dest, destOff, maxDestLen);
     }
-    return result;
   }
-
 }

@@ -22,97 +22,36 @@ def dest_file(path) {
   return new File(outDir + "/net/jpountz/" + path);
 }
 
-def generate_utils() {
-  for (pointerSize : ["int", "long"]) {
-    typeSuffix = (pointerSize == "long" ? "Long" : "");
-    args = new HashMap();
-    args.put("OffsetType", pointerSize);
-    args.put("TypeSuffix", typeSuffix);
-    compiledTemplate = get_template("unsafe_utils.template");
-    dest = dest_file("util/UnsafeUtils" + typeSuffix + ".java");
-    execute_template(compiledTemplate, dest, args);
-    
-    args.put("Kind", "Unsafe");
-    args.put("Storage", "byte[]");
-    args.put("Order", "NATIVE_BYTE_ORDER");
-    compiledTemplate = get_template("lz4_utils.template");
-    dest = dest_file("lz4/LZ4UnsafeUtils" + typeSuffix + ".java");
-    execute_template(compiledTemplate, dest, args);
-  }
-
-  args = new HashMap();
-  args.put("OffsetType", "int");
-  args.put("TypeSuffix", "");
-  args.put("Kind", "ByteBuffer");
-  args.put("Storage", "ByteBuffer");
-  args.put("Order", "buf.order()");
-  compiledTemplate = get_template("lz4_utils.template");
-  dest = dest_file("lz4/LZ4ByteBufferUtils.java");
-  execute_template(compiledTemplate, dest, args);
-}
-
 def generate_decompressors() {
-  type = "Safe";
-  compiledTemplate = get_template("decompressor_safe.template");
-  for (size : ["Fast", "Safe"]) {
-    dest = dest_file("lz4/LZ4Java" + type + size + "Decompressor.java");
-    args = new HashMap();
-    args.put("type", type);
-    args.put("size", size);
-    execute_template(compiledTemplate, dest, args);
-  }
-
-  type = "Unsafe";
-  compiledTemplate = get_template("decompressor_unsafe.template");
-  for (pointerSize : ["int", "long"]) {
+  compiledTemplate = get_template("decompressor.template");
+  for (type : ["Safe", "Unsafe"]) {
     for (size : ["Fast", "Safe"]) {
-      typeSuffix = (pointerSize == "long" ? "Long" : "");
-      dest = dest_file("lz4/LZ4Java" + type + typeSuffix + size + "Decompressor.java");
+      dest = dest_file("lz4/LZ4Java" + type + size + "Decompressor.java");
       args = new HashMap();
       args.put("type", type);
       args.put("size", size);
-      args.put("AddressType", pointerSize);
-      args.put("TypeSuffix", typeSuffix);
       execute_template(compiledTemplate, dest, args);
     }
   }
 }
 
 def generate_compressors() {
-  type = "Safe";
-  compiledTemplate = get_template("compressor_safe.template");
-  dest = dest_file("lz4/LZ4Java" + type + "Compressor.java");
-  args = new HashMap();
-  args.put("type", type);
-  execute_template(compiledTemplate, dest, args);
-
-  type = "Unsafe";
-  compiledTemplate = get_template("compressor_unsafe.template");
-  for (pointerSize : ["int", "long"]) {
-    typeSuffix = (pointerSize == "long" ? "Long" : "");
-    dest = dest_file("lz4/LZ4Java" + type + typeSuffix + "Compressor.java");
+  compiledTemplate = get_template("compressor.template");
+  for (type : ["Safe", "Unsafe"]) {
+    dest = dest_file("lz4/LZ4Java" + type + "Compressor.java");
     args = new HashMap();
     args.put("type", type);
-    args.put("AddressType", pointerSize);
-    args.put("TypeSuffix", typeSuffix);
     execute_template(compiledTemplate, dest, args);
   }
 }
 
 def generate_hc_compressors() {
   compiledTemplate = get_template("compressor_hc.template");
-  for (pointerSize : ["int", "long"]) {
-    for (type : ["Safe", "Unsafe"]) {
-      if (!(type == "Safe" && pointerSize == "long")) {
-        typeSuffix = (pointerSize == "long" ? "Long" : "");
-	    dest = dest_file("lz4/LZ4HCJava" + type + typeSuffix + "Compressor.java");
-	    args = new HashMap();
-	    args.put("type", type);
-	    args.put("OffsetType", pointerSize);
-	    args.put("TypeSuffix", typeSuffix);
-	    execute_template(compiledTemplate, dest, args);
-	  }
-	}  
+  for (type : ["Safe", "Unsafe"]) {
+    dest = dest_file("lz4/LZ4HCJava" + type + "Compressor.java");
+    args = new HashMap();
+    args.put("type", type);
+    execute_template(compiledTemplate, dest, args);
   }
 }
 
@@ -140,7 +79,6 @@ def generate_streaming_xxhash() {
   }
 }
 
-generate_utils();
 generate_decompressors();
 generate_compressors();
 generate_hc_compressors();

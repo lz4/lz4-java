@@ -14,13 +14,11 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.util.Utils.checkRange;
-import static net.jpountz.util.ByteBufferUtils.checkRange;
 import static net.jpountz.util.ByteBufferUtils.checkNotReadOnly;
+import static net.jpountz.util.ByteBufferUtils.checkRange;
+import static net.jpountz.util.SafeUtils.checkRange;
 
 import java.nio.ByteBuffer;
-
-import net.jpountz.util.ByteBufferUtils;
 
 /**
  * Fast {@link LZ4FastCompressor}s implemented with JNI bindings to the original C
@@ -29,6 +27,7 @@ import net.jpountz.util.ByteBufferUtils;
 final class LZ4JNICompressor extends LZ4Compressor {
 
   public static final LZ4Compressor INSTANCE = new LZ4JNICompressor();
+  private static LZ4Compressor SAFE_INSTANCE;
 
   @Override
   public int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
@@ -43,21 +42,35 @@ final class LZ4JNICompressor extends LZ4Compressor {
 
   @Override
   public int compress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
+    checkNotReadOnly(dest);
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);
-    checkNotReadOnly(dest);
-    if (!src.isDirect() && src.isReadOnly()) {
-      // JNI can't access data in this case. Fall back to Java implementation.
-      return LZ4Factory.fastestJavaInstance().fastCompressor().
-          compress(src, srcOff, srcLen, dest, destOff, maxDestLen);
+
+    byte[] srcArr = null, destArr = null;
+    ByteBuffer srcBuf = null, destBuf = null;
+    if (src.hasArray()) {
+      srcArr = src.array();
+    } else if (src.isDirect()) {
+      srcBuf = src;
+    }
+    if (dest.hasArray()) {
+      destArr = dest.array();
+    } else if (dest.isDirect()) {
+      destBuf = dest;
     }
 
-    int result = LZ4JNI.LZ4_compress_limitedOutput(
-        ByteBufferUtils.getArray(src), src, srcOff, srcLen,
-        ByteBufferUtils.getArray(dest), dest, destOff, maxDestLen);
-    if (result <= 0) {
-      throw new LZ4Exception();
+    if ((srcArr != null || srcBuf != null) && (destArr != null || destBuf != null)) {
+      final int result = LZ4JNI.LZ4_compress_limitedOutput(srcArr, srcBuf, srcOff, srcLen, destArr, destBuf, destOff, maxDestLen);
+      if (result <= 0) {
+        throw new LZ4Exception("maxDestLen is too small");
+      }
+      return result;
+    } else {
+      LZ4Compressor safeInstance = SAFE_INSTANCE;
+      if (safeInstance == null) {
+        safeInstance = SAFE_INSTANCE = LZ4Factory.safeInstance().fastCompressor();
+      }
+      return safeInstance.compress(src, srcOff, srcLen, dest, destOff, maxDestLen);
     }
-    return result;
   }
 }

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.Checksum;
 
-import net.jpountz.util.Utils;
+import net.jpountz.util.SafeUtils;
 import net.jpountz.xxhash.StreamingXXHash32;
 import net.jpountz.xxhash.XXHashFactory;
 
@@ -148,7 +148,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
 
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
-    Utils.checkRange(b, off, len);
+    SafeUtils.checkRange(b, off, len);
     ensureNotFinished();
 
     while (o + len > blockSize) {

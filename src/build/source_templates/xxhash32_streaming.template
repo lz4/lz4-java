@@ -3,13 +3,9 @@
 package net.jpountz.xxhash;
 
 import static net.jpountz.xxhash.XXHashConstants.*;
+import static net.jpountz.util.${type}Utils.*;
+import static net.jpountz.util.SafeUtils.checkRange;
 import static java.lang.Integer.rotateLeft;
-@if{ type == "Unsafe" }
-import static net.jpountz.util.UnsafeUtils.*;
-import static net.jpountz.util.Utils.checkRange;
-@else{}
-import static net.jpountz.util.Utils.*;
-@end{}
 
 /**
  * Streaming xxhash.

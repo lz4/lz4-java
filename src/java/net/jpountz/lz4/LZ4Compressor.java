@@ -48,15 +48,16 @@ public abstract class LZ4Compressor {
   /**
    * Compress <code>src[srcOff:srcOff+srcLen]</code> into
    * <code>dest[destOff:destOff+destLen]</code> and return the compressed
-   * length. Neither buffer's position is moved.
+   * length.
    *
    * This method will throw a {@link LZ4Exception} if this compressor is unable
-   * to compress the input into less than the remaining bytes in <code>dest</code>. To
+   * to compress the input into less than <code>maxDestLen</code> bytes. To
    * prevent this exception to be thrown, you should make sure that
-   * <code>dest.remaining() >= maxCompressedLength(srcLen)</code>.
+   * <code>maxDestLen >= maxCompressedLength(srcLen)</code>.
    *
-   * @throws LZ4Exception if dest is too small
-   * @throws ReadOnlyBufferException if dest is read-only
+   * {@link ByteBuffer} positions remain unchanged.
+   *
+   * @throws LZ4Exception if maxDestLen is too small
    * @return the compressed size
    */
   public abstract int compress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen);
@@ -108,13 +109,13 @@ public abstract class LZ4Compressor {
   }
 
   /**
-   * Convenience method for processing ByteBuffers using their positions and limits.
-   * The positions in both buffers are moved to reflect the bytes read/written.
+   * Compress <code>src</code> into <code>dest</code>. Calling this method
+   * will update the positions of both {@link ByteBuffer}s.
    */
   public final void compress(ByteBuffer src, ByteBuffer dest) {
-    int result = compress(src, src.position(), src.remaining(), dest, dest.position(), dest.remaining());
+    final int cpLen = compress(src, src.position(), src.remaining(), dest, dest.position(), dest.remaining());
     src.position(src.limit());
-    dest.position(dest.position() + result);
+    dest.position(dest.position() + cpLen);
   }
 
   @Override

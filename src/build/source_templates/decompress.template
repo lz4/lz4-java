@@ -1,50 +1,56 @@
-  @{Visibility} int decompress@{NameSuffix}(
-      @{Storage} src, @{OffsetType} srcOff,@if{ size == "Safe" } int srcLen,@end{}
-      @{Storage} dest, @{OffsetType} destOff, int destLen) {
-
+  @Override
+  public int decompress(${storage} src, final int srcOff@if{ size == "Safe" }, final int srcLen @end{}, ${storage} dest, final int destOff, int destLen) {
+@if{ storage == "ByteBuffer"}
+    if (src.hasArray() && dest.hasArray()) {
+      return decompress(src.array(), srcOff@if{ size == "Safe" }, srcLen@end{}, dest.array(), destOff, destLen);
+    }
+    src = ${utils}.inNativeByteOrder(src);
+    dest = ${utils}.inNativeByteOrder(dest);
+@end{}
 @if{ size == "Safe" }
+    ${utils}.checkRange(src, srcOff, srcLen);
+    ${utils}.checkRange(dest, destOff, destLen);
+
     if (destLen == 0) {
-      if (srcLen != 1 || readByte(src, srcOff) != 0) {
+      if (srcLen != 1 || ${utils}.readByte(src, srcOff) != 0) {
         throw new LZ4Exception("Output buffer too small");
       }
       return 0;
     }
 
-    final @{OffsetType} srcEnd = srcOff + srcLen;
+    final int srcEnd = srcOff + srcLen;
 @else{}
+    ${utils}.checkRange(src, srcOff);
+    ${utils}.checkRange(dest, destOff, destLen);
+
     if (destLen == 0) {
-      if (readByte(src, srcOff) != 0) {
+      if (${utils}.readByte(src, srcOff) != 0) {
         throw new LZ4Exception("Malformed input at " + srcOff);
       }
       return 1;
     }
 @end{}
 
-@if{Storage == "ByteBuffer"}
-    src = inNativeOrder(src);
-    dest = inNativeOrder(dest);
-@end{}
+    final int destEnd = destOff + destLen;
 
-    final @{OffsetType} destEnd = destOff + destLen;
-
-    @{OffsetType} sOff = srcOff;
-    @{OffsetType} dOff = destOff;
+    int sOff = srcOff;
+    int dOff = destOff;
 
     while (true) {
-      final int token = readByte(src, sOff) & 0xFF;
+      final int token = ${utils}.readByte(src, sOff) & 0xFF;
       ++sOff;
 
       // literals
       int literalLen = token >>> ML_BITS;
       if (literalLen == RUN_MASK) {
         byte len = (byte) 0xFF;
-        while (@if{ size == "Safe" }sOff < srcEnd &&@end{}(len = readByte(src, sOff++)) == (byte) 0xFF) {
+        while (@if{ size == "Safe" }sOff < srcEnd &&@end{}(len = ${utils}.readByte(src, sOff++)) == (byte) 0xFF) {
           literalLen += 0xFF;
         }
         literalLen += len & 0xFF;
       }
 
-      final @{OffsetType} literalCopyEnd = dOff + literalLen;
+      final int literalCopyEnd = dOff + literalLen;
 @if{ size == "Fast" }
       if (literalCopyEnd > destEnd - COPY_LENGTH) {
         if (literalCopyEnd != destEnd) {
@@ -57,54 +63,52 @@
           throw new LZ4Exception("Malformed input at " + sOff);
 @end{}
         } else {
-          safeArraycopy(src, sOff, dest, dOff, literalLen);
+          LZ4${utils}.safeArraycopy(src, sOff, dest, dOff, literalLen);
           sOff += literalLen;
           dOff = literalCopyEnd;
           break; // EOF
         }
       }
 
-      wildArraycopy(src, sOff, dest, dOff, literalLen);
+      LZ4${utils}.wildArraycopy(src, sOff, dest, dOff, literalLen);
       sOff += literalLen;
       dOff = literalCopyEnd;
 
       // matchs
-      final int matchDec = readShortLittleEndian(src, sOff);
+      final int matchDec = ${utils}.readShortLE(src, sOff);
       sOff += 2;
-      @{OffsetType} matchOff = dOff - matchDec;
+      int matchOff = dOff - matchDec;
 
-@if{ !prefix }
       if (matchOff < destOff) {
         throw new LZ4Exception("Malformed input at " + sOff);
       }
-@end{}
 
       int matchLen = token & ML_MASK;
       if (matchLen == ML_MASK) {
         byte len = (byte) 0xFF;
-        while (@if{ size == "Safe" }sOff < srcEnd &&@end{}(len = readByte(src, sOff++)) == (byte) 0xFF) {
+        while (@if{ size == "Safe" }sOff < srcEnd &&@end{}(len = ${utils}.readByte(src, sOff++)) == (byte) 0xFF) {
           matchLen += 0xFF;
         }
         matchLen += len & 0xFF;
       }
       matchLen += MIN_MATCH;
 
-      final @{OffsetType} matchCopyEnd = dOff + matchLen;
+      final int matchCopyEnd = dOff + matchLen;
 
       if (matchCopyEnd > destEnd - COPY_LENGTH) {
         if (matchCopyEnd > destEnd) {
           throw new LZ4Exception("Malformed input at " + sOff);
         }
-        safeIncrementalCopy(dest, matchOff, dOff, matchLen);
+        LZ4${utils}.safeIncrementalCopy(dest, matchOff, dOff, matchLen);
       } else {
-        wildIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
+        LZ4${utils}.wildIncrementalCopy(dest, matchOff, dOff, matchCopyEnd);
       }
       dOff = matchCopyEnd;
     }
 
 @if{ size == "Fast" }
-    return (int) (sOff - srcOff);
+    return sOff - srcOff;
 @else{}
-    return (int) (dOff - destOff);
+    return dOff - destOff;
 @end{}
   }

@@ -14,13 +14,11 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import static net.jpountz.util.Utils.checkRange;
-import static net.jpountz.util.ByteBufferUtils.checkRange;
-import static net.jpountz.util.ByteBufferUtils.checkNotReadOnly;
 
 import java.nio.ByteBuffer;
 
 import net.jpountz.util.ByteBufferUtils;
+import net.jpountz.util.SafeUtils;
 
 /**
  * {@link LZ4SafeDecompressor} implemented with JNI bindings to the original C
@@ -28,12 +26,13 @@ import net.jpountz.util.ByteBufferUtils;
  */
 final class LZ4JNISafeDecompressor extends LZ4SafeDecompressor {
 
-  public static final LZ4SafeDecompressor INSTANCE = new LZ4JNISafeDecompressor();
+  public static final LZ4JNISafeDecompressor INSTANCE = new LZ4JNISafeDecompressor();
+  private static LZ4SafeDecompressor SAFE_INSTANCE;
 
   @Override
   public final int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
-    checkRange(src, srcOff, srcLen);
-    checkRange(dest, destOff, maxDestLen);
+    SafeUtils.checkRange(src, srcOff, srcLen);
+    SafeUtils.checkRange(dest, destOff, maxDestLen);
     final int result = LZ4JNI.LZ4_decompress_safe(src, null, srcOff, srcLen, dest, null, destOff, maxDestLen);
     if (result < 0) {
       throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
@@ -43,21 +42,36 @@ final class LZ4JNISafeDecompressor extends LZ4SafeDecompressor {
 
   @Override
   public int decompress(ByteBuffer src, int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
-    checkRange(src, srcOff, srcLen);
-    checkRange(dest, destOff, maxDestLen);
-    checkNotReadOnly(dest);
-    if (!src.isDirect() && src.isReadOnly()) {
-      // JNI can't access data in this case. Fall back to Java implementation.
-      return LZ4Factory.fastestJavaInstance().safeDecompressor().
-          decompress(src, srcOff, srcLen, dest, destOff, maxDestLen);
+    ByteBufferUtils.checkNotReadOnly(dest);
+    ByteBufferUtils.checkRange(src, srcOff, srcLen);
+    ByteBufferUtils.checkRange(dest, destOff, maxDestLen);
+
+    byte[] srcArr = null, destArr = null;
+    ByteBuffer srcBuf = null, destBuf = null;
+    if (src.hasArray()) {
+      srcArr = src.array();
+    } else if (src.isDirect()) {
+      srcBuf = src;
+    }
+    if (dest.hasArray()) {
+      destArr = dest.array();
+    } else if (dest.isDirect()) {
+      destBuf = dest;
     }
 
-    int result = LZ4JNI.LZ4_decompress_safe(
-        ByteBufferUtils.getArray(src), src, srcOff, srcLen,
-        ByteBufferUtils.getArray(dest), dest, destOff, maxDestLen);
-    if (result < 0) {
-      throw new LZ4Exception("Error decoding offset " + (src.position() - result) + " of input buffer");
+    if ((srcArr != null || srcBuf != null) && (destArr != null || destBuf != null)) {
+      final int result = LZ4JNI.LZ4_decompress_safe(srcArr, srcBuf, srcOff, srcLen, destArr, destBuf, destOff, maxDestLen);
+      if (result < 0) {
+        throw new LZ4Exception("Error decoding offset " + (srcOff - result) + " of input buffer");
+      }
+      return result;
+    } else {
+      LZ4SafeDecompressor safeInstance = SAFE_INSTANCE;
+      if (safeInstance == null) {
+        safeInstance = SAFE_INSTANCE = LZ4Factory.safeInstance().safeDecompressor();
+      }
+      return safeInstance.decompress(src, srcOff, srcLen, dest, destOff, maxDestLen);
     }
-    return result;
   }
+
 }

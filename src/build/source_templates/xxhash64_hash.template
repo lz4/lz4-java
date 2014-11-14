@@ -1,13 +1,13 @@
   @Override
-  public long hash(${Storage} buf, int off, int len, long seed) {
-@if{Storage == "ByteBuffer"}
+  public long hash(${storage} buf, int off, int len, long seed) {
+@if{storage == "ByteBuffer"}
     if (buf.hasArray()) {
       return hash(buf.array(), off, len, seed);
     }
-    checkRange(buf, off, len);
-    buf = inLittleEndianOrder(buf);
+    ${utils}.checkRange(buf, off, len);
+    buf = ${utils}.inLittleEndianOrder(buf);
 @else{}
-    checkRange(buf, off, len);
+    ${utils}.checkRange(buf, off, len);
 @end{}
     final int end = off + len;
     long h64;
@@ -19,22 +19,22 @@
       long v3 = seed + 0;
       long v4 = seed - PRIME64_1;
       do {
-        v1 += readLongLE(buf, off) * PRIME64_2;
+        v1 += ${utils}.readLongLE(buf, off) * PRIME64_2;
         v1 = rotateLeft(v1, 31);
         v1 *= PRIME64_1;
         off += 8;
 
-        v2 += readLongLE(buf, off) * PRIME64_2;
+        v2 += ${utils}.readLongLE(buf, off) * PRIME64_2;
         v2 = rotateLeft(v2, 31);
         v2 *= PRIME64_1;
         off += 8;
 
-        v3 += readLongLE(buf, off) * PRIME64_2;
+        v3 += ${utils}.readLongLE(buf, off) * PRIME64_2;
         v3 = rotateLeft(v3, 31);
         v3 *= PRIME64_1;
         off += 8;
 
-        v4 += readLongLE(buf, off) * PRIME64_2;
+        v4 += ${utils}.readLongLE(buf, off) * PRIME64_2;
         v4 = rotateLeft(v4, 31);
         v4 *= PRIME64_1;
         off += 8;
@@ -60,20 +60,20 @@
     h64 += len;
 
     while (off <= end - 8) {
-      long k1 = readLongLE(buf, off);
+      long k1 = ${utils}.readLongLE(buf, off);
       k1 *= PRIME64_2; k1 = rotateLeft(k1, 31); k1 *= PRIME64_1; h64 ^= k1;
       h64 = rotateLeft(h64, 27) * PRIME64_1 + PRIME64_4;
       off += 8;
     }
 
     if (off <= end - 4) {
-      h64 ^= (readIntLE(buf, off) & 0xFFFFFFFFL) * PRIME64_1;
+      h64 ^= (${utils}.readIntLE(buf, off) & 0xFFFFFFFFL) * PRIME64_1;
       h64 = rotateLeft(h64, 23) * PRIME64_2 + PRIME64_3;
       off += 4;
     }
 
     while (off < end) {
-      h64 ^= (readByte(buf, off) & 0xFF) * PRIME64_5;
+      h64 ^= (${utils}.readByte(buf, off) & 0xFF) * PRIME64_5;
       h64 = rotateLeft(h64, 11) * PRIME64_1;
       ++off;
     }

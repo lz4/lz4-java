@@ -1,0 +1,147 @@
+  @Override
+  public int compress(${storage} src, int srcOff, int srcLen, ${storage} dest, int destOff, int maxDestLen) {
+@if{ storage == "ByteBuffer"}
+    if (src.hasArray() && dest.hasArray()) {
+      return compress(src.array(), srcOff, srcLen, dest.array(), destOff, maxDestLen);
+    }
+    src = ${utils}.inNativeByteOrder(src);
+    dest = ${utils}.inNativeByteOrder(dest);
+@end{}
+    ${utils}.checkRange(src, srcOff, srcLen);
+    ${utils}.checkRange(dest, destOff, maxDestLen);
+
+    final int srcEnd = srcOff + srcLen;
+    final int destEnd = destOff + maxDestLen;
+    final int mfLimit = srcEnd - MF_LIMIT;
+    final int matchLimit = srcEnd - LAST_LITERALS;
+
+    int sOff = srcOff;
+    int dOff = destOff;
+    int anchor = sOff++;
+
+    final HashTable ht = new HashTable(srcOff);
+    final Match match0 = new Match();
+    final Match match1 = new Match();
+    final Match match2 = new Match();
+    final Match match3 = new Match();
+
+    main:
+    while (sOff < mfLimit) {
+      if (!ht.insertAndFindBestMatch(src, sOff, matchLimit, match1)) {
+        ++sOff;
+        continue;
+      }
+
+      // saved, in case we would skip too much
+      copyTo(match1, match0);
+
+      search2:
+      while (true) {
+        assert match1.start >= anchor;
+        if (match1.end() >= mfLimit
+            || !ht.insertAndFindWiderMatch(src, match1.end() - 2, match1.start + 1, matchLimit, match1.len, match2)) {
+          // no better match
+          dOff = LZ4${utils}.encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
+          anchor = sOff = match1.end();
+          continue main;
+        }
+
+        if (match0.start < match1.start) {
+          if (match2.start < match1.start + match0.len) { // empirical
+            copyTo(match0, match1);
+          }
+        }
+        assert match2.start > match1.start;
+
+        if (match2.start - match1.start < 3) { // First Match too small : removed
+          copyTo(match2, match1);
+          continue search2;
+        }
+
+        search3:
+        while (true) {
+          if (match2.start - match1.start < OPTIMAL_ML) {
+            int newMatchLen = match1.len;
+            if (newMatchLen > OPTIMAL_ML) {
+              newMatchLen = OPTIMAL_ML;
+            }
+            if (match1.start + newMatchLen > match2.end() - MIN_MATCH) {
+              newMatchLen = match2.start - match1.start + match2.len - MIN_MATCH;
+            }
+            final int correction = newMatchLen - (match2.start - match1.start);
+            if (correction > 0) {
+              match2.fix(correction);
+            }
+          }
+
+          if (match2.start + match2.len >= mfLimit
+              || !ht.insertAndFindWiderMatch(src, match2.end() - 3, match2.start, matchLimit, match2.len, match3)) {
+            // no better match -> 2 sequences to encode
+            if (match2.start < match1.end()) {
+              match1.len = match2.start - match1.start;
+            }
+            // encode seq 1
+            dOff = LZ4${utils}.encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
+            anchor = sOff = match1.end();
+            // encode seq 2
+            dOff = LZ4${utils}.encodeSequence(src, anchor, match2.start, match2.ref, match2.len, dest, dOff, destEnd);
+            anchor = sOff = match2.end();
+            continue main;
+          }
+
+          if (match3.start < match1.end() + 3) { // Not enough space for match 2 : remove it
+            if (match3.start >= match1.end()) { // // can write Seq1 immediately ==> Seq2 is removed, so Seq3 becomes Seq1
+              if (match2.start < match1.end()) {
+                final int correction = match1.end() - match2.start;
+                match2.fix(correction);
+                if (match2.len < MIN_MATCH) {
+                  copyTo(match3, match2);
+                }
+              }
+
+              dOff = LZ4${utils}.encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
+              anchor = sOff = match1.end();
+
+              copyTo(match3, match1);
+              copyTo(match2, match0);
+
+              continue search2;
+            }
+
+            copyTo(match3, match2);
+            continue search3;
+          }
+
+          // OK, now we have 3 ascending matches; let's write at least the first one
+          if (match2.start < match1.end()) {
+            if (match2.start - match1.start < ML_MASK) {
+              if (match1.len > OPTIMAL_ML) {
+                match1.len = OPTIMAL_ML;
+              }
+              if (match1.end() > match2.end() - MIN_MATCH) {
+                match1.len = match2.end() - match1.start - MIN_MATCH;
+              }
+              final int correction = match1.end() - match2.start;
+              match2.fix(correction);
+            } else {
+              match1.len = match2.start - match1.start;
+            }
+          }
+
+          dOff = LZ4${utils}.encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
+          anchor = sOff = match1.end();
+
+          copyTo(match2, match1);
+          copyTo(match3, match2);
+
+          continue search3;
+        }
+
+      }
+
+    }
+
+    dOff = LZ4${utils}.lastLiterals(src, anchor, srcEnd - anchor, dest, dOff, destEnd);
+    return dOff - destOff;
+  }
+

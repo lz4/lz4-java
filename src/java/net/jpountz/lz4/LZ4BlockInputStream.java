@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.Checksum;
 
+import net.jpountz.util.SafeUtils;
 import net.jpountz.util.Utils;
 import net.jpountz.xxhash.StreamingXXHash32;
 import net.jpountz.xxhash.XXHash32;
@@ -108,7 +109,7 @@ public final class LZ4BlockInputStream extends FilterInputStream {
 
   @Override
   public int read(byte[] b, int off, int len) throws IOException {
-    Utils.checkRange(b, off, len);
+    SafeUtils.checkRange(b, off, len);
     if (finished) {
       return -1;
     }
@@ -158,9 +159,9 @@ public final class LZ4BlockInputStream extends FilterInputStream {
     if (compressionMethod != COMPRESSION_METHOD_RAW && compressionMethod != COMPRESSION_METHOD_LZ4) {
       throw new IOException("Stream is corrupted");
     }
-    final int compressedLen = Utils.readIntLE(compressedBuffer, MAGIC_LENGTH + 1);
-    originalLen = Utils.readIntLE(compressedBuffer, MAGIC_LENGTH + 5);
-    final int check = Utils.readIntLE(compressedBuffer, MAGIC_LENGTH + 9);
+    final int compressedLen = SafeUtils.readIntLE(compressedBuffer, MAGIC_LENGTH + 1);
+    originalLen = SafeUtils.readIntLE(compressedBuffer, MAGIC_LENGTH + 5);
+    final int check = SafeUtils.readIntLE(compressedBuffer, MAGIC_LENGTH + 9);
     assert HEADER_LENGTH == MAGIC_LENGTH + 13;
     if (originalLen > 1 << compressionLevel
         || originalLen < 0

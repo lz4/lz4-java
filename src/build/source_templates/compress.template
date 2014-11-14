@@ -1,38 +1,157 @@
-  @{Visibility} int compress@{NameSuffix}(
-      @{Storage} src, final @{OffsetType} srcOff, int srcLen,
-      @{Storage} dest, final @{OffsetType} destOff, int maxDestLen) {
-      
-@if{Storage == "ByteBuffer"}
-    src = inNativeOrder(src);
-    dest = inNativeOrder(dest);
-@end{}
+  static int compress64k(${storage} src, int srcOff, int srcLen, ${storage} dest, int destOff, int destEnd) {
+    final int srcEnd = srcOff + srcLen;
+    final int srcLimit = srcEnd - LAST_LITERALS;
+    final int mflimit = srcEnd - MF_LIMIT;
 
-    final @{OffsetType} destEnd = destOff + maxDestLen;
-    final @{OffsetType} srcEnd = srcOff + srcLen;
+    int sOff = srcOff, dOff = destOff;
+
+    int anchor = sOff;
+
+    if (srcLen >= MIN_LENGTH) {
+
+      final short[] hashTable = new short[HASH_TABLE_SIZE_64K];
+
+      ++sOff;
+
+      main:
+      while (true) {
+
+        // find a match
+        int forwardOff = sOff;
+
+        int ref;
+        int step = 1;
+        int searchMatchNb = 1 << SKIP_STRENGTH;
+        do {
+          sOff = forwardOff;
+          forwardOff += step;
+          step = searchMatchNb++ >>> SKIP_STRENGTH;
+
+          if (forwardOff > mflimit) {
+            break main;
+          }
+
+          final int h = hash64k(${utils}.readInt(src, sOff));
+          ref = srcOff + ${type}Utils.readShort(hashTable, h);
+          ${type}Utils.writeShort(hashTable, h, sOff - srcOff);
+        } while (!LZ4${utils}.readIntEquals(src, ref, sOff));
+
+        // catch up
+        final int excess = LZ4${utils}.commonBytesBackward(src, ref, sOff, srcOff, anchor);
+        sOff -= excess;
+        ref -= excess;
+
+        // sequence == refsequence
+        final int runLen = sOff - anchor;
+
+        // encode literal length
+        int tokenOff = dOff++;
+
+        if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) > destEnd) {
+          throw new LZ4Exception("maxDestLen is too small");
+        }
+
+        if (runLen >= RUN_MASK) {
+          ${utils}.writeByte(dest, tokenOff, RUN_MASK << ML_BITS);
+          dOff = LZ4${utils}.writeLen(runLen - RUN_MASK, dest, dOff);
+        } else {
+          ${utils}.writeByte(dest, tokenOff, runLen << ML_BITS);
+        }
+
+        // copy literals
+        LZ4${utils}.wildArraycopy(src, anchor, dest, dOff, runLen);
+        dOff += runLen;
+
+        while (true) {
+          // encode offset
+          ${utils}.writeShortLE(dest, dOff, (short) (sOff - ref));
+          dOff += 2;
+
+          // count nb matches
+          sOff += MIN_MATCH;
+          ref += MIN_MATCH;
+          final int matchLen = LZ4${utils}.commonBytes(src, ref, sOff, srcLimit);
+          if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) > destEnd) {
+            throw new LZ4Exception("maxDestLen is too small");
+          }
+          sOff += matchLen;
+
+          // encode match len
+          if (matchLen >= ML_MASK) {
+            ${utils}.writeByte(dest, tokenOff, ${utils}.readByte(dest, tokenOff) | ML_MASK);
+            dOff = LZ4${utils}.writeLen(matchLen - ML_MASK, dest, dOff);
+          } else {
+            ${utils}.writeByte(dest, tokenOff, ${utils}.readByte(dest, tokenOff) | matchLen);
+          }
+
+          // test end of chunk
+          if (sOff > mflimit) {
+            anchor = sOff;
+            break main;
+          }
+
+          // fill table
+          ${type}Utils.writeShort(hashTable, hash64k(${utils}.readInt(src, sOff - 2)), sOff - 2 - srcOff);
+
+          // test next position
+          final int h = hash64k(${utils}.readInt(src, sOff));
+          ref = srcOff + ${type}Utils.readShort(hashTable, h);
+          ${type}Utils.writeShort(hashTable, h, sOff - srcOff);
+
+          if (!LZ4${utils}.readIntEquals(src, sOff, ref)) {
+            break;
+          }
+
+          tokenOff = dOff++;
+          ${utils}.writeByte(dest, tokenOff, 0);
+        }
+
+        // prepare next loop
+        anchor = sOff++;
+      }
+    }
+
+    dOff = LZ4${utils}.lastLiterals(src, anchor, srcEnd - anchor, dest, dOff, destEnd);
+    return dOff - destOff;
+  }
+
+  @Override
+  public int compress(${storage} src, final int srcOff, int srcLen, ${storage} dest, final int destOff, int maxDestLen) {
+@if{ storage == "ByteBuffer"}
+    if (src.hasArray() && dest.hasArray()) {
+      return compress(src.array(), srcOff, srcLen, dest.array(), destOff, maxDestLen);
+    }
+    src = ${utils}.inNativeByteOrder(src);
+    dest = ${utils}.inNativeByteOrder(dest);
+@end{}
+    ${utils}.checkRange(src, srcOff, srcLen);
+    ${utils}.checkRange(dest, destOff, maxDestLen);
+    final int destEnd = destOff + maxDestLen;
 
     if (srcLen < LZ4_64K_LIMIT) {
       return compress64k(src, srcOff, srcLen, dest, destOff, destEnd);
     }
 
-    final @{OffsetType} srcLimit = srcEnd - LAST_LITERALS;
-    final @{OffsetType} mflimit = srcEnd - MF_LIMIT;
+    final int srcEnd = srcOff + srcLen;
+    final int srcLimit = srcEnd - LAST_LITERALS;
+    final int mflimit = srcEnd - MF_LIMIT;
 
-    @{OffsetType} sOff = srcOff, dOff = destOff;
-    @{OffsetType} anchor = sOff++;
+    int sOff = srcOff, dOff = destOff;
+    int anchor = sOff++;
 
-    final @{OffsetType}[] hashTable = new @{OffsetType}[HASH_TABLE_SIZE];
+    final int[] hashTable = new int[HASH_TABLE_SIZE];
     Arrays.fill(hashTable, anchor);
 
     main:
     while (true) {
 
       // find a match
-      @{OffsetType} forwardOff = sOff;
+      int forwardOff = sOff;
 
-      @{OffsetType} ref;
+      int ref;
       int step = 1;
       int searchMatchNb = 1 << SKIP_STRENGTH;
-      @{OffsetType} back;
+      int back;
       do {
         sOff = forwardOff;
         forwardOff += step;
@@ -42,46 +161,46 @@
           break main;
         }
 
-        final int h = hash(readInt(src, sOff));
-        ref = hashTable[h];
+        final int h = hash(${utils}.readInt(src, sOff));
+        ref = ${type}Utils.readInt(hashTable, h);
         back = sOff - ref;
-        hashTable[h] = sOff;
-      } while (back >= MAX_DISTANCE || !readIntEquals(src, ref, sOff));
+        ${type}Utils.writeInt(hashTable, h, sOff);
+      } while (back >= MAX_DISTANCE || !LZ4${utils}.readIntEquals(src, ref, sOff));
 
 
-      final int excess = commonBytesBackward(src, ref, sOff, srcOff, anchor);
+      final int excess = LZ4${utils}.commonBytesBackward(src, ref, sOff, srcOff, anchor);
       sOff -= excess;
       ref -= excess;
 
       // sequence == refsequence
-      final int runLen = (int) (sOff - anchor);
+      final int runLen = sOff - anchor;
 
       // encode literal length
-      @{OffsetType} tokenOff = dOff++;
+      int tokenOff = dOff++;
 
       if (dOff + runLen + (2 + 1 + LAST_LITERALS) + (runLen >>> 8) > destEnd) {
         throw new LZ4Exception("maxDestLen is too small");
       }
 
       if (runLen >= RUN_MASK) {
-        writeByte(dest, tokenOff, RUN_MASK << ML_BITS);
-        dOff = (@{OffsetType}) writeLen(runLen - RUN_MASK, dest, dOff);
+        ${utils}.writeByte(dest, tokenOff, RUN_MASK << ML_BITS);
+        dOff = LZ4${utils}.writeLen(runLen - RUN_MASK, dest, dOff);
       } else {
-        writeByte(dest, tokenOff, runLen << ML_BITS);
+        ${utils}.writeByte(dest, tokenOff, runLen << ML_BITS);
       }
 
       // copy literals
-      wildArraycopy(src, anchor, dest, dOff, runLen);
+      LZ4${utils}.wildArraycopy(src, anchor, dest, dOff, runLen);
       dOff += runLen;
 
       while (true) {
         // encode offset
-        writeShortLittleEndian(dest, dOff, back);
+        ${utils}.writeShortLE(dest, dOff, back);
         dOff += 2;
 
         // count nb matches
         sOff += MIN_MATCH;
-        final int matchLen = commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
+        final int matchLen = LZ4${utils}.commonBytes(src, ref + MIN_MATCH, sOff, srcLimit);
         if (dOff + (1 + LAST_LITERALS) + (matchLen >>> 8) > destEnd) {
           throw new LZ4Exception("maxDestLen is too small");
         }
@@ -89,10 +208,10 @@
 
         // encode match len
         if (matchLen >= ML_MASK) {
-          writeByte(dest, tokenOff, readByte(dest, tokenOff) | ML_MASK);
-          dOff = (@{OffsetType}) writeLen(matchLen - ML_MASK, dest, dOff);
+          ${utils}.writeByte(dest, tokenOff, ${utils}.readByte(dest, tokenOff) | ML_MASK);
+          dOff = LZ4${utils}.writeLen(matchLen - ML_MASK, dest, dOff);
         } else {
-          writeByte(dest, tokenOff, readByte(dest, tokenOff) | matchLen);
+          ${utils}.writeByte(dest, tokenOff, ${utils}.readByte(dest, tokenOff) | matchLen);
         }
 
         // test end of chunk
@@ -102,27 +221,27 @@
         }
 
         // fill table
-        hashTable[hash(readInt(src, sOff - 2))] = sOff - 2;
+        ${type}Utils.writeInt(hashTable, hash(${utils}.readInt(src, sOff - 2)), sOff - 2);
 
         // test next position
-        final int h = hash(readInt(src, sOff));
-        ref = hashTable[h];
-        hashTable[h] = sOff;
+        final int h = hash(${utils}.readInt(src, sOff));
+        ref = ${type}Utils.readInt(hashTable, h);
+        ${type}Utils.writeInt(hashTable, h, sOff);
         back = sOff - ref;
 
-        if (back >= MAX_DISTANCE || !readIntEquals(src, ref, sOff)) {
+        if (back >= MAX_DISTANCE || !LZ4${utils}.readIntEquals(src, ref, sOff)) {
           break;
         }
 
         tokenOff = dOff++;
-        writeByte(dest, tokenOff, 0);
+        ${utils}.writeByte(dest, tokenOff, 0);
       }
 
       // prepare next loop
       anchor = sOff++;
     }
 
-    dOff = (@{OffsetType}) lastLiterals(src, anchor, (int) (srcEnd - anchor), dest, dOff, destEnd);
-    return (int) (dOff - destOff);
+    dOff = LZ4${utils}.lastLiterals(src, anchor, srcEnd - anchor, dest, dOff, destEnd);
+    return dOff - destOff;
   }
 

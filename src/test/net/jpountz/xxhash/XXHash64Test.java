@@ -17,7 +17,7 @@ package net.jpountz.xxhash;
 import java.nio.ByteBuffer;
 
 import net.jpountz.lz4.AbstractLZ4Test;
-import net.jpountz.util.Utils;
+import net.jpountz.util.SafeUtils;
 
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class XXHash64Test extends AbstractLZ4Test {
 
     @Override
     public long hash(byte[] buf, int off, int len, long seed) {
-      Utils.checkRange(buf, off, len);
+      SafeUtils.checkRange(buf, off, len);
       int originalOff = off;
       int remainingPasses = randomInt(5);
       StreamingXXHash64 h = streamingHash(seed);

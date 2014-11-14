@@ -15,7 +15,7 @@ package net.jpountz.xxhash;
  */
 
 import static net.jpountz.util.ByteBufferUtils.checkRange;
-import static net.jpountz.util.Utils.checkRange;
+import static net.jpountz.util.SafeUtils.checkRange;
 
 import java.nio.ByteBuffer;
 
