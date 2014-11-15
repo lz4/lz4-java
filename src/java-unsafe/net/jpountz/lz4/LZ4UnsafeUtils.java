@@ -200,7 +200,7 @@ enum LZ4UnsafeUtils {
   }
 
   static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff, int destEnd) {
-    return LZ4Utils.lastLiterals(src, sOff, srcLen, dest, dOff, destEnd);
+    return LZ4SafeUtils.lastLiterals(src, sOff, srcLen, dest, dOff, destEnd);
   }
 
 }

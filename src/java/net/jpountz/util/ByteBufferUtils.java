@@ -52,6 +52,15 @@ public enum ByteBufferUtils {
     return buf.getLong(i);
   }
 
+  public static void writeByte(ByteBuffer dest, int off, int i) {
+    dest.put(off, (byte) i);
+  }
+
+  public static void writeShortLE(ByteBuffer dest, int off, int i) {
+    dest.put(off, (byte) i);
+    dest.put(off + 1, (byte) (i >>> 8));
+  }
+
   public static void checkNotReadOnly(ByteBuffer buffer) {
     if (buffer.isReadOnly()) {
       throw new IllegalArgumentException("Destination buffer should not be read-only");

@@ -22,8 +22,8 @@ final class XXHash64Java${type} extends XXHash64 {
 
   public static final XXHash64 INSTANCE = new XXHash64Java${type}();
 
-@include{"xxhash64_hash.template"; Storage = "byte[]"}
-@include{"xxhash64_hash.template"; Storage = "ByteBuffer"}
+@include{"xxhash64_hash.template"; storage = "byte[]"}
+@include{"xxhash64_hash.template"; storage = "ByteBuffer"}
 
 }
 

@@ -18,88 +18,74 @@ import static net.jpountz.lz4.LZ4Constants.LAST_LITERALS;
 import static net.jpountz.lz4.LZ4Constants.ML_BITS;
 import static net.jpountz.lz4.LZ4Constants.ML_MASK;
 import static net.jpountz.lz4.LZ4Constants.RUN_MASK;
-import static net.jpountz.util.ByteBufferUtils.readByte;
-import static net.jpountz.util.ByteBufferUtils.readInt;
-import static net.jpountz.util.ByteBufferUtils.readLong;
+import net.jpountz.util.SafeUtils;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
-enum LZ4ByteBufferUtils {
+enum LZ4SafeUtils {
   ;
-  static int hash(ByteBuffer buf, int i) {
-    return LZ4Utils.hash(readInt(buf, i));
+
+  static int hash(byte[] buf, int i) {
+    return LZ4Utils.hash(SafeUtils.readInt(buf, i));
   }
 
-  static int hash64k(ByteBuffer buf, int i) {
-    return LZ4Utils.hash64k(readInt(buf, i));
+  static int hash64k(byte[] buf, int i) {
+    return LZ4Utils.hash64k(SafeUtils.readInt(buf, i));
   }
 
-  static boolean readIntEquals(ByteBuffer buf, int i, int j) {
-    return buf.getInt(i) == buf.getInt(j);
+  static boolean readIntEquals(byte[] buf, int i, int j) {
+    return buf[i] == buf[j] && buf[i+1] == buf[j+1] && buf[i+2] == buf[j+2] && buf[i+3] == buf[j+3];
   }
 
-  static void safeIncrementalCopy(ByteBuffer dest, int matchOff, int dOff, int matchLen) {
+  static void safeIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
     for (int i = 0; i < matchLen; ++i) {
-      dest.put(matchOff + i, dest.get(dOff + i));
+      dest[dOff + i] = dest[matchOff + i];
     }
   }
 
-  static void wildIncrementalCopy(ByteBuffer dest, int matchOff, int dOff, int matchCopyEnd) {
+  static void wildIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchCopyEnd) {
     do {
-      dest.putLong(matchOff, dest.getLong(dOff));
+      copy8Bytes(dest, matchOff, dest, dOff);
       matchOff += 8;
       dOff += 8;
     } while (dOff < matchCopyEnd);
   }
 
-  static int commonBytes(ByteBuffer src, int ref, int sOff, int srcLimit) {
-    int matchLen = 0;
-    while (sOff <= srcLimit - 8) {
-      if (readLong(src, sOff) == readLong(src, ref)) {
-        matchLen += 8;
-        ref += 8;
-        sOff += 8;
-      } else {
-        final int zeroBits;
-        if (src.order() == ByteOrder.BIG_ENDIAN) {
-          zeroBits = Long.numberOfLeadingZeros(readLong(src, sOff) ^ readLong(src, ref));
-        } else {
-          zeroBits = Long.numberOfTrailingZeros(readLong(src, sOff) ^ readLong(src, ref));
-        }
-        return matchLen + (zeroBits >>> 3);
-      }
+  static void copy8Bytes(byte[] src, int sOff, byte[] dest, int dOff) {
+    for (int i = 0; i < 8; ++i) {
+      dest[dOff + i] = src[sOff + i];
     }
-    while (sOff < srcLimit && readByte(src, ref++) == readByte(src, sOff++)) {
-      ++matchLen;
-    }
-    return matchLen;
   }
 
-  static int commonBytesBackward(ByteBuffer b, int o1, int o2, int l1, int l2) {
+  static int commonBytes(byte[] b, int o1, int o2, int limit) {
     int count = 0;
-    while (o1 > l1 && o2 > l2 && b.get(--o1) == b.get(--o2)) {
+    while (o2 < limit && b[o1++] == b[o2++]) {
       ++count;
     }
     return count;
   }
 
-  static void safeArraycopy(ByteBuffer src, int sOff, ByteBuffer dest, int dOff, int len) {
+  static int commonBytesBackward(byte[] b, int o1, int o2, int l1, int l2) {
+    int count = 0;
+    while (o1 > l1 && o2 > l2 && b[--o1] == b[--o2]) {
+      ++count;
+    }
+    return count;
+  }
+
+  static void safeArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
     System.arraycopy(src, sOff, dest, dOff, len);
   }
 
-  static void wildArraycopy(ByteBuffer src, int sOff, ByteBuffer dest, int dOff, int len) {
+  static void wildArraycopy(byte[] src, int sOff, byte[] dest, int dOff, int len) {
     try {
       for (int i = 0; i < len; i += 8) {
-        // TODO
-        //copy8Bytes(src, sOff + i, dest, dOff + i);
+        copy8Bytes(src, sOff + i, dest, dOff + i);
       }
     } catch (ArrayIndexOutOfBoundsException e) {
       throw new LZ4Exception("Malformed input at offset " + sOff);
     }
   }
 
-  static int encodeSequence(ByteBuffer src, int anchor, int matchOff, int matchRef, int matchLen, ByteBuffer dest, int dOff, int destEnd) {
+  static int encodeSequence(byte[] src, int anchor, int matchOff, int matchRef, int matchLen, byte[] dest, int dOff, int destEnd) {
     final int runLen = matchOff - anchor;
     final int tokenOff = dOff++;
 
@@ -121,8 +107,8 @@ enum LZ4ByteBufferUtils {
 
     // encode offset
     final int matchDec = matchOff - matchRef;
-    dest.put(dOff++, (byte) matchDec);
-    dest.put(dOff++, (byte) (matchDec >>> 8));
+    dest[dOff++] = (byte) matchDec;
+    dest[dOff++] = (byte) (matchDec >>> 8);
 
     // encode match len
     matchLen -= 4;
@@ -136,12 +122,12 @@ enum LZ4ByteBufferUtils {
       token |= matchLen;
     }
 
-    dest.put(tokenOff, (byte) token);
+    dest[tokenOff] = (byte) token;
 
     return dOff;
   }
 
-  static int lastLiterals(ByteBuffer src, int sOff, int srcLen, ByteBuffer dest, int dOff, int destEnd) {
+  static int lastLiterals(byte[] src, int sOff, int srcLen, byte[] dest, int dOff, int destEnd) {
     final int runLen = srcLen;
 
     if (dOff + runLen + 1 + (runLen + 255 - RUN_MASK) / 255 > destEnd) {
@@ -149,10 +135,10 @@ enum LZ4ByteBufferUtils {
     }
 
     if (runLen >= RUN_MASK) {
-      dest.put(dOff++, (byte) (RUN_MASK << ML_BITS));
+      dest[dOff++] = (byte) (RUN_MASK << ML_BITS);
       dOff = writeLen(runLen - RUN_MASK, dest, dOff);
     } else {
-      dest.put(dOff++, (byte) (runLen << ML_BITS));
+      dest[dOff++] = (byte) (runLen << ML_BITS);
     }
     // copy literals
     System.arraycopy(src, sOff, dest, dOff, runLen);
@@ -161,12 +147,12 @@ enum LZ4ByteBufferUtils {
     return dOff;
   }
 
-  static int writeLen(int len, ByteBuffer dest, int dOff) {
+  static int writeLen(int len, byte[] dest, int dOff) {
     while (len >= 0xFF) {
-      dest.put(dOff++, (byte) 0xFF);
+      dest[dOff++] = (byte) 0xFF;
       len -= 0xFF;
     }
-    dest.put(dOff++, (byte) len);
+    dest[dOff++] = (byte) len;
     return dOff;
   }
 

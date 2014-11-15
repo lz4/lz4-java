@@ -1,6 +1,6 @@
   @Override
-  public long hash(${Storage} buf, int off, int len, long seed) {
-@if{Storage == "ByteBuffer"}
+  public long hash(${storage} buf, int off, int len, long seed) {
+@if{storage == "ByteBuffer"}
     if (buf.hasArray()) {
       return hash(buf.array(), off, len, seed);
     }

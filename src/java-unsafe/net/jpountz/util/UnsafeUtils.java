@@ -100,8 +100,21 @@ public enum UnsafeUtils {
     return UNSAFE.getShort(src, BYTE_ARRAY_OFFSET + srcOff);
   }
 
+  public static int readShortLE(byte[] src, int srcOff) {
+    short s = readShort(src, srcOff);
+    if (NATIVE_BYTE_ORDER == ByteOrder.BIG_ENDIAN) {
+      s = Short.reverseBytes(s);
+    }
+    return s & 0xFFFF;
+  }
+
   public static void writeShort(byte[] dest, int destOff, short value) {
     UNSAFE.putShort(dest, BYTE_ARRAY_OFFSET + destOff, value);
+  }
+
+  public static void writeShortLE(byte[] buf, int off, int v) {
+    writeByte(buf, off, (byte) v);
+    writeByte(buf, off + 1, (byte) (v >>> 8));
   }
 
   public static int readInt(int[] src, int srcOff) {

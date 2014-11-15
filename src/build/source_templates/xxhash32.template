@@ -23,8 +23,8 @@ final class XXHash32Java${type} extends XXHash32 {
 
   public static final XXHash32 INSTANCE = new XXHash32Java${type}();
 
-@include{"xxhash32_hash.template"; Storage = "byte[]"}
-@include{"xxhash32_hash.template"; Storage = "ByteBuffer"}
+@include{"xxhash32_hash.template"; storage = "byte[]"}
+@include{"xxhash32_hash.template"; storage = "ByteBuffer"}
 
 }
 
