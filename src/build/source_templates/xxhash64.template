@@ -15,6 +15,9 @@ import static net.jpountz.util.Utils.*;
 @end{}
 import static java.lang.Long.rotateLeft;
 
+import net.jpountz.util.${type}Utils;
+import net.jpountz.util.ByteBufferUtils;
+
 /**
  * {@link XXHash64} implementation.
  */
@@ -22,8 +25,8 @@ final class XXHash64Java${type} extends XXHash64 {
 
   public static final XXHash64 INSTANCE = new XXHash64Java${type}();
 
-@include{"xxhash64_hash.template"; storage = "byte[]"}
-@include{"xxhash64_hash.template"; storage = "ByteBuffer"}
+@include{"xxhash64_hash.template"; storage = "byte[]"; utils = type + "Utils"}
+@include{"xxhash64_hash.template"; storage = "ByteBuffer"; utils = "ByteBufferUtils"}
 
 }
 

@@ -12,11 +12,18 @@ import static net.jpountz.lz4.LZ4Utils.hashHC;
 import static net.jpountz.lz4.LZ4Utils.copyTo;
 @else{}
 import static net.jpountz.lz4.LZ4Utils.*;
-import static net.jpountz.util.Utils.*;
 @end{}
+
+import static net.jpountz.util.Utils.*;
+import static net.jpountz.util.ByteBufferUtils.*;
 
 import java.nio.ByteBuffer;
 import net.jpountz.lz4.LZ4Utils.Match;
+import net.jpountz.lz4.LZ4${type}Utils;
+import net.jpountz.lz4.LZ4ByteBufferUtils;
+import net.jpountz.util.${type}Utils;
+import net.jpountz.util.Utils;
+import net.jpountz.util.ByteBufferUtils;
 
 /**
  * High compression compressor.

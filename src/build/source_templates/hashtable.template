@@ -15,12 +15,15 @@
 
     private int hashPointer(byte[] bytes, int off) {
       final int v = ${type}Utils.readInt(bytes, off);
-      final int h = hashHC(v);
-      return hashTable[h];
+      return hashPointer(v);
     }
 
     private int hashPointer(ByteBuffer bytes, int off) {
       final int v = ByteBufferUtils.readInt(bytes, off);
+      return hashPointer(v);
+    }
+
+    private int hashPointer(int v) {
       final int h = hashHC(v);
       return hashTable[h];
     }
@@ -30,16 +33,16 @@
     }
 
     private void addHash(byte[] bytes, int off) {
-      final int v = ${type}.readInt(bytes, off);
-      addHash(v);
+      final int v = ${type}Utils.readInt(bytes, off);
+      addHash(v, off);
     }
 
     private void addHash(ByteBuffer bytes, int off) {
       final int v = ByteBufferUtils.readInt(bytes, off);
-      addHash(v);
+      addHash(v, off);
     }
 
-    private void addHash(int v) {
+    private void addHash(int v, int off) {
       final int h = hashHC(v);
       int delta = off - hashTable[h];
       assert delta > 0 : delta;
@@ -62,7 +65,9 @@
       } 
     }
 
-    boolean insertAndFindBestMatch(byte[] buf, int off, int matchLimit, Match match) {
+@foreach{ storage : ["byte[]", "ByteBuffer"] }
+@code{ utils = type + "Utils"; if (storage == "ByteBuffer") { utils = "ByteBufferUtils" } }
+    boolean insertAndFindBestMatch(${storage} buf, int off, int matchLimit, Match match) {
       match.start = off;
       match.len = 0;
       int delta = 0;
@@ -73,9 +78,9 @@
       int ref = hashPointer(buf, off);
 
       if (ref >= off - 4 && ref <= off && ref >= base) { // potential repetition
-        if (readIntEquals(buf, ref, off)) { // confirmed
+        if (LZ4${utils}.readIntEquals(buf, ref, off)) { // confirmed
           delta = off - ref;
-          repl = match.len = MIN_MATCH + commonBytes(buf, ref + MIN_MATCH, off + MIN_MATCH, matchLimit);
+          repl = match.len = MIN_MATCH + LZ4${utils}.commonBytes(buf, ref + MIN_MATCH, off + MIN_MATCH, matchLimit);
           match.ref = ref;
         }
         ref = next(ref);
@@ -85,8 +90,8 @@
         if (ref < Math.max(base, off - MAX_DISTANCE + 1) || ref > off) {
           break;
         }
-        if (buf[ref + match.len] == buf[off + match.len] && readIntEquals(buf, ref, off)) {
-          final int matchLen = MIN_MATCH + commonBytes(buf, ref + MIN_MATCH, off + MIN_MATCH, matchLimit);
+        if (LZ4${utils}.readIntEquals(buf, ref, off)) {
+          final int matchLen = MIN_MATCH + LZ4${utils}.commonBytes(buf, ref + MIN_MATCH, off + MIN_MATCH, matchLimit);
           if (matchLen > match.len) {
             match.ref = ref;
             match.len = matchLen;
@@ -104,7 +109,7 @@
         }
         do {
           chainTable[ptr & MASK] = (short) delta;
-          hashTable[hashHC(readInt(buf, ptr))] = ptr;
+          hashTable[hashHC(${utils}.readInt(buf, ptr))] = ptr;
           ++ptr;
         } while (ptr < end);
         nextToUpdate = end;
@@ -113,7 +118,7 @@
       return match.len != 0;
     }
 
-    boolean insertAndFindWiderMatch(byte[] buf, int off, int startLimit, int matchLimit, int minLen, Match match) {
+    boolean insertAndFindWiderMatch(${storage} buf, int off, int startLimit, int matchLimit, int minLen, Match match) {
       match.len = minLen;
 
       insert(off, buf);
@@ -124,10 +129,9 @@
         if (ref < Math.max(base, off - MAX_DISTANCE + 1) || ref > off) {
           break;
         }
-        if (buf[ref - delta + match.len] == buf[startLimit + match.len]
-            && readIntEquals(buf, ref, off)) {
-          final int matchLenForward = MIN_MATCH + commonBytes(buf, ref + MIN_MATCH, off + MIN_MATCH, matchLimit);
-          final int matchLenBackward = commonBytesBackward(buf, ref, off, base, startLimit);
+        if (LZ4${utils}.readIntEquals(buf, ref, off)) {
+          final int matchLenForward = MIN_MATCH +LZ4${utils}.commonBytes(buf, ref + MIN_MATCH, off + MIN_MATCH, matchLimit);
+          final int matchLenBackward = LZ4${utils}.commonBytesBackward(buf, ref, off, base, startLimit);
           final int matchLen = matchLenBackward + matchLenForward;
           if (matchLen > match.len) {
             match.len = matchLen;
@@ -140,5 +144,6 @@
 
       return match.len > minLen;
     }
+@end{}
 
   }

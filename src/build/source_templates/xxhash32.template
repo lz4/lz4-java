@@ -16,6 +16,9 @@ import static net.jpountz.util.Utils.*;
 @end{}
 import static java.lang.Integer.rotateLeft;
 
+import net.jpountz.util.${type}Utils;
+import net.jpountz.util.ByteBufferUtils;
+
 /**
  * {@link XXHash32} implementation.
  */
@@ -23,8 +26,8 @@ final class XXHash32Java${type} extends XXHash32 {
 
   public static final XXHash32 INSTANCE = new XXHash32Java${type}();
 
-@include{"xxhash32_hash.template"; storage = "byte[]"}
-@include{"xxhash32_hash.template"; storage = "ByteBuffer"}
+@include{"xxhash32_hash.template"; storage = "byte[]"; utils = type + "Utils"}
+@include{"xxhash32_hash.template"; storage = "ByteBuffer"; utils = "ByteBufferUtils"}
 
 }
 

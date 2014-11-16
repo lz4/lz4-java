@@ -5,7 +5,7 @@
       return hash(buf.array(), off, len, seed);
     }
     checkRange(buf, off, len);
-    buf = inLittleEndianOrder(buf);
+    buf = ${utils}.inLittleEndianOrder(buf);
 @else{}
     checkRange(buf, off, len);
 @end{}
@@ -19,22 +19,22 @@
       int v3 = seed + 0;
       int v4 = seed - PRIME1;
       do {
-        v1 += readIntLE(buf, off) * PRIME2;
+        v1 += ${utils}.readIntLE(buf, off) * PRIME2;
         v1 = rotateLeft(v1, 13);
         v1 *= PRIME1;
         off += 4;
 
-        v2 += readIntLE(buf, off) * PRIME2;
+        v2 += ${utils}.readIntLE(buf, off) * PRIME2;
         v2 = rotateLeft(v2, 13);
         v2 *= PRIME1;
         off += 4;
 
-        v3 += readIntLE(buf, off) * PRIME2;
+        v3 += ${utils}.readIntLE(buf, off) * PRIME2;
         v3 = rotateLeft(v3, 13);
         v3 *= PRIME1;
         off += 4;
 
-        v4 += readIntLE(buf, off) * PRIME2;
+        v4 += ${utils}.readIntLE(buf, off) * PRIME2;
         v4 = rotateLeft(v4, 13);
         v4 *= PRIME1;
         off += 4;
@@ -48,13 +48,13 @@
     h32 += len;
 
     while (off <= end - 4) {
-      h32 += readIntLE(buf, off) * PRIME3;
+      h32 += ${utils}.readIntLE(buf, off) * PRIME3;
       h32 = rotateLeft(h32, 17) * PRIME4;
       off += 4;
     }
 
     while (off < end) {
-      h32 += (readByte(buf, off) & 0xFF) * PRIME5;
+      h32 += (${utils}.readByte(buf, off) & 0xFF) * PRIME5;
       h32 = rotateLeft(h32, 11) * PRIME1;
       ++off;
     }

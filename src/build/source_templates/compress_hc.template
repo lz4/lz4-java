@@ -35,7 +35,7 @@
         if (match1.end() >= mfLimit
             || !ht.insertAndFindWiderMatch(src, match1.end() - 2, match1.start + 1, matchLimit, match1.len, match2)) {
           // no better match
-          dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
+          dOff = LZ4${utils}.encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
           anchor = sOff = match1.end();
           continue main;
         }
@@ -75,10 +75,10 @@
               match1.len = match2.start - match1.start;
             }
             // encode seq 1
-            dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
+            dOff = LZ4${utils}.encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
             anchor = sOff = match1.end();
             // encode seq 2
-            dOff = encodeSequence(src, anchor, match2.start, match2.ref, match2.len, dest, dOff, destEnd);
+            dOff = LZ4${utils}.encodeSequence(src, anchor, match2.start, match2.ref, match2.len, dest, dOff, destEnd);
             anchor = sOff = match2.end();
             continue main;
           }
@@ -93,7 +93,7 @@
                 }
               }
 
-              dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
+              dOff = LZ4${utils}.encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
               anchor = sOff = match1.end();
 
               copyTo(match3, match1);
@@ -122,7 +122,7 @@
             }
           }
 
-          dOff = encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
+          dOff = LZ4${utils}.encodeSequence(src, anchor, match1.start, match1.ref, match1.len, dest, dOff, destEnd);
           anchor = sOff = match1.end();
 
           copyTo(match2, match1);
@@ -135,7 +135,7 @@
 
     }
 
-    dOff = lastLiterals(src, anchor, srcEnd - anchor, dest, dOff, destEnd);
+    dOff = LZ4${utils}.lastLiterals(src, anchor, srcEnd - anchor, dest, dOff, destEnd);
     return dOff - destOff;
   }
 
