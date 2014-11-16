@@ -85,16 +85,17 @@ enum LZ4ByteBufferUtils {
   }
 
   static void safeArraycopy(ByteBuffer src, int sOff, ByteBuffer dest, int dOff, int len) {
-    System.arraycopy(src, sOff, dest, dOff, len);
+    for (int i = 0; i < len; ++i) {
+      dest.put(dOff + i, dest.get(sOff + i));
+    }
   }
 
   static void wildArraycopy(ByteBuffer src, int sOff, ByteBuffer dest, int dOff, int len) {
     try {
       for (int i = 0; i < len; i += 8) {
-        // TODO
-        //copy8Bytes(src, sOff + i, dest, dOff + i);
+        dest.putLong(dOff + i, dest.getLong(sOff + i));
       }
-    } catch (ArrayIndexOutOfBoundsException e) {
+    } catch (IndexOutOfBoundsException e) {
       throw new LZ4Exception("Malformed input at offset " + sOff);
     }
   }
@@ -155,7 +156,7 @@ enum LZ4ByteBufferUtils {
       dest.put(dOff++, (byte) (runLen << ML_BITS));
     }
     // copy literals
-    System.arraycopy(src, sOff, dest, dOff, runLen);
+    safeArraycopy(src, sOff, dest, dOff, runLen);
     dOff += runLen;
 
     return dOff;

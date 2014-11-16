@@ -105,45 +105,63 @@ public class LZ4Test extends AbstractLZ4Test {
       LZ4Compressor compressor,
       LZ4FastDecompressor decompressor,
       LZ4SafeDecompressor decompressor2) {
-    final byte[] compressed = new byte[LZ4Utils.maxCompressedLength(len)];
-    final int compressedLen = compressor.compress(
-        data, off, len,
-        compressed, 0, compressed.length);
+    for (Tester<?> tester : Arrays.asList(Tester.BYTE_ARRAY, Tester.BYTE_BUFFER)) {
+      testRoundTrip(tester, data, off, len, compressor, decompressor, decompressor2);
+    }
+  }
+
+  public <T> void testRoundTrip(
+      Tester<T> tester,
+      byte[] data, int off, int len,
+      LZ4Compressor compressor,
+      LZ4FastDecompressor decompressor,
+      LZ4SafeDecompressor decompressor2) {
+    final int maxCompressedLength = LZ4Utils.maxCompressedLength(len);
+    final T compressed = tester.allocate(maxCompressedLength);
+    final int compressedLen = tester.compress(compressor,
+        tester.copyOf(data), off, len,
+        compressed, 0, maxCompressedLength);
 
     // try to compress with the exact compressed size
-    final byte[] compressed2 = new byte[compressedLen];
-    final int compressedLen2 = compressor.compress(data, off, len, compressed2, 0, compressed2.length);
+    final T compressed2 = tester.allocate(compressedLen);
+    final int compressedLen2 = tester.compress(compressor,
+        tester.copyOf(data), off, len,
+        compressed2, 0, compressedLen);
     assertEquals(compressedLen, compressedLen2);
-    assertArrayEquals(Arrays.copyOf(compressed, compressedLen), compressed2);
+    assertArrayEquals(
+        tester.copyOf(compressed, 0, compressedLen),
+        tester.copyOf(compressed2, 0, compressedLen));
 
     // make sure it fails if the dest is not large enough
-    final byte[] compressed3 = new byte[compressedLen-1];
+    final T compressed3 = tester.allocate(compressedLen-1);
     try {
-      compressor.compress(data, off, len, compressed3, 0, compressed3.length);
-      assertTrue(false);
+      tester.compress(compressor,
+          tester.copyOf(data), off, len,
+          compressed3, 0, compressedLen - 1);
+      fail();
     } catch (LZ4Exception e) {
       // OK
     }
 
     // test decompression
-    final byte[] restored = new byte[len];
-    assertEquals(compressedLen, decompressor.decompress(compressed, 0, restored, 0, len));
-    assertArrayEquals(Arrays.copyOfRange(data, off, off + len), restored);
+    final T restored = tester.allocate(len);
+    assertEquals(compressedLen, tester.decompress(decompressor, compressed, 0, restored, 0, len));
+    assertArrayEquals(Arrays.copyOfRange(data, off, off + len), tester.copyOf(restored, 0, len));
 
     if (len > 0) {
       // dest is too small
       try {
-        decompressor.decompress(compressed, 0, restored, 0, len - 1);
-        assertTrue(false);
+        tester.decompress(decompressor, compressed, 0, restored, 0, len - 1);
+        fail();
       } catch (LZ4Exception e) {
         // OK
       }
     }
 
     // dest is too large
-    final byte[] restored2 = new byte[len+1];
+    final T restored2 = tester.allocate(len+1);
     try {
-      final int cpLen = decompressor.decompress(compressed, 0, restored2, 0, len + 1);
+      final int cpLen = tester.decompress(decompressor, compressed, 0, restored2, 0, len + 1);
       fail("compressedLen=" + cpLen);
     } catch (LZ4Exception e) {
       // OK
@@ -151,17 +169,16 @@ public class LZ4Test extends AbstractLZ4Test {
 
     // try decompression when only the size of the compressed buffer is known
     if (len > 0) {
-      Arrays.fill(restored, randomByte());
-      assertEquals(len, decompressor2.decompress(compressed, 0, compressedLen, restored, 0));
-
-      Arrays.fill(restored, randomByte());
+      tester.fill(restored, randomByte());
+      assertEquals(len, tester.decompress(decompressor2, compressed, 0, compressedLen, restored, 0, len));
+      tester.fill(restored, randomByte());
     } else {
-      assertEquals(0, decompressor2.decompress(compressed, 0, compressedLen, new byte[1], 0));
+      assertEquals(0, tester.decompress(decompressor2, compressed, 0, compressedLen, tester.allocate(1), 0, 1));
     }
 
     // over-estimated compressed length
     try {
-      final int decompressedLen = decompressor2.decompress(compressed, 0, compressedLen + 1, new byte[len + 100], 0);
+      final int decompressedLen = tester.decompress(decompressor2, compressed, 0, compressedLen + 1, tester.allocate(len + 100), 0, len + 100);
       fail("decompressedLen=" + decompressedLen);
     } catch (LZ4Exception e) {
       // OK
@@ -169,7 +186,7 @@ public class LZ4Test extends AbstractLZ4Test {
 
     // under-estimated compressed length
     try {
-      final int decompressedLen = decompressor2.decompress(compressed, 0, compressedLen - 1, new byte[len + 100], 0);
+      final int decompressedLen = tester.decompress(decompressor2, compressed, 0, compressedLen - 1, tester.allocate(len + 100), 0, len + 100);
       if (!(decompressor2 instanceof LZ4JNISafeDecompressor)) {
         fail("decompressedLen=" + decompressedLen);
       }
@@ -190,8 +207,8 @@ public class LZ4Test extends AbstractLZ4Test {
       final byte[] compressed4 = new byte[refCompressor.maxCompressedLength(len)];
       final int compressedLen4 = refCompressor.compress(data, off, len, compressed4, 0, compressed4.length);
       assertCompressedArrayEquals(compressor.toString(),
-          Arrays.copyOf(compressed4,  compressedLen4),
-          Arrays.copyOf(compressed,  compressedLen));
+          Arrays.copyOf(compressed4, compressedLen4),
+          tester.copyOf(compressed, 0, compressedLen));
     }
   }
 
