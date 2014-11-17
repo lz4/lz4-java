@@ -20,6 +20,8 @@ import static net.jpountz.lz4.Instances.SAFE_DECOMPRESSORS;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -324,6 +326,41 @@ public class LZ4Test extends AbstractLZ4Test {
   }
 
   @Test
+  public void testWriteToReadOnlyBuffer() {
+    for (LZ4Compressor compressor : COMPRESSORS) {
+      ByteBuffer in = Tester.BYTE_BUFFER.copyOf(new byte[] {2, 3});
+      ByteBuffer out = Tester.BYTE_BUFFER.allocate(100).asReadOnlyBuffer();
+      try {
+        compressor.compress(in, out);
+        fail();
+      } catch (ReadOnlyBufferException e) {
+        // ok
+      }
+    }
+    for (LZ4SafeDecompressor decompressor : SAFE_DECOMPRESSORS) {
+      ByteBuffer in = Tester.BYTE_BUFFER.copyOf(COMPRESSORS[0].compress(new byte[] {2, 3}));
+      ByteBuffer out = Tester.BYTE_BUFFER.allocate(100).asReadOnlyBuffer();
+      try {
+        decompressor.decompress(in, out);
+        fail();
+      } catch (ReadOnlyBufferException e) {
+        // ok
+      }
+    }
+    for (LZ4FastDecompressor decompressor : FAST_DECOMPRESSORS) {
+      ByteBuffer in = Tester.BYTE_BUFFER.copyOf(COMPRESSORS[0].compress(new byte[] {2, 3}));
+      ByteBuffer out = Tester.BYTE_BUFFER.allocate(100).asReadOnlyBuffer();
+      out.limit(2);
+      try {
+        decompressor.decompress(in, out);
+        fail();
+      } catch (ReadOnlyBufferException e) {
+        // ok
+      }
+    }
+  }
+
+  @Test
   @Repeat(iterations=5)
   public void testAllEqual() {
     final int len = randomBoolean() ? randomInt(20) : randomInt(100000);
@@ -335,7 +372,7 @@ public class LZ4Test extends AbstractLZ4Test {
   @Test
   public void testMaxDistance() {
     final int len = randomIntBetween(1 << 17, 1 << 18);
-    final int off = 0;//randomInt(len - (1 << 16) - (1 << 15));
+    final int off = randomInt(len - (1 << 16) - (1 << 15));
     final byte[] buf = new byte[len];
     for (int i = 0; i < (1 << 15); ++i) {
       buf[off + i] = randomByte();
@@ -346,11 +383,12 @@ public class LZ4Test extends AbstractLZ4Test {
 
   @Test
   @Repeat(iterations=10)
-  public void testCompressedArrayEqualsJNI() {
+  public void testRandomData() {
     final int n = randomIntBetween(1, 15);
+    final int off = randomInt(1000);
     final int len = randomBoolean() ? randomInt(1 << 16) : randomInt(1 << 20);
-    final byte[] data = randomArray(len, n);
-    testRoundTrip(data);
+    final byte[] data = randomArray(off + len + randomInt(100), n);
+    testRoundTrip(data, off, len);
   }
 
   @Test

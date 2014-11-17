@@ -1,6 +1,12 @@
   @Override
   public int compress(${storage} src, int srcOff, int srcLen, ${storage} dest, int destOff, int maxDestLen) {
-
+@if{ storage == "ByteBuffer"}
+    if (src.hasArray() && dest.hasArray()) {
+      return compress(src.array(), srcOff, srcLen, dest.array(), destOff, maxDestLen);
+    }
+    src = ${utils}.inNativeByteOrder(src);
+    dest = ${utils}.inNativeByteOrder(dest);
+@end{}
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);
 

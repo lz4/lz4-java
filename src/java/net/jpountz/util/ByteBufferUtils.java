@@ -2,6 +2,7 @@ package net.jpountz.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.ReadOnlyBufferException;
 
 public enum ByteBufferUtils {
   ;
@@ -28,8 +29,21 @@ public enum ByteBufferUtils {
     }
   }
 
+  public static ByteBuffer inNativeByteOrder(ByteBuffer buf) {
+    if (buf.order().equals(Utils.NATIVE_BYTE_ORDER)) {
+      return buf;
+    } else {
+      return buf.duplicate().order(Utils.NATIVE_BYTE_ORDER);
+    }
+  }
+
   public static byte readByte(ByteBuffer buf, int i) {
     return buf.get(i);
+  }
+
+  public static void writeInt(ByteBuffer buf, int i, int v) {
+    assert buf.order() == Utils.NATIVE_BYTE_ORDER;
+    buf.putInt(i, v);
   }
 
   public static int readInt(ByteBuffer buf, int i) {
@@ -40,6 +54,11 @@ public enum ByteBufferUtils {
   public static int readIntLE(ByteBuffer buf, int i) {
     assert buf.order() == ByteOrder.LITTLE_ENDIAN;
     return buf.getInt(i);
+  }
+
+  public static void writeLong(ByteBuffer buf, int i, long v) {
+    assert buf.order() == Utils.NATIVE_BYTE_ORDER;
+    buf.putLong(i, v);
   }
 
   public static long readLong(ByteBuffer buf, int i) {
@@ -63,12 +82,11 @@ public enum ByteBufferUtils {
 
   public static void checkNotReadOnly(ByteBuffer buffer) {
     if (buffer.isReadOnly()) {
-      throw new IllegalArgumentException("Destination buffer should not be read-only");
+      throw new ReadOnlyBufferException();
     }
   }
 
   public static int readShortLE(ByteBuffer buf, int i) {
-    assert buf.order() == ByteOrder.LITTLE_ENDIAN;
-    return buf.getShort(i);
+    return (buf.get(i) & 0xFF) | ((buf.get(i+1) & 0xFF) << 8);
   }
 }

@@ -113,7 +113,9 @@ public abstract class LZ4Compressor {
    * will update the positions of both {@link ByteBuffer}s.
    */
   public final void compress(ByteBuffer src, ByteBuffer dest) {
-    compress(src, src.position(), src.remaining(), dest, dest.position(), dest.remaining());
+    final int cpLen = compress(src, src.position(), src.remaining(), dest, dest.position(), dest.remaining());
+    src.position(src.limit());
+    dest.position(dest.position() + cpLen);
   }
 
   @Override

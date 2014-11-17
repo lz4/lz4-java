@@ -101,6 +101,7 @@ public abstract class AbstractLZ4Test extends RandomizedTest {
         if (randomBoolean()) {
           bb = bb.asReadOnlyBuffer();
         }
+        bb.position(0);
         return bb;
       }
 

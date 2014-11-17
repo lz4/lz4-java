@@ -1,5 +1,12 @@
   @Override
   public int decompress(${storage} src, final int srcOff@if{ size == "Safe" }, final int srcLen @end{}, ${storage} dest, final int destOff, int destLen) {
+@if{ storage == "ByteBuffer"}
+    if (src.hasArray() && dest.hasArray()) {
+      return decompress(src.array(), srcOff@if{ size == "Safe" }, srcLen@end{}, dest.array(), destOff, destLen);
+    }
+    src = ${utils}.inNativeByteOrder(src);
+    dest = ${utils}.inNativeByteOrder(dest);
+@end{}
 @if{ size == "Safe" }
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, destLen);

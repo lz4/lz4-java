@@ -14,6 +14,7 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import static net.jpountz.lz4.LZ4Constants.COPY_LENGTH;
 import static net.jpountz.lz4.LZ4Constants.LAST_LITERALS;
 import static net.jpountz.lz4.LZ4Constants.ML_BITS;
 import static net.jpountz.lz4.LZ4Constants.ML_MASK;
@@ -21,6 +22,9 @@ import static net.jpountz.lz4.LZ4Constants.RUN_MASK;
 import static net.jpountz.util.ByteBufferUtils.readByte;
 import static net.jpountz.util.ByteBufferUtils.readInt;
 import static net.jpountz.util.ByteBufferUtils.readLong;
+import static net.jpountz.util.ByteBufferUtils.writeByte;
+import static net.jpountz.util.ByteBufferUtils.writeInt;
+import static net.jpountz.util.ByteBufferUtils.writeLong;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -41,16 +45,54 @@ enum LZ4ByteBufferUtils {
 
   static void safeIncrementalCopy(ByteBuffer dest, int matchOff, int dOff, int matchLen) {
     for (int i = 0; i < matchLen; ++i) {
-      dest.put(matchOff + i, dest.get(dOff + i));
+      dest.put(dOff + i, dest.get(matchOff + i));
     }
   }
 
   static void wildIncrementalCopy(ByteBuffer dest, int matchOff, int dOff, int matchCopyEnd) {
-    do {
-      dest.putLong(matchOff, dest.getLong(dOff));
-      matchOff += 8;
+    if (dOff - matchOff < 4) {
+      for (int i = 0; i < 4; ++i) {
+        writeByte(dest, dOff+i, readByte(dest, matchOff+i));
+      }
+      dOff += 4;
+      matchOff += 4;
+      int dec = 0;
+      assert dOff >= matchOff && dOff - matchOff < 8;
+      switch (dOff - matchOff) {
+      case 1:
+        matchOff -= 3;
+        break;
+      case 2:
+        matchOff -= 2;
+        break;
+      case 3:
+        matchOff -= 3;
+        dec = -1;
+        break;
+      case 5:
+        dec = 1;
+        break;
+      case 6:
+        dec = 2;
+        break;
+      case 7:
+        dec = 3;
+        break;
+      default:
+        break;
+      }
+      writeInt(dest, dOff, readInt(dest, matchOff));
+      dOff += 4;
+      matchOff -= dec;
+    } else if (dOff - matchOff < COPY_LENGTH) {
+      writeLong(dest, dOff, readLong(dest, matchOff));
+      dOff += dOff - matchOff;
+    }
+    while (dOff < matchCopyEnd) {
+      writeLong(dest, dOff, readLong(dest, matchOff));
       dOff += 8;
-    } while (dOff < matchCopyEnd);
+      matchOff += 8;
+    }
   }
 
   static int commonBytes(ByteBuffer src, int ref, int sOff, int srcLimit) {
@@ -86,14 +128,15 @@ enum LZ4ByteBufferUtils {
 
   static void safeArraycopy(ByteBuffer src, int sOff, ByteBuffer dest, int dOff, int len) {
     for (int i = 0; i < len; ++i) {
-      dest.put(dOff + i, dest.get(sOff + i));
+      dest.put(dOff + i, src.get(sOff + i));
     }
   }
 
   static void wildArraycopy(ByteBuffer src, int sOff, ByteBuffer dest, int dOff, int len) {
+    assert src.order().equals(dest.order());
     try {
       for (int i = 0; i < len; i += 8) {
-        dest.putLong(dOff + i, dest.getLong(sOff + i));
+        dest.putLong(dOff + i, src.getLong(sOff + i));
       }
     } catch (IndexOutOfBoundsException e) {
       throw new LZ4Exception("Malformed input at offset " + sOff);
