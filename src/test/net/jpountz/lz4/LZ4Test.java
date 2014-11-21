@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
+import java.util.Random;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

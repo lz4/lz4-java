@@ -3,21 +3,13 @@
 package net.jpountz.lz4;
 
 import static net.jpountz.lz4.LZ4Constants.*;
-@if{ type == "Unsafe" }
-import static net.jpountz.lz4.LZ4UnsafeUtils.*;
-import static net.jpountz.util.UnsafeUtils.*;
+import static net.jpountz.util.ByteBufferUtils.checkRange;
 import static net.jpountz.util.Utils.checkRange;
-@else{}
-import static net.jpountz.lz4.LZ4Utils.*;
-import static net.jpountz.util.Utils.*;
-@end{}
-import static net.jpountz.lz4.LZ4ByteBufferUtils.*;
-import static net.jpountz.util.ByteBufferUtils.*;
 
 import java.nio.ByteBuffer;
-import net.jpountz.lz4.LZ4${type}Utils;
-import net.jpountz.util.${type}Utils;
+
 import net.jpountz.util.ByteBufferUtils;
+import net.jpountz.util.${type}Utils;
 
 /**
  * Decompressor.
