@@ -146,7 +146,9 @@ public final class LZ4Factory {
 
   @SuppressWarnings("unchecked")
   private static <T> T classInstance(String cls) throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
-    final Class<?> c = LZ4Factory.class.getClassLoader().loadClass(cls);
+    ClassLoader loader = LZ4Factory.class.getClassLoader();
+    loader = loader == null ? ClassLoader.getSystemClassLoader() : loader;
+    final Class<?> c = loader.loadClass(cls);
     Field f = c.getField("INSTANCE");
     return (T) f.get(null);
   }
