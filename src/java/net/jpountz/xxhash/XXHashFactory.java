@@ -140,7 +140,9 @@ public final class XXHashFactory {
 
   @SuppressWarnings("unchecked")
   private static <T> T classInstance(String cls) throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
-    final Class<?> c = XXHashFactory.class.getClassLoader().loadClass(cls);
+    ClassLoader loader = XXHashFactory.class.getClassLoader();
+    loader = loader == null ? ClassLoader.getSystemClassLoader() : loader;
+    final Class<?> c = loader.loadClass(cls);
     Field f = c.getField("INSTANCE");
     return (T) f.get(null);
   }
