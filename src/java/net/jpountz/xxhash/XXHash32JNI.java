@@ -36,7 +36,7 @@ final class XXHash32JNI extends XXHash32 {
       checkRange(buf, off, len);
       return XXHashJNI.XXH32BB(buf, off, len, seed);
     } else if (buf.hasArray()) {
-      return hash(buf.array(), off, len, seed);
+      return hash(buf.array(), off + buf.arrayOffset(), len, seed);
     } else {
       XXHash32 safeInstance = SAFE_INSTANCE;
       if (safeInstance == null) {

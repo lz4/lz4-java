@@ -119,7 +119,7 @@
   public int compress(${storage} src, final int srcOff, int srcLen, ${storage} dest, final int destOff, int maxDestLen) {
 @if{ storage == "ByteBuffer"}
     if (src.hasArray() && dest.hasArray()) {
-      return compress(src.array(), srcOff, srcLen, dest.array(), destOff, maxDestLen);
+      return compress(src.array(), srcOff + src.arrayOffset(), srcLen, dest.array(), destOff + dest.arrayOffset(), maxDestLen);
     }
     src = ${utils}.inNativeByteOrder(src);
     dest = ${utils}.inNativeByteOrder(dest);

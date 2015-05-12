@@ -82,11 +82,14 @@ public abstract class AbstractLZ4Test extends RandomizedTest {
       @Override
       public ByteBuffer allocate(int length) {
         ByteBuffer bb;
+        int slice = randomInt(5);
         if (randomBoolean()) {
-          bb = ByteBuffer.allocate(length);
+          bb = ByteBuffer.allocate(length + slice);
         } else {
-          bb = ByteBuffer.allocateDirect(length);
+          bb = ByteBuffer.allocateDirect(length + slice);
         }
+        bb.position(slice);
+        bb = bb.slice();
         if (randomBoolean()) {
           bb.order(ByteOrder.LITTLE_ENDIAN);
         } else {
