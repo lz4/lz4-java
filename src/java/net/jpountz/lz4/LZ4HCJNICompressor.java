@@ -54,20 +54,24 @@ final class LZ4HCJNICompressor extends LZ4Compressor {
     ByteBufferUtils.checkRange(src, srcOff, srcLen);
     ByteBufferUtils.checkRange(dest, destOff, maxDestLen);
 
-    byte[] srcArr = null, destArr = null;
-    ByteBuffer srcBuf = null, destBuf = null;
-    if (src.hasArray()) {
-      srcArr = src.array();
-    } else if (src.isDirect()) {
-      srcBuf = src;
-    }
-    if (dest.hasArray()) {
-      destArr = dest.array();
-    } else if (dest.isDirect()) {
-      destBuf = dest;
-    }
+    if ((src.hasArray() || src.isDirect()) && (dest.hasArray() || dest.isDirect())) {
+      byte[] srcArr = null, destArr = null;
+      ByteBuffer srcBuf = null, destBuf = null;
+      if (src.hasArray()) {
+        srcArr = src.array();
+        srcOff += src.arrayOffset();
+      } else {
+        assert src.isDirect();
+        srcBuf = src;
+      }
+      if (dest.hasArray()) {
+        destArr = dest.array();
+        destOff += dest.arrayOffset();
+      } else {
+        assert dest.isDirect();
+        destBuf = dest;
+      }
 
-    if ((srcArr != null || srcBuf != null) && (destArr != null || destBuf != null)) {
       final int result = LZ4JNI.LZ4_compressHC(srcArr, srcBuf, srcOff, srcLen, destArr, destBuf, destOff, maxDestLen, compressionLevel);
       if (result <= 0) {
         throw new LZ4Exception();
