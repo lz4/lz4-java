@@ -2,7 +2,7 @@
   public int hash(${storage} buf, int off, int len, int seed) {
 @if{storage == "ByteBuffer"}
     if (buf.hasArray()) {
-      return hash(buf.array(), off, len, seed);
+      return hash(buf.array(), off + buf.arrayOffset(), len, seed);
     }
     ${utils}.checkRange(buf, off, len);
     buf = ${utils}.inLittleEndianOrder(buf);

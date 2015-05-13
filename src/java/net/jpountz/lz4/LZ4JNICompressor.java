@@ -46,20 +46,24 @@ final class LZ4JNICompressor extends LZ4Compressor {
     checkRange(src, srcOff, srcLen);
     checkRange(dest, destOff, maxDestLen);
 
-    byte[] srcArr = null, destArr = null;
-    ByteBuffer srcBuf = null, destBuf = null;
-    if (src.hasArray()) {
-      srcArr = src.array();
-    } else if (src.isDirect()) {
-      srcBuf = src;
-    }
-    if (dest.hasArray()) {
-      destArr = dest.array();
-    } else if (dest.isDirect()) {
-      destBuf = dest;
-    }
+    if ((src.hasArray() || src.isDirect()) && (dest.hasArray() || dest.isDirect())) {
+      byte[] srcArr = null, destArr = null;
+      ByteBuffer srcBuf = null, destBuf = null;
+      if (src.hasArray()) {
+        srcArr = src.array();
+        srcOff += src.arrayOffset();
+      } else {
+        assert src.isDirect();
+        srcBuf = src;
+      }
+      if (dest.hasArray()) {
+        destArr = dest.array();
+        destOff += dest.arrayOffset();
+      } else {
+        assert dest.isDirect();
+        destBuf = dest;
+      }
 
-    if ((srcArr != null || srcBuf != null) && (destArr != null || destBuf != null)) {
       final int result = LZ4JNI.LZ4_compress_limitedOutput(srcArr, srcBuf, srcOff, srcLen, destArr, destBuf, destOff, maxDestLen);
       if (result <= 0) {
         throw new LZ4Exception("maxDestLen is too small");
