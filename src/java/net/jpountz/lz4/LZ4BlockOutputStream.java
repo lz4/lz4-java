@@ -81,7 +81,7 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
    *
    * @param out         the {@link OutputStream} to feed
    * @param blockSize   the maximum number of bytes to try to compress at once,
-   *                    must be >= 64 and <= 32 M
+   *                    must be &gt;= 64 and &lt;= 32 M
    * @param compressor  the {@link LZ4Compressor} instance to use to compress
    *                    data
    * @param checksum    the {@link Checksum} instance to use to check data for

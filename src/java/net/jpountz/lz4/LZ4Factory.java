@@ -207,11 +207,12 @@ public final class LZ4Factory {
   /** Return a {@link LZ4Compressor} which requires more memory than
    * {@link #fastCompressor()} and is slower but compresses more efficiently.
    * The compression level can be customized.
-   * <p>For current implementations, the following is true about compression level:<ol>
+   * <p>For current implementations, the following is true about compression level:</p>
+   * <ol>
    *   <li>It should be in range [1, 17]</li>
    *   <li>A compression level higher than 17 would be treated as 17.</li>
    *   <li>A compression level lower than 1 would be treated as 9.</li>
-   * </ol></p>
+   * </ol>
    */
   public LZ4Compressor highCompressor(int compressionLevel) {
     if(compressionLevel > MAX_COMPRESSION_LEVEL) {
