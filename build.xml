@@ -175,13 +175,11 @@
       objdir="${build}/objects"
       outfile="${build}/jni/net/jpountz/util/${platform}/${os.arch}/lz4-java"
       outtype="shared">
-      <includepath path="${src}/xxhash" />
       <includepath path="${src}/lz4" />
       <includepath path="${java.home}/../include" />
       <includepath path="${java.home}/../include/${platform}/" />
       <includepath path="${build}/jni-headers" />
-      <fileset dir="${src}/lz4" includes="lz4.c, lz4hc.c" />
-      <fileset dir="${src}/xxhash" includes="xxhash.c" />
+      <fileset dir="${src}/lz4" includes="lz4.c, lz4hc.c, lz4frame.c, xxhash.c" />
       <fileset dir="${src}/jni" includes="*.c" />
       <linker />
     </cpptasks:cc>
