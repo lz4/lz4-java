@@ -1,56 +1,21 @@
-LZ4 - Extremely fast compression
+LZ4 - Library Files
 ================================
 
-LZ4 is lossless compression algorithm, providing compression speed at 400 MB/s per core, scalable with multi-cores CPU. It also features an extremely fast decoder, with speed in multiple GB/s per core, typically reaching RAM speed limits on multi-core systems.
-A high compression derivative, called LZ4_HC, is also provided. It trades CPU time for compression ratio.
+The __lib__ directory contains several files, but you don't necessarily need them all.
 
-|Branch      |Status   |
-|------------|---------|
-|master      | [![Build Status](https://travis-ci.org/Cyan4973/lz4.svg?branch=master)](https://travis-ci.org/Cyan4973/lz4) |
-|dev         | [![Build Status](https://travis-ci.org/Cyan4973/lz4.svg?branch=dev)](https://travis-ci.org/Cyan4973/lz4) |
+To integrate fast LZ4 compression/decompression into your program, you basically just need "**lz4.c**" and "**lz4.h**".
 
-This is an official mirror of LZ4 project, [hosted on Google Code](http://code.google.com/p/lz4/).
-The intention is to offer github's capabilities to lz4 users, such as cloning, branch, pull requests or source download.
+For more compression at the cost of compression speed (while preserving decompression speed), use **lz4hc** on top of regular lz4. `lz4hc` only provides compression functions. It also needs `lz4` to compile properly.
 
-The "master" branch will reflect, the status of lz4 at its official homepage.
-The "dev" branch is the one where all contributions will be merged. If you plan to propose a patch, please commit into the "dev" branch. Direct commit to "master" are not permitted.
-Feature branches will also exist, typically to introduce new requirements, and be temporarily available for testing before merge into "dev" branch.
+If you want to produce files or data streams compatible with `lz4` command line utility, use **lz4frame**. This library encapsulates lz4-compressed blocks into the [official interoperable frame format]. In order to work properly, lz4frame needs lz4 and lz4hc, and also **xxhash**, which provides error detection algorithm.
+(_Advanced stuff_ : It's possible to hide xxhash symbols into a local namespace. This is what `liblz4` does, to avoid symbol duplication in case a user program would link to several libraries containing xxhash symbols.)
 
+A more complex "lz4frame_static.h" is also provided, although its usage is not recommended. It contains definitions which are not guaranteed to remain stable within future versions. Use for static linking ***only***.
 
-Benchmarks
--------------------------
+The other files are not source code. There are :
 
-The benchmark uses the [Open-Source Benchmark program by m^2 (v0.14.2)](http://encode.ru/threads/1371-Filesystem-benchmark?p=33548&viewfull=1#post33548) compiled with GCC v4.6.1 on Linux Ubuntu 64-bits v11.10,
-The reference system uses a Core i5-3340M @2.7GHz.
-Benchmark evaluates the compression of reference [Silesia Corpus](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) in single-thread mode.
+ - LICENSE : contains the BSD license text
+ - Makefile : script to compile or install lz4 library (static or dynamic)
+ - liblz4.pc.in : for pkg-config (make install)
 
-<table>
-  <tr>
-    <th>Compressor</th><th>Ratio</th><th>Compression</th><th>Decompression</th>
-  </tr>
-  <tr>
-    <th>LZ4 (r101)</th><th>2.084</th><th>422 MB/s</th><th>1820 MB/s</th>
-  </tr>
-  <tr>
-    <th>LZO 2.06</th><th>2.106</th><th>414 MB/s</th><th>600 MB/s</th>
-  </tr>
-  <tr>
-    <th>QuickLZ 1.5.1b6</th><th>2.237</th><th>373 MB/s</th><th>420 MB/s</th>
-  </tr>
-  <tr>
-    <th>Snappy 1.1.0</th><th>2.091</th><th>323 MB/s</th><th>1070 MB/s</th>
-  </tr>
-  <tr>
-    <th>LZF</th><th>2.077</th><th>270 MB/s</th><th>570 MB/s</th>
-  </tr>
-  <tr>
-    <th>zlib 1.2.8 -1</th><th>2.730</th><th>65 MB/s</th><th>280 MB/s</th>
-  </tr>
-  <tr>
-    <th>LZ4 HC (r101)</th><th>2.720</th><th>25 MB/s</th><th>2080 MB/s</th>
-  </tr>
-  <tr>
-    <th>zlib 1.2.8 -6</th><th>3.099</th><th>21 MB/s</th><th>300 MB/s</th>
-  </tr>
-</table>
-
+[official interoperable frame format]: ../lz4_Frame_format.md

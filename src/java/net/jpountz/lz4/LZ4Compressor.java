@@ -38,7 +38,7 @@ public abstract class LZ4Compressor {
    * This method will throw a {@link LZ4Exception} if this compressor is unable
    * to compress the input into less than <code>maxDestLen</code> bytes. To
    * prevent this exception to be thrown, you should make sure that
-   * <code>maxDestLen >= maxCompressedLength(srcLen)</code>.
+   * <code>maxDestLen &gt;= maxCompressedLength(srcLen)</code>.
    *
    * @throws LZ4Exception if maxDestLen is too small
    * @return the compressed size
@@ -53,7 +53,7 @@ public abstract class LZ4Compressor {
    * This method will throw a {@link LZ4Exception} if this compressor is unable
    * to compress the input into less than <code>maxDestLen</code> bytes. To
    * prevent this exception to be thrown, you should make sure that
-   * <code>maxDestLen >= maxCompressedLength(srcLen)</code>.
+   * <code>maxDestLen &gt;= maxCompressedLength(srcLen)</code>.
    *
    * {@link ByteBuffer} positions remain unchanged.
    *
