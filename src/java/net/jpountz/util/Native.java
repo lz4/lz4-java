@@ -61,9 +61,9 @@ public enum Native {
     return "/" + packagePrefix + "/" + os.name + "/" + arch() + "/liblz4-java." + os.libExtension;
   }
 
-  private static boolean loaded = false;
+  private static volatile boolean loaded = false;
 
-  public static synchronized boolean isLoaded() {
+  public static boolean isLoaded() {
     return loaded;
   }
 
