@@ -71,6 +71,16 @@ public enum Native {
     if (loaded) {
       return;
     }
+
+    // Try to load lz4-java (liblz4-java.so on Linux) from the java.library.path.
+    try {
+      System.loadLibrary("lz4-java");
+      loaded = true;
+      return;
+    } catch (UnsatisfiedLinkError ex) {
+      // Doesn't exist, so proceed to loading bundled library.
+    }
+
     String resourceName = resourceName();
     InputStream is = Native.class.getResourceAsStream(resourceName);
     if (is == null) {
