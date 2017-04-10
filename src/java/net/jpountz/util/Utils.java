@@ -25,7 +25,8 @@ public enum Utils {
   static {
     String arch = System.getProperty("os.arch");
     unalignedAccessAllowed = arch.equals("i386") || arch.equals("x86")
-            || arch.equals("amd64") || arch.equals("x86_64");
+            || arch.equals("amd64") || arch.equals("x86_64")
+            || arch.equals("aarch64");
   }
 
   public static boolean isUnalignedAccessAllowed() {
