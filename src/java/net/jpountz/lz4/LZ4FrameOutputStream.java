@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 /**
- * A partial implementation of the v1.5.0 LZ4 Frame format. This class is NOT thread safe
+ * A partial implementation of the v1.5.1 LZ4 Frame format. This class is NOT thread safe
  * Not Supported:
  * * Dependent blocks
  * * Legacy streams
