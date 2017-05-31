@@ -197,6 +197,8 @@ public class LZ4FrameInputStream extends FilterInputStream {
    */
   private void readBlock() throws IOException {
     int blockSize = readInt(in);
+    final boolean compressed = (blockSize & LZ4FrameOutputStream.LZ4_FRAME_INCOMPRESSIBLE_MASK) == 0;
+    blockSize &= ~LZ4FrameOutputStream.LZ4_FRAME_INCOMPRESSIBLE_MASK;
 
     // Check for EndMark
     if (blockSize == 0) {
@@ -213,13 +215,11 @@ public class LZ4FrameInputStream extends FilterInputStream {
       return;
     }
 
-    final boolean compressed = (blockSize & LZ4FrameOutputStream.LZ4_FRAME_INCOMPRESSIBLE_MASK) == 0;
     final byte[] tmpBuffer; // Use a temporary buffer, potentially one used for compression
     if (compressed) {
       tmpBuffer = compressedBuffer;
     } else {
       tmpBuffer = rawBuffer;
-      blockSize ^= LZ4FrameOutputStream.LZ4_FRAME_INCOMPRESSIBLE_MASK;
     }
     if (blockSize > maxBlockSize) {
       throw new IOException(String.format("Block size %s exceeded max: %s", blockSize, maxBlockSize));
