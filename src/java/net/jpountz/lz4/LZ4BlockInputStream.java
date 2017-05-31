@@ -49,6 +49,7 @@ public final class LZ4BlockInputStream extends FilterInputStream {
   private int originalLen;
   private int o;
   private boolean finished;
+  private boolean stopOnEmptyBlock;
 
   /**
    * Create a new {@link InputStream}.
@@ -68,6 +69,11 @@ public final class LZ4BlockInputStream extends FilterInputStream {
     this.compressedBuffer = new byte[HEADER_LENGTH];
     o = originalLen = 0;
     finished = false;
+    stopOnEmptyBlock = true;
+  }
+
+  void setStopOnEmptyBlock(boolean stop) {
+    stopOnEmptyBlock = stop;
   }
 
   /**
@@ -90,6 +96,9 @@ public final class LZ4BlockInputStream extends FilterInputStream {
 
   @Override
   public int available() throws IOException {
+    if (o == originalLen) {
+      refill();
+    }
     return originalLen - o;
   }
 
@@ -147,7 +156,12 @@ public final class LZ4BlockInputStream extends FilterInputStream {
   }
 
   private void refill() throws IOException {
-    readFully(compressedBuffer, HEADER_LENGTH);
+    try {
+      readFully(compressedBuffer, HEADER_LENGTH);
+    } catch (EOFException e) {
+      finished = true;
+      return;
+    }
     for (int i = 0; i < MAGIC_LENGTH; ++i) {
       if (compressedBuffer[i] != MAGIC[i]) {
         throw new IOException("Stream is corrupted");
@@ -175,7 +189,11 @@ public final class LZ4BlockInputStream extends FilterInputStream {
       if (check != 0) {
         throw new IOException("Stream is corrupted");
       }
-      finished = true;
+      if (!stopOnEmptyBlock) {
+        refill();
+      } else {
+        finished = true;
+      }
       return;
     }
     if (buffer.length < originalLen) {
