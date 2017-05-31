@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -322,6 +324,27 @@ public class LZ4FrameIOStreamTest {
     }
   }
 
+  @Test
+  public void testUncompressableEnd() throws IOException {
+    final byte data = (byte)0xEE;
+    try(final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+      try(final OutputStream os = new LZ4FrameOutputStream(baos, LZ4FrameOutputStream.BLOCKSIZE.SIZE_1MB)) {
+        os.write(data);
+      }
+      final byte[] bytes = baos.toByteArray();
+      try(final InputStream is = new LZ4FrameInputStream(new ByteArrayInputStream(bytes))) {
+        Assert.assertEquals(data, is.read());
+      }
+
+      final ByteBuffer buffer = ByteBuffer.wrap(bytes);
+      // Make sure final "block" is a zero length block, then set it to an incompressible zero length block.
+      Assert.assertEquals(0, buffer.getInt(bytes.length - (Integer.SIZE>>3)));
+      buffer.putInt(bytes.length - (Integer.SIZE>>3), LZ4FrameOutputStream.LZ4_FRAME_INCOMPRESSIBLE_MASK);
+      try(final InputStream is = new LZ4FrameInputStream(new ByteArrayInputStream(bytes))) {
+        Assert.assertEquals(data, is.read());
+      }
+    }
+  }
 
   private static boolean hasNativeLz4CLI() throws IOException, InterruptedException {
     ProcessBuilder checkBuilder = new ProcessBuilder().command("lz4", "-V").inheritIO();
