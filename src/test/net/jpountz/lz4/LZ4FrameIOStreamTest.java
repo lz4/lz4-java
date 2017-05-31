@@ -338,8 +338,8 @@ public class LZ4FrameIOStreamTest {
 
       final ByteBuffer buffer = ByteBuffer.wrap(bytes);
       // Make sure final "block" is a zero length block, then set it to an incompressible zero length block.
-      Assert.assertEquals(0, buffer.getInt(bytes.length - (Integer.SIZE>>3)));
-      buffer.putInt(bytes.length - (Integer.SIZE>>3), LZ4FrameOutputStream.LZ4_FRAME_INCOMPRESSIBLE_MASK);
+      Assert.assertEquals(0, buffer.getInt(bytes.length - (Integer.SIZE >> 3)));
+      buffer.putInt(bytes.length - (Integer.SIZE >> 3), LZ4FrameOutputStream.LZ4_FRAME_INCOMPRESSIBLE_MASK);
       try(final InputStream is = new LZ4FrameInputStream(new ByteArrayInputStream(bytes))) {
         Assert.assertEquals(data, is.read());
       }

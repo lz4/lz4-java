@@ -103,7 +103,7 @@ public class LZ4FrameInputStream extends FilterInputStream {
 
   private void skippableFrame() throws IOException {
     int skipSize = readInt(in);
-    final byte[] skipBuffer = new byte[1<<10];
+    final byte[] skipBuffer = new byte[1 << 10];
     while (skipSize > 0) {
       final int mySize = in.read(skipBuffer, 0, Math.min(skipSize, skipBuffer.length));
       if (mySize < 0) {
