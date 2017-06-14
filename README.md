@@ -117,8 +117,8 @@ You can download released artifacts from [Maven Central](http://repo1.maven.org/
 
 # Documentation
 
- - [lz4](http://jpountz.github.com/lz4-java/1.2.0/docs/net/jpountz/lz4/package-summary.html)
- - [xxhash](http://jpountz.github.com/lz4-java/1.2.0/docs/net/jpountz/xxhash/package-summary.html)
+ - [lz4](http://jpountz.github.com/lz4-java/1.3.0/docs/net/jpountz/lz4/package-summary.html)
+ - [xxhash](http://jpountz.github.com/lz4-java/1.3.0/docs/net/jpountz/xxhash/package-summary.html)
  - [changelog](http://github.com/jpountz/lz4-java/blob/master/CHANGES.md)
 
 # Performance
