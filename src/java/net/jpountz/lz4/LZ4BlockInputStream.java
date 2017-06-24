@@ -147,7 +147,15 @@ public final class LZ4BlockInputStream extends FilterInputStream {
   }
 
   private void refill() throws IOException {
-    readFully(compressedBuffer, HEADER_LENGTH);
+    if (finished || o < originalLen) {
+      return;
+    }
+    try {
+      readFully(compressedBuffer, HEADER_LENGTH);
+    } catch (EOFException e) {
+      finished = true;
+      return;
+    }
     for (int i = 0; i < MAGIC_LENGTH; ++i) {
       if (compressedBuffer[i] != MAGIC[i]) {
         throw new IOException("Stream is corrupted");
@@ -175,7 +183,7 @@ public final class LZ4BlockInputStream extends FilterInputStream {
       if (check != 0) {
         throw new IOException("Stream is corrupted");
       }
-      finished = true;
+      refill();
       return;
     }
     if (buffer.length < originalLen) {

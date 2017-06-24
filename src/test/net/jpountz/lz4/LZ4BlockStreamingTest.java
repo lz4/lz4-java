@@ -293,4 +293,49 @@ public class LZ4BlockStreamingTest extends AbstractLZ4Test {
     in.close();
     in.close();
   }
+
+  private static int readFully(InputStream in, byte[] b) throws IOException {
+    int total;
+    int result;
+    for (total = 0; total < b.length; total += result) {
+      result = in.read(b, total, b.length - total);
+      if(result == -1) {
+        break;
+      }
+    }
+    return total;
+  }
+
+  @Test
+  public void testConcatenationOfSerializedStreams() throws IOException {
+    final byte[] testBytes1 = randomArray(64, 256);
+    final byte[] testBytes2 = randomArray(64, 256);
+    byte[] expected = new byte[128];
+    System.arraycopy(testBytes1, 0, expected, 0, 64);
+    System.arraycopy(testBytes2, 0, expected, 64, 64);
+
+    ByteArrayOutputStream bytes1os = new ByteArrayOutputStream();
+    LZ4BlockOutputStream out1 = new LZ4BlockOutputStream(bytes1os);
+    out1.write(testBytes1);
+    out1.close();
+
+    ByteArrayOutputStream bytes2os = new ByteArrayOutputStream();
+    LZ4BlockOutputStream out2 = new LZ4BlockOutputStream(bytes2os);
+    out2.write(testBytes2);
+    out2.close();
+
+    byte[] bytes1 = bytes1os.toByteArray();
+    byte[] bytes2 = bytes2os.toByteArray();
+    byte[] concatenatedBytes = new byte[bytes1.length + bytes2.length];
+    System.arraycopy(bytes1, 0, concatenatedBytes, 0, bytes1.length);
+    System.arraycopy(bytes2, 0, concatenatedBytes, bytes1.length, bytes2.length);
+
+    LZ4BlockInputStream in = new LZ4BlockInputStream(new ByteArrayInputStream(concatenatedBytes));
+    byte[] actual = new byte[128];
+    assertEquals(128, readFully(in, actual));
+    assertEquals(-1, in.read());
+    in.close();
+
+    assertArrayEquals(expected, actual);
+  }
 }
