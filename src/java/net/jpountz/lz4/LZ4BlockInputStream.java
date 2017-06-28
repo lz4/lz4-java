@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.util.zip.Checksum;
 
 import net.jpountz.util.SafeUtils;
-import net.jpountz.util.Utils;
 import net.jpountz.xxhash.StreamingXXHash32;
 import net.jpountz.xxhash.XXHash32;
 import net.jpountz.xxhash.XXHashFactory;
@@ -40,7 +39,7 @@ import net.jpountz.xxhash.XXHashFactory;
  * support {@link #mark(int)}/{@link #reset()}.
  * @see LZ4BlockOutputStream
  */
-public final class LZ4BlockInputStream extends FilterInputStream {
+public class LZ4BlockInputStream extends FilterInputStream {
 
   private final LZ4FastDecompressor decompressor;
   private final Checksum checksum;
@@ -49,6 +48,7 @@ public final class LZ4BlockInputStream extends FilterInputStream {
   private int originalLen;
   private int o;
   private boolean finished;
+  private boolean stopOnEmptyBlock;
 
   /**
    * Create a new {@link InputStream}.
@@ -68,6 +68,11 @@ public final class LZ4BlockInputStream extends FilterInputStream {
     this.compressedBuffer = new byte[HEADER_LENGTH];
     o = originalLen = 0;
     finished = false;
+    stopOnEmptyBlock = true;
+  }
+
+  protected void setStopOnEmptyBlock(boolean stopOnEmptyBlock) {
+    this.stopOnEmptyBlock = stopOnEmptyBlock;
   }
 
   /**
@@ -153,7 +158,11 @@ public final class LZ4BlockInputStream extends FilterInputStream {
     try {
       readFully(compressedBuffer, HEADER_LENGTH);
     } catch (EOFException e) {
-      finished = true;
+      if (!stopOnEmptyBlock) {
+        finished = true;
+      } else {
+       throw e;
+      }
       return;
     }
     for (int i = 0; i < MAGIC_LENGTH; ++i) {
@@ -183,7 +192,11 @@ public final class LZ4BlockInputStream extends FilterInputStream {
       if (check != 0) {
         throw new IOException("Stream is corrupted");
       }
-      refill();
+      if (!stopOnEmptyBlock) {
+        refill();
+      } else {
+        finished = true;
+      }
       return;
     }
     if (buffer.length < originalLen) {
