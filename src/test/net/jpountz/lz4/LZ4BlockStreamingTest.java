@@ -306,14 +306,6 @@ public class LZ4BlockStreamingTest extends AbstractLZ4Test {
     return total;
   }
 
-  static class LZ4BlockInputStreamSupportStreamConcatenation extends LZ4BlockInputStream {
-
-    public LZ4BlockInputStreamSupportStreamConcatenation(InputStream in) {
-      super(in);
-      setStopOnEmptyBlock(false);
-    }
-  }
-
   @Test
   public void testConcatenationOfSerializedStreams() throws IOException {
     final byte[] testBytes1 = randomArray(64, 256);
@@ -346,8 +338,7 @@ public class LZ4BlockStreamingTest extends AbstractLZ4Test {
     in1.close();
 
     // Check if we can read concatenated byte stream
-    LZ4BlockInputStream in2 = new LZ4BlockInputStreamSupportStreamConcatenation(
-            new ByteArrayInputStream(concatenatedBytes));
+    LZ4BlockInputStream in2 = new LZ4BlockInputStream(new ByteArrayInputStream(concatenatedBytes), false);
     byte[] actual2 = new byte[128];
     assertEquals(128, readFully(in2, actual2));
     assertEquals(-1, in2.read());

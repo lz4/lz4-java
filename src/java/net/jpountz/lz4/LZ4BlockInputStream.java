@@ -39,40 +39,37 @@ import net.jpountz.xxhash.XXHashFactory;
  * support {@link #mark(int)}/{@link #reset()}.
  * @see LZ4BlockOutputStream
  */
-public class LZ4BlockInputStream extends FilterInputStream {
+public final class LZ4BlockInputStream extends FilterInputStream {
 
   private final LZ4FastDecompressor decompressor;
   private final Checksum checksum;
+  private final boolean stopOnEmptyBlock;
   private byte[] buffer;
   private byte[] compressedBuffer;
   private int originalLen;
   private int o;
   private boolean finished;
-  private boolean stopOnEmptyBlock;
 
   /**
    * Create a new {@link InputStream}.
    *
-   * @param in            the {@link InputStream} to poll
-   * @param decompressor  the {@link LZ4FastDecompressor decompressor} instance to
-   *                      use
-   * @param checksum      the {@link Checksum} instance to use, must be
-   *                      equivalent to the instance which has been used to
-   *                      write the stream
+   * @param in                the {@link InputStream} to poll
+   * @param decompressor      the {@link LZ4FastDecompressor decompressor} instance to
+   *                          use
+   * @param checksum          the {@link Checksum} instance to use, must be
+   *                          equivalent to the instance which has been used to
+   *                          write the stream
+   * @param stopOnEmptyBlock  whether read is stopped on an empty block
    */
-  public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor, Checksum checksum) {
+  public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor, Checksum checksum, Boolean stopOnEmptyBlock) {
     super(in);
     this.decompressor = decompressor;
     this.checksum = checksum;
+    this.stopOnEmptyBlock = stopOnEmptyBlock;
     this.buffer = new byte[0];
     this.compressedBuffer = new byte[HEADER_LENGTH];
     o = originalLen = 0;
     finished = false;
-    stopOnEmptyBlock = true;
-  }
-
-  protected void setStopOnEmptyBlock(boolean stopOnEmptyBlock) {
-    this.stopOnEmptyBlock = stopOnEmptyBlock;
   }
 
   /**
@@ -80,8 +77,26 @@ public class LZ4BlockInputStream extends FilterInputStream {
    * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum)
    * @see StreamingXXHash32#asChecksum()
    */
+  public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor, Checksum checksum) {
+    this(in, decompressor, checksum, true);
+  }
+
+  /**
+   * Create a new instance using {@link XXHash32} for checksuming.
+   * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum, Boolean)
+   * @see StreamingXXHash32#asChecksum()
+   */
   public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor) {
-    this(in, decompressor, XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum());
+    this(in, decompressor, XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum(), true);
+  }
+
+  /**
+   * Create a new instance using {@link XXHash32} for checksuming.
+   * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum, Boolean)
+   * @see StreamingXXHash32#asChecksum()
+   */
+  public LZ4BlockInputStream(InputStream in, Boolean stopOnEmptyBlock) {
+    this(in, LZ4Factory.fastestInstance().fastDecompressor(), XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum(), stopOnEmptyBlock);
   }
 
   /**
@@ -152,9 +167,6 @@ public class LZ4BlockInputStream extends FilterInputStream {
   }
 
   private void refill() throws IOException {
-    if (finished || o < originalLen) {
-      return;
-    }
     try {
       readFully(compressedBuffer, HEADER_LENGTH);
     } catch (EOFException e) {
