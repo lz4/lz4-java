@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.util.zip.Checksum;
 
 import net.jpountz.util.SafeUtils;
-import net.jpountz.util.Utils;
 import net.jpountz.xxhash.StreamingXXHash32;
 import net.jpountz.xxhash.XXHash32;
 import net.jpountz.xxhash.XXHashFactory;
@@ -44,6 +43,7 @@ public final class LZ4BlockInputStream extends FilterInputStream {
 
   private final LZ4FastDecompressor decompressor;
   private final Checksum checksum;
+  private final boolean stopOnEmptyBlock;
   private byte[] buffer;
   private byte[] compressedBuffer;
   private int originalLen;
@@ -53,17 +53,19 @@ public final class LZ4BlockInputStream extends FilterInputStream {
   /**
    * Create a new {@link InputStream}.
    *
-   * @param in            the {@link InputStream} to poll
-   * @param decompressor  the {@link LZ4FastDecompressor decompressor} instance to
-   *                      use
-   * @param checksum      the {@link Checksum} instance to use, must be
-   *                      equivalent to the instance which has been used to
-   *                      write the stream
+   * @param in                the {@link InputStream} to poll
+   * @param decompressor      the {@link LZ4FastDecompressor decompressor} instance to
+   *                          use
+   * @param checksum          the {@link Checksum} instance to use, must be
+   *                          equivalent to the instance which has been used to
+   *                          write the stream
+   * @param stopOnEmptyBlock  whether read is stopped on an empty block
    */
-  public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor, Checksum checksum) {
+  public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor, Checksum checksum, boolean stopOnEmptyBlock) {
     super(in);
     this.decompressor = decompressor;
     this.checksum = checksum;
+    this.stopOnEmptyBlock = stopOnEmptyBlock;
     this.buffer = new byte[0];
     this.compressedBuffer = new byte[HEADER_LENGTH];
     o = originalLen = 0;
@@ -75,8 +77,26 @@ public final class LZ4BlockInputStream extends FilterInputStream {
    * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum)
    * @see StreamingXXHash32#asChecksum()
    */
+  public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor, Checksum checksum) {
+    this(in, decompressor, checksum, true);
+  }
+
+  /**
+   * Create a new instance using {@link XXHash32} for checksuming.
+   * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum, boolean)
+   * @see StreamingXXHash32#asChecksum()
+   */
   public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor) {
-    this(in, decompressor, XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum());
+    this(in, decompressor, XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum(), true);
+  }
+
+  /**
+   * Create a new instance using {@link XXHash32} for checksuming.
+   * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum, boolean)
+   * @see StreamingXXHash32#asChecksum()
+   */
+  public LZ4BlockInputStream(InputStream in, boolean stopOnEmptyBlock) {
+    this(in, LZ4Factory.fastestInstance().fastDecompressor(), XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum(), stopOnEmptyBlock);
   }
 
   /**
@@ -147,7 +167,16 @@ public final class LZ4BlockInputStream extends FilterInputStream {
   }
 
   private void refill() throws IOException {
-    readFully(compressedBuffer, HEADER_LENGTH);
+    try {
+      readFully(compressedBuffer, HEADER_LENGTH);
+    } catch (EOFException e) {
+      if (!stopOnEmptyBlock) {
+        finished = true;
+      } else {
+       throw e;
+      }
+      return;
+    }
     for (int i = 0; i < MAGIC_LENGTH; ++i) {
       if (compressedBuffer[i] != MAGIC[i]) {
         throw new IOException("Stream is corrupted");
@@ -175,7 +204,11 @@ public final class LZ4BlockInputStream extends FilterInputStream {
       if (check != 0) {
         throw new IOException("Stream is corrupted");
       }
-      finished = true;
+      if (!stopOnEmptyBlock) {
+        refill();
+      } else {
+        finished = true;
+      }
       return;
     }
     if (buffer.length < originalLen) {

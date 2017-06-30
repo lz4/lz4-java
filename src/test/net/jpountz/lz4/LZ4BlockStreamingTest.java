@@ -293,4 +293,57 @@ public class LZ4BlockStreamingTest extends AbstractLZ4Test {
     in.close();
     in.close();
   }
+
+  private static int readFully(InputStream in, byte[] b) throws IOException {
+    int total;
+    int result;
+    for (total = 0; total < b.length; total += result) {
+      result = in.read(b, total, b.length - total);
+      if(result == -1) {
+        break;
+      }
+    }
+    return total;
+  }
+
+  @Test
+  public void testConcatenationOfSerializedStreams() throws IOException {
+    final byte[] testBytes1 = randomArray(64, 256);
+    final byte[] testBytes2 = randomArray(64, 256);
+    byte[] expected = new byte[128];
+    System.arraycopy(testBytes1, 0, expected, 0, 64);
+    System.arraycopy(testBytes2, 0, expected, 64, 64);
+
+    ByteArrayOutputStream bytes1os = new ByteArrayOutputStream();
+    LZ4BlockOutputStream out1 = new LZ4BlockOutputStream(bytes1os);
+    out1.write(testBytes1);
+    out1.close();
+
+    ByteArrayOutputStream bytes2os = new ByteArrayOutputStream();
+    LZ4BlockOutputStream out2 = new LZ4BlockOutputStream(bytes2os);
+    out2.write(testBytes2);
+    out2.close();
+
+    byte[] bytes1 = bytes1os.toByteArray();
+    byte[] bytes2 = bytes2os.toByteArray();
+    byte[] concatenatedBytes = new byte[bytes1.length + bytes2.length];
+    System.arraycopy(bytes1, 0, concatenatedBytes, 0, bytes1.length);
+    System.arraycopy(bytes2, 0, concatenatedBytes, bytes1.length, bytes2.length);
+
+    // In a default behaviour, we can read the first block of the concatenated bytes only
+    LZ4BlockInputStream in1 = new LZ4BlockInputStream(new ByteArrayInputStream(concatenatedBytes));
+    byte[] actual1 = new byte[128];
+    assertEquals(64, readFully(in1, actual1));
+    assertEquals(-1, in1.read());
+    in1.close();
+
+    // Check if we can read concatenated byte stream
+    LZ4BlockInputStream in2 = new LZ4BlockInputStream(new ByteArrayInputStream(concatenatedBytes), false);
+    byte[] actual2 = new byte[128];
+    assertEquals(128, readFully(in2, actual2));
+    assertEquals(-1, in2.read());
+    in2.close();
+
+    assertArrayEquals(expected, actual2);
+  }
 }
