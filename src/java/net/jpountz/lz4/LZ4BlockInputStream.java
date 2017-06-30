@@ -61,7 +61,7 @@ public final class LZ4BlockInputStream extends FilterInputStream {
    *                          write the stream
    * @param stopOnEmptyBlock  whether read is stopped on an empty block
    */
-  public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor, Checksum checksum, Boolean stopOnEmptyBlock) {
+  public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor, Checksum checksum, boolean stopOnEmptyBlock) {
     super(in);
     this.decompressor = decompressor;
     this.checksum = checksum;
@@ -83,7 +83,7 @@ public final class LZ4BlockInputStream extends FilterInputStream {
 
   /**
    * Create a new instance using {@link XXHash32} for checksuming.
-   * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum, Boolean)
+   * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum, boolean)
    * @see StreamingXXHash32#asChecksum()
    */
   public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor) {
@@ -92,10 +92,10 @@ public final class LZ4BlockInputStream extends FilterInputStream {
 
   /**
    * Create a new instance using {@link XXHash32} for checksuming.
-   * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum, Boolean)
+   * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum, boolean)
    * @see StreamingXXHash32#asChecksum()
    */
-  public LZ4BlockInputStream(InputStream in, Boolean stopOnEmptyBlock) {
+  public LZ4BlockInputStream(InputStream in, boolean stopOnEmptyBlock) {
     this(in, LZ4Factory.fastestInstance().fastDecompressor(), XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum(), stopOnEmptyBlock);
   }
 
