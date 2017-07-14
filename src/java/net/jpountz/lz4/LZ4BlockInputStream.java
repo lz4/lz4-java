@@ -51,7 +51,7 @@ public final class LZ4BlockInputStream extends FilterInputStream {
   private boolean finished;
 
   /**
-   * Create a new {@link InputStream}.
+   * Creates a new LZ4 input stream to read from the specified underlying InputStream.
    *
    * @param in                the {@link InputStream} to poll
    * @param decompressor      the {@link LZ4FastDecompressor decompressor} instance to
@@ -73,16 +73,28 @@ public final class LZ4BlockInputStream extends FilterInputStream {
   }
 
   /**
-   * Create a new instance using {@link XXHash32} for checksuming.
-   * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum)
-   * @see StreamingXXHash32#asChecksum()
+   * Creates a new LZ4 input stream to read from the specified underlying InputStream.
+   *
+   * @param in                the {@link InputStream} to poll
+   * @param decompressor      the {@link LZ4FastDecompressor decompressor} instance to
+   *                          use
+   * @param checksum          the {@link Checksum} instance to use, must be
+   *                          equivalent to the instance which has been used to
+   *                          write the stream
+   *
+   * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum, boolean)
    */
   public LZ4BlockInputStream(InputStream in, LZ4FastDecompressor decompressor, Checksum checksum) {
     this(in, decompressor, checksum, true);
   }
 
   /**
-   * Create a new instance using {@link XXHash32} for checksuming.
+   * Creates a new LZ4 input stream to read from the specified underlying InputStream, using {@link XXHash32} for checksuming.
+   *
+   * @param in                the {@link InputStream} to poll
+   * @param decompressor      the {@link LZ4FastDecompressor decompressor} instance to
+   *                          use
+   *
    * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum, boolean)
    * @see StreamingXXHash32#asChecksum()
    */
@@ -91,8 +103,13 @@ public final class LZ4BlockInputStream extends FilterInputStream {
   }
 
   /**
-   * Create a new instance using {@link XXHash32} for checksuming.
+   * Creates a new LZ4 input stream to read from the specified underlying InputStream, using {@link XXHash32} for checksuming.
+   *
+   * @param in                the {@link InputStream} to poll
+   * @param stopOnEmptyBlock  whether read is stopped on an empty block
+   *
    * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor, Checksum, boolean)
+   * @see LZ4Factory#fastestInstance()
    * @see StreamingXXHash32#asChecksum()
    */
   public LZ4BlockInputStream(InputStream in, boolean stopOnEmptyBlock) {
@@ -100,9 +117,12 @@ public final class LZ4BlockInputStream extends FilterInputStream {
   }
 
   /**
-   * Create a new instance which uses the fastest {@link LZ4FastDecompressor} available.
-   * @see LZ4Factory#fastestInstance()
+   * Creates a new LZ4 input stream to read from the specified underlying InputStream, using {@link XXHash32} for checksuming.
+   *
+   * @param in                the {@link InputStream} to poll
+   *
    * @see #LZ4BlockInputStream(InputStream, LZ4FastDecompressor)
+   * @see LZ4Factory#fastestInstance()
    */
   public LZ4BlockInputStream(InputStream in) {
     this(in, LZ4Factory.fastestInstance().fastDecompressor());
