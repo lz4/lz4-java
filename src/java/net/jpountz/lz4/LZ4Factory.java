@@ -59,7 +59,7 @@ public final class LZ4Factory {
                             JAVA_SAFE_INSTANCE;
 
   /**
-   * Return a {@link LZ4Factory} instance that returns compressors and
+   * Returns a {@link LZ4Factory} instance that returns compressors and
    * decompressors that are native bindings to the original C library.
    * <p>
    * Please note that this instance has some traps you should be aware of:<ol>
@@ -75,6 +75,9 @@ public final class LZ4Factory {
    * directory of your servlet container so that it is loaded by the system
    * class loader.
    * </ol>
+   *
+   * @return a {@link LZ4Factory} instance that returns compressors and
+   * decompressors that are native bindings to the original C library
    */
   public static synchronized LZ4Factory nativeInstance() {
     if (NATIVE_INSTANCE == null) {
@@ -83,8 +86,13 @@ public final class LZ4Factory {
     return NATIVE_INSTANCE;
   }
 
-  /** Return a {@link LZ4Factory} instance that returns compressors and
-   *  decompressors that are written with Java's official API. */
+  /**
+   * Returns a {@link LZ4Factory} instance that returns compressors and
+   * decompressors that are written with Java's official API.
+   *
+   * @return a {@link LZ4Factory} instance that returns compressors and
+   * decompressors that are written with Java's official API.
+   */
   public static synchronized LZ4Factory safeInstance() {
     if (JAVA_SAFE_INSTANCE == null) {
       JAVA_SAFE_INSTANCE = instance("JavaSafe");
@@ -92,9 +100,15 @@ public final class LZ4Factory {
     return JAVA_SAFE_INSTANCE;
   }
 
-  /** Return a {@link LZ4Factory} instance that returns compressors and
-   *  decompressors that may use {@link sun.misc.Unsafe} to speed up compression
-   *  and decompression. */
+  /**
+   * Returns a {@link LZ4Factory} instance that returns compressors and
+   * decompressors that may use {@link sun.misc.Unsafe} to speed up compression
+   * and decompression.
+   *
+   * @return a {@link LZ4Factory} instance that returns compressors and
+   * decompressors that may use {@link sun.misc.Unsafe} to speed up compression
+   * and decompression.
+   */
   public static synchronized LZ4Factory unsafeInstance() {
     if (JAVA_UNSAFE_INSTANCE == null) {
       JAVA_UNSAFE_INSTANCE = instance("JavaUnsafe");
@@ -103,11 +117,14 @@ public final class LZ4Factory {
   }
 
   /**
-   * Return the fastest available {@link LZ4Factory} instance which does not
+   * Returns the fastest available {@link LZ4Factory} instance which does not
    * rely on JNI bindings. It first tries to load the
    * {@link #unsafeInstance() unsafe instance}, and then the
    * {@link #safeInstance() safe Java instance} if the JVM doesn't have a
    * working {@link sun.misc.Unsafe}.
+   *
+   * @return the fastest available {@link LZ4Factory} instance which does not
+   * rely on JNI bindings.
    */
   public static LZ4Factory fastestJavaInstance() {
     if (Utils.isUnalignedAccessAllowed()) {
@@ -122,7 +139,7 @@ public final class LZ4Factory {
   }
 
   /**
-   * Return the fastest available {@link LZ4Factory} instance. If the class
+   * Returns the fastest available {@link LZ4Factory} instance. If the class
    * loader is the system class loader and if the
    * {@link #nativeInstance() native instance} loads successfully, then the
    * {@link #nativeInstance() native instance} is returned, otherwise the
@@ -130,6 +147,8 @@ public final class LZ4Factory {
    * <p>
    * Please read {@link #nativeInstance() javadocs of nativeInstance()} before
    * using this method.
+   *
+   * @return the fastest available {@link LZ4Factory} instance
    */
   public static LZ4Factory fastestInstance() {
     if (Native.isLoaded()
@@ -193,58 +212,92 @@ public final class LZ4Factory {
 
   }
 
-  /** Return a blazing fast {@link LZ4Compressor}. */
+  /**
+   * Returns a blazing fast {@link LZ4Compressor}.
+   *
+   * @return a blazing fast {@link LZ4Compressor}
+   */
   public LZ4Compressor fastCompressor() {
     return fastCompressor;
   }
 
-  /** Return a {@link LZ4Compressor} which requires more memory than
-   * {@link #fastCompressor()} and is slower but compresses more efficiently. */
+  /**
+   * Returns a {@link LZ4Compressor} which requires more memory than
+   * {@link #fastCompressor()} and is slower but compresses more efficiently.
+   *
+   * @return a {@link LZ4Compressor} which requires more memory than
+   * {@link #fastCompressor()} and is slower but compresses more efficiently.
+   */
   public LZ4Compressor highCompressor() {
     return highCompressor;
   }
 
-  /** Return a {@link LZ4Compressor} which requires more memory than
+  /**
+   * Returns a {@link LZ4Compressor} which requires more memory than
    * {@link #fastCompressor()} and is slower but compresses more efficiently.
    * The compression level can be customized.
    * <p>For current implementations, the following is true about compression level:<ol>
    *   <li>It should be in range [1, 17]</li>
    *   <li>A compression level higher than 17 would be treated as 17.</li>
    *   <li>A compression level lower than 1 would be treated as 9.</li>
-   * </ol></p>
+   * </ol>
+   *
+   * @param compressionLevel the compression level between [1, 17]; the higher the level, the higher the compression ratio
+   * @return a {@link LZ4Compressor} which requires more memory than
+   * {@link #fastCompressor()} and is slower but compresses more efficiently.
    */
   public LZ4Compressor highCompressor(int compressionLevel) {
     if(compressionLevel > MAX_COMPRESSION_LEVEL) {
       compressionLevel = MAX_COMPRESSION_LEVEL;
-    } else if(compressionLevel < 1) {
+    } else if (compressionLevel < 1) {
       compressionLevel = DEFAULT_COMPRESSION_LEVEL;
     }
     return highCompressors[compressionLevel];
   }
 
-  /** Return a {@link LZ4FastDecompressor} instance. */
+  /**
+   * Returns a {@link LZ4FastDecompressor} instance.
+   *
+   * @return a {@link LZ4FastDecompressor} instance
+   */
   public LZ4FastDecompressor fastDecompressor() {
     return fastDecompressor;
   }
 
-  /** Return a {@link LZ4SafeDecompressor} instance. */
+  /**
+   * Returns a {@link LZ4SafeDecompressor} instance.
+   *
+   * @return a {@link LZ4SafeDecompressor} instance
+   */
   public LZ4SafeDecompressor safeDecompressor() {
     return safeDecompressor;
   }
 
-  /** Return a {@link LZ4UnknownSizeDecompressor} instance.
-   * @deprecated use {@link #safeDecompressor()} */
+  /**
+   * Returns a {@link LZ4UnknownSizeDecompressor} instance.
+   * @deprecated use {@link #safeDecompressor()}
+   *
+   * @return a {@link LZ4UnknownSizeDecompressor} instance
+   */
   public LZ4UnknownSizeDecompressor unknownSizeDecompressor() {
     return safeDecompressor();
   }
 
-  /** Return a {@link LZ4Decompressor} instance.
-   * @deprecated use {@link #fastDecompressor()} */
+  /**
+   * Returns a {@link LZ4Decompressor} instance.
+   * @deprecated use {@link #fastDecompressor()}
+   *
+   * @return a {@link LZ4Decompressor} instance
+   */
   public LZ4Decompressor decompressor() {
     return fastDecompressor();
   }
 
-  /** Prints the fastest instance. */
+  /**
+   * Prints the fastest instance.
+   *
+   * @param args no argument required
+   */
   public static void main(String[] args) {
     System.out.println("Fastest instance is " + fastestInstance());
     System.out.println("Fastest Java instance is " + fastestJavaInstance());

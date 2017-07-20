@@ -25,20 +25,28 @@ import java.nio.ByteBuffer;
  */
 public abstract class LZ4FastDecompressor implements LZ4Decompressor {
 
-  /** Decompress <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>
-   * and return the number of bytes read from <code>src</code>.
+  /** Decompresses <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>
+   * and returns the number of bytes read from <code>src</code>.
    * <code>destLen</code> must be exactly the size of the decompressed data.
    *
+   * @param src the compressed data
+   * @param srcOff the start offset in src
+   * @param dest the destination buffer to store the decompressed data
+   * @param destOff the start offset in dest
    * @param destLen the <b>exact</b> size of the original input
    * @return the number of bytes read to restore the original input
    */
   public abstract int decompress(byte[] src, int srcOff, byte[] dest, int destOff, int destLen);
 
-  /** Decompress <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>
-   * and return the number of bytes read from <code>src</code>.
+  /** Decompresses <code>src[srcOff:]</code> into <code>dest[destOff:destOff+destLen]</code>
+   * and returns the number of bytes read from <code>src</code>.
    * <code>destLen</code> must be exactly the size of the decompressed data.
    * The positions and limits of the {@link ByteBuffer}s remain unchanged.
    *
+   * @param src the compressed data
+   * @param srcOff the start offset in src
+   * @param dest the destination buffer to store the decompressed data
+   * @param destOff the start offset in dest
    * @param destLen the <b>exact</b> size of the original input
    * @return the number of bytes read to restore the original input
    */
@@ -47,6 +55,11 @@ public abstract class LZ4FastDecompressor implements LZ4Decompressor {
   /**
    * Convenience method, equivalent to calling
    * {@link #decompress(byte[], int, byte[], int, int) decompress(src, 0, dest, 0, destLen)}.
+   *
+   * @param src the compressed data
+   * @param dest the destination buffer to store the decompressed data
+   * @param destLen the <b>exact</b> size of the original input
+   * @return the number of bytes read to restore the original input
    */
   public final int decompress(byte[] src, byte[] dest, int destLen) {
     return decompress(src, 0, dest, 0, destLen);
@@ -55,6 +68,10 @@ public abstract class LZ4FastDecompressor implements LZ4Decompressor {
   /**
    * Convenience method, equivalent to calling
    * {@link #decompress(byte[], byte[], int) decompress(src, dest, dest.length)}.
+   *
+   * @param src the compressed data
+   * @param dest the destination buffer to store the decompressed data
+   * @return the number of bytes read to restore the original input
    */
   public final int decompress(byte[] src, byte[] dest) {
     return decompress(src, dest, dest.length);
@@ -72,6 +89,11 @@ public abstract class LZ4FastDecompressor implements LZ4Decompressor {
    * decompress(src, srcOff, decompressed, 0, destLen);
    * return decompressed;
    * </pre>
+   *
+   * @param src the compressed data
+   * @param srcOff the start offset in src
+   * @param destLen the <b>exact</b> size of the original input
+   * @return the decompressed data
    */
   public final byte[] decompress(byte[] src, int srcOff, int destLen) {
     final byte[] decompressed = new byte[destLen];
@@ -82,15 +104,22 @@ public abstract class LZ4FastDecompressor implements LZ4Decompressor {
   /**
    * Convenience method, equivalent to calling
    * {@link #decompress(byte[], int, int) decompress(src, 0, destLen)}.
+   *
+   * @param src the compressed data
+   * @param destLen the <b>exact</b> size of the original input
+   * @return the decompressed data
    */
   public final byte[] decompress(byte[] src, int destLen) {
     return decompress(src, 0, destLen);
   }
 
   /**
-   * Decompress <code>src</code> into <code>dest</code>. <code>dest</code>'s
+   * Decompresses <code>src</code> into <code>dest</code>. <code>dest</code>'s
    * {@link ByteBuffer#remaining()} must be exactly the size of the decompressed
    * data. This method moves the positions of the buffers.
+   *
+   * @param src the compressed data
+   * @param dest the destination buffer to store the decompressed data
    */
   public final void decompress(ByteBuffer src, ByteBuffer dest) {
     final int read = decompress(src, src.position(), dest, dest.position(), dest.remaining());

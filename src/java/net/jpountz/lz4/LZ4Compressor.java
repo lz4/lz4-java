@@ -24,39 +24,56 @@ import java.util.Arrays;
  */
 public abstract class LZ4Compressor {
 
-  /** Return the maximum compressed length for an input of size <code>length</code>. */
+  /**
+   * Returns the maximum compressed length for an input of size <code>length</code>.
+   *
+   * @param length the input size in bytes
+   * @return the maximum compressed length in bytes
+   */
   @SuppressWarnings("static-method")
   public final int maxCompressedLength(int length) {
     return LZ4Utils.maxCompressedLength(length);
   }
 
   /**
-   * Compress <code>src[srcOff:srcOff+srcLen]</code> into
-   * <code>dest[destOff:destOff+destLen]</code> and return the compressed
+   * Compresses <code>src[srcOff:srcOff+srcLen]</code> into
+   * <code>dest[destOff:destOff+maxDestLen]</code> and returns the compressed
    * length.
    *
    * This method will throw a {@link LZ4Exception} if this compressor is unable
    * to compress the input into less than <code>maxDestLen</code> bytes. To
    * prevent this exception to be thrown, you should make sure that
-   * <code>maxDestLen >= maxCompressedLength(srcLen)</code>.
+   * <code>maxDestLen &gt;= maxCompressedLength(srcLen)</code>.
    *
+   * @param src the source data
+   * @param srcOff the start offset in src
+   * @param srcLen the number of bytes to compress
+   * @param dest the destination buffer
+   * @param destOff the start offset in dest
+   * @param maxDestLen the maximum number of bytes to write in dest
    * @throws LZ4Exception if maxDestLen is too small
    * @return the compressed size
    */
   public abstract int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
 
   /**
-   * Compress <code>src[srcOff:srcOff+srcLen]</code> into
-   * <code>dest[destOff:destOff+destLen]</code> and return the compressed
+   * Compresses <code>src[srcOff:srcOff+srcLen]</code> into
+   * <code>dest[destOff:destOff+maxDestLen]</code> and returns the compressed
    * length.
    *
    * This method will throw a {@link LZ4Exception} if this compressor is unable
    * to compress the input into less than <code>maxDestLen</code> bytes. To
    * prevent this exception to be thrown, you should make sure that
-   * <code>maxDestLen >= maxCompressedLength(srcLen)</code>.
+   * <code>maxDestLen &gt;= maxCompressedLength(srcLen)</code>.
    *
    * {@link ByteBuffer} positions remain unchanged.
    *
+   * @param src the source data
+   * @param srcOff the start offset in src
+   * @param srcLen the number of bytes to compress
+   * @param dest the destination buffer
+   * @param destOff the start offset in dest
+   * @param maxDestLen the maximum number of bytes to write in dest
    * @throws LZ4Exception if maxDestLen is too small
    * @return the compressed size
    */
@@ -65,6 +82,14 @@ public abstract class LZ4Compressor {
   /**
    * Convenience method, equivalent to calling
    * {@link #compress(byte[], int, int, byte[], int, int) compress(src, srcOff, srcLen, dest, destOff, dest.length - destOff)}.
+   *
+   * @param src the source data
+   * @param srcOff the start offset in src
+   * @param srcLen the number of bytes to compress
+   * @param dest the destination buffer
+   * @param destOff the start offset in dest
+   * @throws LZ4Exception if dest is too small
+   * @return the compressed size
    */
   public final int compress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
     return compress(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
@@ -73,6 +98,11 @@ public abstract class LZ4Compressor {
   /**
    * Convenience method, equivalent to calling
    * {@link #compress(byte[], int, int, byte[], int) compress(src, 0, src.length, dest, 0)}.
+   *
+   * @param src the source data
+   * @param dest the destination buffer
+   * @throws LZ4Exception if dest is too small
+   * @return the compressed size
    */
   public final int compress(byte[] src, byte[] dest) {
     return compress(src, 0, src.length, dest, 0);
@@ -92,6 +122,11 @@ public abstract class LZ4Compressor {
    * final int compressedLength = compress(src, srcOff, srcLen, compressed, 0);
    * return Arrays.copyOf(compressed, compressedLength);
    * </pre>
+   *
+   * @param src the source data
+   * @param srcOff the start offset in src
+   * @param srcLen the number of bytes to compress
+   * @return the compressed data
    */
   public final byte[] compress(byte[] src, int srcOff, int srcLen) {
     final int maxCompressedLength = maxCompressedLength(srcLen);
@@ -103,14 +138,21 @@ public abstract class LZ4Compressor {
   /**
    * Convenience method, equivalent to calling
    * {@link #compress(byte[], int, int) compress(src, 0, src.length)}.
+   *
+   * @param src the source data
+   * @return the compressed data
    */
   public final byte[] compress(byte[] src) {
     return compress(src, 0, src.length);
   }
 
   /**
-   * Compress <code>src</code> into <code>dest</code>. Calling this method
+   * Compresses <code>src</code> into <code>dest</code>. Calling this method
    * will update the positions of both {@link ByteBuffer}s.
+   *
+   * @param src the source data
+   * @param dest the destination buffer
+   * @throws LZ4Exception if dest is too small
    */
   public final void compress(ByteBuffer src, ByteBuffer dest) {
     final int cpLen = compress(src, src.position(), src.remaining(), dest, dest.position(), dest.remaining());
