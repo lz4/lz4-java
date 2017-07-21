@@ -27,22 +27,32 @@ import java.util.Arrays;
 public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor {
 
   /**
-   * Decompress <code>src[srcOff:srcLen]</code> into
+   * Decompresses <code>src[srcOff:srcOff+srcLen]</code> into
    * <code>dest[destOff:destOff+maxDestLen]</code> and returns the number of
    * decompressed bytes written into <code>dest</code>.
    *
-   * @param srcLen the exact size of the compressed stream
+   * @param src the compressed data
+   * @param srcOff the start offset in src
+   * @param srcLen the exact size of the compressed data
+   * @param dest the destination buffer to store the decompressed data
+   * @param destOff the start offset in dest
+   * @param maxDestLen the maximum number of bytes to write in dest
    * @return the original input size
    * @throws LZ4Exception if maxDestLen is too small
    */
   public abstract int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen);
 
   /**
-   * Uncompress <code>src[srcOff:srcLen]</code> into
+   * Decompresses <code>src[srcOff:srcOff+srcLen]</code> into
    * <code>dest[destOff:destOff+maxDestLen]</code> and returns the number of
    * decompressed bytes written into <code>dest</code>.
    *
-   * @param srcLen the exact size of the compressed stream
+   * @param src the compressed data
+   * @param srcOff the start offset in src
+   * @param srcLen the exact size of the compressed data
+   * @param dest the destination buffer to store the decompressed data
+   * @param destOff the start offset in dest
+   * @param maxDestLen the maximum number of bytes to write in dest
    * @return the original input size
    * @throws LZ4Exception if maxDestLen is too small
    */
@@ -51,6 +61,14 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
   /**
    * Convenience method, equivalent to calling
    * {@link #decompress(byte[], int, int, byte[], int, int) decompress(src, srcOff, srcLen, dest, destOff, dest.length - destOff)}.
+   *
+   * @param src the compressed data
+   * @param srcOff the start offset in src
+   * @param srcLen the exact size of the compressed data
+   * @param dest the destination buffer to store the decompressed data
+   * @param destOff the start offset in dest
+   * @return the original input size
+   * @throws LZ4Exception if dest is too small
    */
   public final int decompress(byte[] src, int srcOff, int srcLen, byte[] dest, int destOff) {
     return decompress(src, srcOff, srcLen, dest, destOff, dest.length - destOff);
@@ -59,6 +77,11 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
   /**
    * Convenience method, equivalent to calling
    * {@link #decompress(byte[], int, int, byte[], int) decompress(src, 0, src.length, dest, 0)}
+   *
+   * @param src the compressed data
+   * @param dest the destination buffer to store the decompressed data
+   * @return the original input size
+   * @throws LZ4Exception if dest is too small
    */
   public final int decompress(byte[] src, byte[] dest) {
     return decompress(src, 0, src.length, dest, 0);
@@ -80,6 +103,13 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
    * }
    * return decompressed;
    * </pre>
+   *
+   * @param src the compressed data
+   * @param srcOff the start offset in src
+   * @param srcLen the exact size of the compressed data
+   * @param maxDestLen the maximum number of bytes to write in dest
+   * @return the decompressed data
+   * @throws LZ4Exception if maxDestLen is too small
    */
   public final byte[] decompress(byte[] src, int srcOff, int srcLen, int maxDestLen) {
     byte[] decompressed = new byte[maxDestLen];
@@ -93,15 +123,23 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
   /**
    * Convenience method, equivalent to calling
    * {@link #decompress(byte[], int, int, int) decompress(src, 0, src.length, maxDestLen)}.
+   *
+   * @param src the compressed data
+   * @param maxDestLen the maximum number of bytes to write in dest
+   * @return the decompressed data
+   * @throws LZ4Exception if maxDestLen is too small
    */
   public final byte[] decompress(byte[] src, int maxDestLen) {
     return decompress(src, 0, src.length, maxDestLen);
   }
 
   /**
-   * Decompress <code>src</code> into <code>dest</code>. <code>src</code>'s
+   * Decompresses <code>src</code> into <code>dest</code>. <code>src</code>'s
    * {@link ByteBuffer#remaining()} must be exactly the size of the compressed
    * data. This method moves the positions of the buffers.
+   * @param src the compressed data
+   * @param dest the destination buffer to store the decompressed data
+   * @throws LZ4Exception if dest is too small
    */
   public final void decompress(ByteBuffer src, ByteBuffer dest) {
     final int decompressed = decompress(src, src.position(), src.remaining(), dest, dest.position(), dest.remaining());

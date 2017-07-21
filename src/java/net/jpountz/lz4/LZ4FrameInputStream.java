@@ -25,14 +25,15 @@ import java.nio.ByteOrder;
 
 /**
  * A partial implementation of the v1.5.1 LZ4 Frame format. This class is NOT thread safe
- * Not Supported:
- * * Dependent blocks
- * * Legacy streams
- *
- * @see <a href="https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md">LZ4 Framing
- *      Format Spec 1.5.1</a>
- *      
+ * <p>
+ * Not Supported:<ul>
+ * <li>Dependent blocks</li>
+ * <li>Legacy streams</li>
+ * </ul>
+ * <p>
  * Originally based on kafka's KafkaLZ4BlockInputStream
+ *
+ * @see <a href="https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md">LZ4 Framing Format Spec 1.5.1</a>
  */
 public class LZ4FrameInputStream extends FilterInputStream {
 
@@ -56,15 +57,27 @@ public class LZ4FrameInputStream extends FilterInputStream {
   private LZ4FrameOutputStream.FrameInfo frameInfo = null;
 
   /**
-   * Create a new {@link InputStream} that will decompress data using the LZ4 algorithm.
+   * Creates a new {@link InputStream} that will decompress data using fastest instances of {@link LZ4SafeDecompressor} and {@link XXHash32}.
    *
-   * @param in The stream to decompress
-   * @throws IOException
+   * @param in the stream to decompress
+   * @throws IOException if an I/O error occurs
+   *
+   * @see #LZ4FrameInputStream(InputStream, LZ4SafeDecompressor,  XXHash32)
+   * @see LZ4Factory#fastestInstance()
+   * @see XXHashFactory#fastestInstance()
    */
   public LZ4FrameInputStream(InputStream in) throws IOException {
     this(in, LZ4Factory.fastestInstance().safeDecompressor(), XXHashFactory.fastestInstance().hash32());
   }
 
+  /**
+   * Creates a new {@link InputStream} that will decompress data using the LZ4 algorithm.
+   *
+   * @param in the stream to decompress
+   * @param decompressor the decompressor to use
+   * @param checksum the hash function to use
+   * @throws IOException if an I/O error occurs
+   */
   public LZ4FrameInputStream(InputStream in, LZ4SafeDecompressor decompressor,  XXHash32 checksum) throws IOException {
     super(in);
     this.decompressor = decompressor;

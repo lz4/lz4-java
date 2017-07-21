@@ -29,15 +29,16 @@ import java.util.BitSet;
 
 /**
  * A partial implementation of the v1.5.1 LZ4 Frame format. This class is NOT thread safe
- * Not Supported:
- * * Dependent blocks
- * * Legacy streams
- * * Multiple frames (one LZ4FrameOutputStream is one frame)
- *
- * @see <a href="https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md">LZ4 Framing
- *      Format Spec 1.5.1</a>
- * 
+ * <p>
+ * Not Supported:<ul>
+ * <li>Dependent blocks</li>
+ * <li>Legacy streams</li>
+ * <li>Multiple frames (one LZ4FrameOutputStream is one frame)</li>
+ * </ul>
+ * <p>
  * Originally based on kafka's KafkaLZ4BlockOutputStream
+ *
+ * @see <a href="https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md">LZ4 Framing Format Spec 1.5.1</a>
  */
 public class LZ4FrameOutputStream extends FilterOutputStream {
 
@@ -88,25 +89,27 @@ public class LZ4FrameOutputStream extends FilterOutputStream {
 
 
   /**
-   * Create a new {@link OutputStream} that will compress data using the LZ4 algorithm.
+   * Creates a new {@link OutputStream} that will compress data of unknown size using the LZ4 algorithm.
    *
-   * @param out The output stream to compress
-   * @param blockSize The BLOCKSIZE to use
-   * @param bits A set of features to use
-   * @throws IOException
+   * @param out the output stream to compress
+   * @param blockSize the BLOCKSIZE to use
+   * @param bits a set of features to use
+   * @throws IOException if an I/O error occurs
+   *
+   * @see #LZ4FrameOutputStream(OutputStream, BLOCKSIZE, long, FLG.Bits...)
    */
   public LZ4FrameOutputStream(OutputStream out, BLOCKSIZE blockSize, FLG.Bits... bits) throws IOException {
     this(out, blockSize, -1L, bits);
   }
 
   /**
-   * Create a new {@link OutputStream} that will compress data using the LZ4 algorithm.
+   * Creates a new {@link OutputStream} that will compress data using using fastest instances of {@link LZ4Compressor} and {@link XXHash32}.
    *
-   * @param out The output stream to compress
-   * @param blockSize The BLOCKSIZE to use
-   * @param knownSize The size of the uncompressed data. A value less than zero means unknown.
-   * @param bits A set of features to use
-   * @throws IOException
+   * @param out the output stream to compress
+   * @param blockSize the BLOCKSIZE to use
+   * @param knownSize the size of the uncompressed data. A value less than zero means unknown.
+   * @param bits a set of features to use
+   * @throws IOException if an I/O error occurs
    */
   public LZ4FrameOutputStream(OutputStream out, BLOCKSIZE blockSize, long knownSize, FLG.Bits... bits) throws IOException {
     super(out);
@@ -124,22 +127,25 @@ public class LZ4FrameOutputStream extends FilterOutputStream {
   }
 
   /**
-   * Create a new {@link OutputStream} that will compress data using the LZ4 algorithm.
+   * Creates a new {@link OutputStream} that will compress data using the LZ4 algorithm. The block independence flag is set, and none of the other flags are set.
    *
    * @param out The stream to compress
-   * @param blockSize The BLOCKSIZE to use. Default: 4. The block size used during compression. 4=64kb, 5=256kb, 6=1mb, 7=4mb. All other
-   *            values will generate an exception
-   * @throws IOException
+   * @param blockSize the BLOCKSIZE to use
+   * @throws IOException if an I/O error occurs
+   *
+   * @see #LZ4FrameOutputStream(OutputStream, BLOCKSIZE, FLG.Bits...)
    */
   public LZ4FrameOutputStream(OutputStream out, BLOCKSIZE blockSize) throws IOException {
     this(out, blockSize, DEFAULT_FEATURES);
   }
 
   /**
-   * Create a new {@link OutputStream} that will compress data using the LZ4 algorithm.
+   * Creates a new {@link OutputStream} that will compress data using the LZ4 algorithm with 4-MB blocks.
    *
-   * @param out The output stream to compress
-   * @throws IOException
+   * @param out the output stream to compress
+   * @throws IOException if an I/O error occurs
+   *
+   * @see #LZ4FrameOutputStream(OutputStream, BLOCKSIZE)
    */
   public LZ4FrameOutputStream(OutputStream out) throws IOException {
     this(out, BLOCKSIZE.SIZE_4MB);
