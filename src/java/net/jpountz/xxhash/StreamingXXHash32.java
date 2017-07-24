@@ -53,17 +53,23 @@ public abstract class StreamingXXHash32 {
   }
 
   /**
-   * Get the value of the checksum.
+   * Returns the value of the checksum.
+   *
+   * @return the checksum
    */
   public abstract int getValue();
 
   /**
-   * Update the value of the hash with buf[off:off+len].
+   * Updates the value of the hash with buf[off:off+len].
+   *
+   * @param buf the input data
+   * @param off the start offset in buf
+   * @param len the number of bytes to hash
    */
   public abstract void update(byte[] buf, int off, int len);
 
   /**
-   * Reset this instance to the state it had right after instantiation. The
+   * Resets this instance to the state it had right after instantiation. The
    * seed remains unchanged.
    */
   public abstract void reset();
@@ -74,8 +80,10 @@ public abstract class StreamingXXHash32 {
   }
 
   /**
-   * Return a {@link Checksum} view of this instance. Modifications to the view
+   * Returns a {@link Checksum} view of this instance. Modifications to the view
    * will modify this instance too and vice-versa.
+   *
+   * @return the {@link Checksum} object representing this instance
    */
   public final Checksum asChecksum() {
     return new Checksum() {

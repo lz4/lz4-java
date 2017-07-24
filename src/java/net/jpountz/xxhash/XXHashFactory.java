@@ -54,7 +54,8 @@ public final class XXHashFactory {
                                JAVA_UNSAFE_INSTANCE,
                                JAVA_SAFE_INSTANCE;
 
-  /** Return a {@link XXHashFactory} that returns {@link XXHash32} instances that
+  /**
+   * Returns a {@link XXHashFactory} that returns {@link XXHash32} instances that
    *  are native bindings to the original C API.
    * <p>
    * Please note that this instance has some traps you should be aware of:<ol>
@@ -70,6 +71,9 @@ public final class XXHashFactory {
    * directory of your servlet container so that it is loaded by the system
    * class loader.
    * </ol>
+   *
+   * @return a {@link XXHashFactory} that returns {@link XXHash32} instances that
+   *  are native bindings to the original C API.
    */
   public static synchronized XXHashFactory nativeInstance() {
     if (NATIVE_INSTANCE == null) {
@@ -78,8 +82,13 @@ public final class XXHashFactory {
     return NATIVE_INSTANCE;
   }
 
-  /** Return a {@link XXHashFactory} that returns {@link XXHash32} instances that
-   *  are written with Java's official API. */
+  /**
+   * Returns a {@link XXHashFactory} that returns {@link XXHash32} instances that
+   *  are written with Java's official API.
+   *
+   * @return a {@link XXHashFactory} that returns {@link XXHash32} instances that
+   *  are written with Java's official API.
+   */
   public static synchronized XXHashFactory safeInstance() {
     if (JAVA_SAFE_INSTANCE == null) {
       JAVA_SAFE_INSTANCE = instance("JavaSafe");
@@ -87,8 +96,13 @@ public final class XXHashFactory {
     return JAVA_SAFE_INSTANCE;
   }
 
-  /** Return a {@link XXHashFactory} that returns {@link XXHash32} instances that
-   *  may use {@link sun.misc.Unsafe} to speed up hashing. */
+  /**
+   * Returns a {@link XXHashFactory} that returns {@link XXHash32} instances that
+   *  may use {@link sun.misc.Unsafe} to speed up hashing.
+   *
+   * @return a {@link XXHashFactory} that returns {@link XXHash32} instances that
+   *  may use {@link sun.misc.Unsafe} to speed up hashing.
+   */
   public static synchronized XXHashFactory unsafeInstance() {
     if (JAVA_UNSAFE_INSTANCE == null) {
       JAVA_UNSAFE_INSTANCE = instance("JavaUnsafe");
@@ -97,11 +111,14 @@ public final class XXHashFactory {
   }
 
   /**
-   * Return the fastest available {@link XXHashFactory} instance which does not
+   * Returns the fastest available {@link XXHashFactory} instance which does not
    * rely on JNI bindings. It first tries to load the
    * {@link #unsafeInstance() unsafe instance}, and then the
    * {@link #safeInstance() safe Java instance} if the JVM doesn't have a
    * working {@link sun.misc.Unsafe}.
+   *
+   * @return the fastest available {@link XXHashFactory} instance which does not
+   * rely on JNI bindings.
    */
   public static XXHashFactory fastestJavaInstance() {
     if (Utils.isUnalignedAccessAllowed()) {
@@ -116,7 +133,7 @@ public final class XXHashFactory {
   }
 
   /**
-   * Return the fastest available {@link XXHashFactory} instance. If the class
+   * Returns the fastest available {@link XXHashFactory} instance. If the class
    * loader is the system class loader and if the
    * {@link #nativeInstance() native instance} loads successfully, then the
    * {@link #nativeInstance() native instance} is returned, otherwise the
@@ -124,6 +141,8 @@ public final class XXHashFactory {
    * <p>
    * Please read {@link #nativeInstance() javadocs of nativeInstance()} before
    * using this method.
+   *
+   * @return the fastest available {@link XXHashFactory} instance.
    */
   public static XXHashFactory fastestInstance() {
     if (Native.isLoaded()
@@ -182,18 +201,29 @@ public final class XXHashFactory {
     }
   }
 
-  /** Return a {@link XXHash32} instance. */
+  /**
+   * Returns a {@link XXHash32} instance.
+   *
+   * @return a {@link XXHash32} instance.
+   */
   public XXHash32 hash32() {
     return hash32;
   }
 
-  /** Return a {@link XXHash64} instance. */
+  /**
+   * Returns a {@link XXHash64} instance.
+   *
+   * @return a {@link XXHash64} instance.
+   */
   public XXHash64 hash64() {
     return hash64;
   }
 
   /**
    * Return a new {@link StreamingXXHash32} instance.
+   *
+   * @param seed the seed to use
+   * @return a {@link StreamingXXHash32} instance
    */
   public StreamingXXHash32 newStreamingHash32(int seed) {
     return streamingHash32Factory.newStreamingHash(seed);
@@ -201,12 +231,19 @@ public final class XXHashFactory {
 
   /**
    * Return a new {@link StreamingXXHash64} instance.
+   *
+   * @param seed the seed to use
+   * @return a {@link StreamingXXHash64} instance
    */
   public StreamingXXHash64 newStreamingHash64(long seed) {
     return streamingHash64Factory.newStreamingHash(seed);
   }
 
-  /** Prints the fastest instance. */
+  /**
+   * Prints the fastest instance.
+   *
+   * @param args no argument required
+   */
   public static void main(String[] args) {
     System.out.println("Fastest instance is " + fastestInstance());
     System.out.println("Fastest Java instance is " + fastestJavaInstance());
