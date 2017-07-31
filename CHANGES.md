@@ -1,5 +1,65 @@
 # Change log
 
+## 1.4.0
+
+ - The project page has been moved to
+   [https://github.com/lz4/lz4-java](https://github.com/lz4/lz4-java).
+   (Adrien Grand, Yann Collet)
+
+ - groupId and artifactId have been changed from net.jpountz.lz4 and lz4
+   to org.lz4 and lz4-java, respectively. (Rei Odaira)
+
+ - [#105](https://github.com/lz4/lz4-java/pull/105)
+   LZ4BlockInputStream can read concatenated streams.
+   (Takeshi Yamamuro, Davies Liu)
+
+ - [#99](https://github.com/lz4/lz4-java/pull/99)
+   LZ4FrameInputStream allows EndMark to be incompressible. (Charles Allen)
+
+ - [#95](https://github.com/lz4/lz4-java/pull/95)
+   Added unsafe instance support for aarch64. (Yuqi Gu)
+
+ - [#93](https://github.com/lz4/lz4-java/pull/93)
+   Added unsafe instance support for ppc64le. (Madhusudanan Kandasamy)
+
+ - [#90](https://github.com/lz4/lz4-java/issues/90)
+   LZ4 Java now supports 64-bit JNI build on Solaris. (cndcourt)
+
+ - [#86](https://github.com/lz4/lz4-java/pull/86)
+   Added a pre-built JNI binding for aarch64. (Rocky Zhang)
+
+ - [#85](https://github.com/lz4/lz4-java/pull/85)
+   Added a pre-built JNI binding for s390x. (Rei Odaira)
+
+ - [#84](https://github.com/lz4/lz4-java/pull/84)
+   Added a pre-built JNI binding for ppc64le. (Rei Odaira)
+
+ - [#83](https://github.com/lz4/lz4-java/pull/83)
+   LZ4 Java tries to load a JNI binding from java.library.path first, and then
+   fall back to bundled one. (Jakub Jirutka)
+
+ - [#70](https://github.com/lz4/lz4-java/issues/70) and [#89](https://github.com/lz4/lz4-java/issues/89)
+   Avoid over-allocating a buffer in LZ4BlockInputStream. (Marko Topolnik)
+
+ - [#65](https://github.com/lz4/lz4-java/pull/65)
+   Fixed ByteBuffer methods failing to apply arrayOffset() for
+   array-backed buffers. (Branimir Lambov)
+
+ - [#63](https://github.com/lz4/lz4-java/pull/63)
+   All resources are placed under the net.jpountz package to support
+   the maven shade plugin. (Chris Lockfort)
+
+ - [#61](https://github.com/lz4/lz4-java/pull/61)
+   Added LZ4 Frame version 1.5.1 support. (Charles Allen)
+
+ - [#60](https://github.com/lz4/lz4-java/pull/60)
+   Fixed NullPointerException in LZ4Factory and XXHashFactory when they are
+   loaded by the bootstrap classloader. (Yilong Li)
+
+ - [#53](https://github.com/lz4/lz4-java/issues/53)
+   Fixed calling flush on closed LZ4BlockOutputStream.
+   (Will Droste)
+
 ## 1.3.0
 
  - lz4 r123
