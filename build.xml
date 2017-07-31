@@ -248,6 +248,11 @@
     </junit4:junit4>
   </target>
 
+  <target name="test-skip-jni" description="run tests without building JNI">
+    <property name="skip.jni" value="true" />
+    <antcall target="test" />
+  </target>
+
   <target name="sources" description="package sources">
     <mkdir dir="${dist}" />
     <jar
@@ -361,7 +366,7 @@
   </target>
 
   <!-- before this, update project version from SNAPSHOT to RELEASE -->
-  <target name="stage" description="deploy to release repo" depends="install-maven-ant-tasks,test,forbidden-apis">
+  <target name="stage" description="deploy to release repo" depends="install-maven-ant-tasks,test-skip-jni,forbidden-apis">
     <property name="skip.jni" value="true" />
     <antcall target="-stage" />
   </target>
@@ -369,5 +374,4 @@
   <target name="-stage" depends="clean,dist">
     <deploy repositoryid="sonatype-nexus-staging" repositoryurl="https://oss.sonatype.org/service/local/staging/deploy/maven2" />
   </target>
-
 </project>
