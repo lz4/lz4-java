@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Locale;
 
 /**
  * A partial implementation of the v1.5.1 LZ4 Frame format. This class is NOT thread safe
@@ -235,7 +236,7 @@ public class LZ4FrameInputStream extends FilterInputStream {
       tmpBuffer = rawBuffer;
     }
     if (blockSize > maxBlockSize) {
-      throw new IOException(String.format("Block size %s exceeded max: %s", blockSize, maxBlockSize));
+      throw new IOException(String.format(Locale.ROOT, "Block size %s exceeded max: %s", blockSize, maxBlockSize));
     }
 
     int offset = 0;

@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Locale;
 
 /**
  * A partial implementation of the v1.5.1 LZ4 Frame format. This class is NOT thread safe
@@ -72,7 +73,7 @@ public class LZ4FrameOutputStream extends FilterOutputStream {
         case 6: return SIZE_1MB;
         case 5: return SIZE_256KB;
         case 4: return SIZE_64KB;
-        default: throw new IllegalArgumentException(String.format("Block size must be 4-7. Cannot use value of [%d]", indicator));
+        default: throw new IllegalArgumentException(String.format(Locale.ROOT, "Block size must be 4-7. Cannot use value of [%d]", indicator));
       }
     }
   }
@@ -350,7 +351,7 @@ public class LZ4FrameOutputStream extends FilterOutputStream {
         throw new RuntimeException("Dependent block stream is unsupported");
       }
       if (version != DEFAULT_VERSION) {
-        throw new RuntimeException(String.format("Version %d is unsupported", version));
+        throw new RuntimeException(String.format(Locale.ROOT, "Version %d is unsupported", version));
       }
     }
 
