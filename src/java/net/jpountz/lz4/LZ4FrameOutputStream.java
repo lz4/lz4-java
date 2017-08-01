@@ -43,8 +43,8 @@ import java.util.Locale;
  */
 public class LZ4FrameOutputStream extends FilterOutputStream {
 
-  protected static final int INTEGER_BYTES = Integer.SIZE >>> 3; // or Integer.BYTES in Java 1.8
-  protected static final int LONG_BYTES = Long.SIZE >>> 3; // or Long.BYTES in Java 1.8
+  static final int INTEGER_BYTES = Integer.SIZE >>> 3; // or Integer.BYTES in Java 1.8
+  static final int LONG_BYTES = Long.SIZE >>> 3; // or Long.BYTES in Java 1.8
 
   static final int MAGIC = 0x184D2204;
   static final int LZ4_MAX_HEADER_LENGTH =
@@ -392,7 +392,7 @@ public class LZ4FrameOutputStream extends FilterOutputStream {
     }
   }
 
-  public static class FrameInfo {
+  static class FrameInfo {
     private final FLG flg;
     private final BD bd;
     private final StreamingXXHash32 streamHash;
