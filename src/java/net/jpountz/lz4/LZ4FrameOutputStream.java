@@ -348,7 +348,7 @@ public class LZ4FrameOutputStream extends FilterOutputStream {
         throw new RuntimeException("Reserved1 field must be 0");
       }
       if (!bitSet.get(Bits.BLOCK_INDEPENDENCE.position)) {
-        throw new RuntimeException("Dependent block stream is unsupported");
+        throw new RuntimeException("Dependent block stream is unsupported (BLOCK_INDEPENDENCE must be set)");
       }
       if (version != DEFAULT_VERSION) {
         throw new RuntimeException(String.format(Locale.ROOT, "Version %d is unsupported", version));
