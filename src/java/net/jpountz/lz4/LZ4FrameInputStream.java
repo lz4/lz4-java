@@ -25,14 +25,14 @@ import java.nio.ByteOrder;
 import java.util.Locale;
 
 /**
- * A partial implementation of the v1.5.1 LZ4 Frame format. This class is NOT thread safe
+ * A partial implementation of the v1.5.1 LZ4 Frame format. This class is NOT thread safe.
  * <p>
  * Not Supported:<ul>
  * <li>Dependent blocks</li>
  * <li>Legacy streams</li>
  * </ul>
  * <p>
- * Originally based on kafka's KafkaLZ4BlockInputStream
+ * Originally based on kafka's KafkaLZ4BlockInputStream.
  *
  * @see <a href="https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md">LZ4 Framing Format Spec 1.5.1</a>
  */

@@ -29,7 +29,7 @@ import java.util.BitSet;
 import java.util.Locale;
 
 /**
- * A partial implementation of the v1.5.1 LZ4 Frame format. This class is NOT thread safe
+ * A partial implementation of the v1.5.1 LZ4 Frame format. This class is NOT thread safe.
  * <p>
  * Not Supported:<ul>
  * <li>Dependent blocks</li>
@@ -37,7 +37,7 @@ import java.util.Locale;
  * <li>Multiple frames (one LZ4FrameOutputStream is one frame)</li>
  * </ul>
  * <p>
- * Originally based on kafka's KafkaLZ4BlockOutputStream
+ * Originally based on kafka's KafkaLZ4BlockOutputStream.
  *
  * @see <a href="https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md">LZ4 Framing Format Spec 1.5.1</a>
  */
