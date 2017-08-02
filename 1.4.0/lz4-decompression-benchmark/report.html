@@ -1,0 +1,4104 @@
+<?xml version="1.0" encoding="UTF-8"?><html xmlns:extrep="http://www.sun.com/japex/extendedTestSuiteReport" xmlns:suite="http://www.sun.com/japex/testSuite" xmlns:rep="http://www.sun.com/japex/testSuiteReport" xmlns="http://www.w3.org/1999/xhtml">
+<link href="report.css" type="text/css" rel="stylesheet"/>
+<body>
+<table border="0" cellpadding="2">
+<tr>
+<td valign="middle" width="90">
+<p>
+<a href="https://japex.dev.java.net">
+<img src="small_japex.gif" align="middle" border="0"/>
+</a>
+</p>
+</td>
+<td valign="middle">
+<h1>Japex Report: Test suite for JVM compressors</h1>
+</td>
+</tr>
+</table>
+<h2>Description</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+
+        <p>
+Micro-benchmark for testing performance of compressors on JVM platform
+</p>
+</div>
+</div>
+<h2>Global Parameters</h2>
+<ul>
+<li>configFile: <a href="tests-calgary-uncompress.xml">tests-calgary-uncompress.xml</a>
+</li>
+<li>chartType: barchart</li>
+<li>dateTime: 01 Aug 2017/19:16:27 CDT</li>
+<li>hostName: arlab182</li>
+<li>inputDir: testdata/calgary</li>
+<li>numberOfCpus: 72</li>
+<li>numberOfThreads: 1</li>
+<li>osArchitecture: amd64</li>
+<li>osName: Linux</li>
+<li>plotDrivers: false</li>
+<li>plotGroupSize: 6</li>
+<li>reportsDirectory: reports/calgary-uncompress</li>
+<li>resultAxis: normal</li>
+<li>resultAxisX: normal</li>
+<li>resultUnit: TPS</li>
+<li>resultUnitX: Size%</li>
+<li>runTime: 30</li>
+<li>runsPerDriver: 1</li>
+<li>singleClassLoader: false</li>
+<li>version: 1.2.2</li>
+<li>vmInfo: Oracle Corporation 25.131-b11</li>
+<li>warmupTime: 7</li>
+<li>warmupsPerDriver: 0</li>
+</ul>
+<h2>Result Summary 
+        (TPS)</h2>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th width="15%">
+<b>driver</b>
+</th>
+<th>
+<b>resultAritMean</b>
+</th>
+<th>
+<b>resultAritMeanX</b>
+</th>
+<th>
+<b>resultGeomMean</b>
+</th>
+<th>
+<b>resultGeomMeanX</b>
+</th>
+<th>
+<b>resultHarmMean</b>
+</th>
+<th>
+<b>resultHarmMeanX</b>
+</th>
+<th>
+<b>singleClassLoader</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">LZ4 (JNI)/block</td>
+<td align="right">
+<nobr>1386.117</nobr>
+</td>
+<td align="right">
+<nobr>53.909</nobr>
+</td>
+<td align="right">
+<nobr>1381.261</nobr>
+</td>
+<td align="right">
+<nobr>51.128</nobr>
+</td>
+<td align="right">
+<nobr>1376.197</nobr>
+</td>
+<td align="right">
+<nobr>47.408</nobr>
+</td>
+<td align="right">
+<nobr>n/a</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">LZ4 (Java+Unsafe)/block</td>
+<td align="right">
+<nobr>799.717</nobr>
+</td>
+<td align="right">
+<nobr>53.909</nobr>
+</td>
+<td align="right">
+<nobr>756.272</nobr>
+</td>
+<td align="right">
+<nobr>51.128</nobr>
+</td>
+<td align="right">
+<nobr>721.287</nobr>
+</td>
+<td align="right">
+<nobr>47.408</nobr>
+</td>
+<td align="right">
+<nobr>n/a</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">Snappy(JNI)/block</td>
+<td align="right">
+<nobr>812.887</nobr>
+</td>
+<td align="right">
+<nobr>53.415</nobr>
+</td>
+<td align="right">
+<nobr>777.741</nobr>
+</td>
+<td align="right">
+<nobr>50.708</nobr>
+</td>
+<td align="right">
+<nobr>749.852</nobr>
+</td>
+<td align="right">
+<nobr>47.351</nobr>
+</td>
+<td align="right">
+<nobr>true</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">Snappy(iq80)/block</td>
+<td align="right">
+<nobr>645.937</nobr>
+</td>
+<td align="right">
+<nobr>54.646</nobr>
+</td>
+<td align="right">
+<nobr>612.386</nobr>
+</td>
+<td align="right">
+<nobr>52.052</nobr>
+</td>
+<td align="right">
+<nobr>587.984</nobr>
+</td>
+<td align="right">
+<nobr>48.678</nobr>
+</td>
+<td align="right">
+<nobr>n/a</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">LZF/block</td>
+<td align="right">
+<nobr>589.845</nobr>
+</td>
+<td align="right">
+<nobr>52.406</nobr>
+</td>
+<td align="right">
+<nobr>580.899</nobr>
+</td>
+<td align="right">
+<nobr>49.898</nobr>
+</td>
+<td align="right">
+<nobr>571.703</nobr>
+</td>
+<td align="right">
+<nobr>46.429</nobr>
+</td>
+<td align="right">
+<nobr>n/a</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">LZF/stream</td>
+<td align="right">
+<nobr>516.425</nobr>
+</td>
+<td align="right">
+<nobr>52.406</nobr>
+</td>
+<td align="right">
+<nobr>508.885</nobr>
+</td>
+<td align="right">
+<nobr>49.898</nobr>
+</td>
+<td align="right">
+<nobr>501.149</nobr>
+</td>
+<td align="right">
+<nobr>46.429</nobr>
+</td>
+<td align="right">
+<nobr>n/a</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">LZO-java/block</td>
+<td align="right">
+<nobr>230.555</nobr>
+</td>
+<td align="right">
+<nobr>52.669</nobr>
+</td>
+<td align="right">
+<nobr>216.279</nobr>
+</td>
+<td align="right">
+<nobr>49.904</nobr>
+</td>
+<td align="right">
+<nobr>205.952</nobr>
+</td>
+<td align="right">
+<nobr>46.405</nobr>
+</td>
+<td align="right">
+<nobr>n/a</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">LZ4 HC (JNI)/block</td>
+<td align="right">
+<nobr>1488.731</nobr>
+</td>
+<td align="right">
+<nobr>43.336</nobr>
+</td>
+<td align="right">
+<nobr>1488.319</nobr>
+</td>
+<td align="right">
+<nobr>40.538</nobr>
+</td>
+<td align="right">
+<nobr>1487.885</nobr>
+</td>
+<td align="right">
+<nobr>37.137</nobr>
+</td>
+<td align="right">
+<nobr>n/a</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">QuickLZ/L3/block</td>
+<td align="right">
+<nobr>205.278</nobr>
+</td>
+<td align="right">
+<nobr>43.566</nobr>
+</td>
+<td align="right">
+<nobr>200.548</nobr>
+</td>
+<td align="right">
+<nobr>41.12</nobr>
+</td>
+<td align="right">
+<nobr>196.84</nobr>
+</td>
+<td align="right">
+<nobr>38.154</nobr>
+</td>
+<td align="right">
+<nobr>n/a</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">Gzip/JDK/stream</td>
+<td align="right">
+<nobr>159.587</nobr>
+</td>
+<td align="right">
+<nobr>35.042</nobr>
+</td>
+<td align="right">
+<nobr>153.748</nobr>
+</td>
+<td align="right">
+<nobr>32.894</nobr>
+</td>
+<td align="right">
+<nobr>149</nobr>
+</td>
+<td align="right">
+<nobr>30.274</nobr>
+</td>
+<td align="right">
+<nobr>n/a</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">BZip2/stream</td>
+<td align="right">
+<nobr>17.495</nobr>
+</td>
+<td align="right">
+<nobr>31.604</nobr>
+</td>
+<td align="right">
+<nobr>16.825</nobr>
+</td>
+<td align="right">
+<nobr>29.668</nobr>
+</td>
+<td align="right">
+<nobr>16.368</nobr>
+</td>
+<td align="right">
+<nobr>27.289</nobr>
+</td>
+<td align="right">
+<nobr>n/a</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">LZMA-orig/block</td>
+<td align="right">
+<nobr>24.53</nobr>
+</td>
+<td align="right">
+<nobr>30.89</nobr>
+</td>
+<td align="right">
+<nobr>22.594</nobr>
+</td>
+<td align="right">
+<nobr>28.822</nobr>
+</td>
+<td align="right">
+<nobr>21.227</nobr>
+</td>
+<td align="right">
+<nobr>25.945</nobr>
+</td>
+<td align="right">
+<nobr>n/a</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<br/>
+<center>
+<img src="result.jpg"/>
+</center>
+<br/>
+<br/>
+<h2>Driver: LZ4 (JNI)/block</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+        <p>LZ4 (JNI), block mode</p>
+    </div>
+</div>
+<p>
+<ul>
+<li>classPath: build/classes
+lib/lz4/*.jar</li>
+<li>driverClass: com.ning.jcbm.lz4.Lz4JNIDriver</li>
+<li>streaming: n/a</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+<th>
+<b>resultValueX</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">U:bib</td>
+<td align="right">
+<nobr>404855</nobr>
+</td>
+<td align="right">
+<nobr>29.972</nobr>
+</td>
+<td align="right">
+<nobr>1433.26</nobr>
+</td>
+<td align="right">
+<nobr>52.188</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book1</td>
+<td align="right">
+<nobr>46522</nobr>
+</td>
+<td align="right">
+<nobr>29.969</nobr>
+</td>
+<td align="right">
+<nobr>1138.089</nobr>
+</td>
+<td align="right">
+<nobr>66.935</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book2</td>
+<td align="right">
+<nobr>63730</nobr>
+</td>
+<td align="right">
+<nobr>29.961</nobr>
+</td>
+<td align="right">
+<nobr>1239.16</nobr>
+</td>
+<td align="right">
+<nobr>55.369</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:geo</td>
+<td align="right">
+<nobr>946143</nobr>
+</td>
+<td align="right">
+<nobr>29.963</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>94.88</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:news</td>
+<td align="right">
+<nobr>110731</nobr>
+</td>
+<td align="right">
+<nobr>29.976</nobr>
+</td>
+<td align="right">
+<nobr>1328.524</nobr>
+</td>
+<td align="right">
+<nobr>57.691</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj1</td>
+<td align="right">
+<nobr>3342682</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>60.124</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj2</td>
+<td align="right">
+<nobr>176923</nobr>
+</td>
+<td align="right">
+<nobr>29.956</nobr>
+</td>
+<td align="right">
+<nobr>1390.198</nobr>
+</td>
+<td align="right">
+<nobr>48.723</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper1</td>
+<td align="right">
+<nobr>777989</nobr>
+</td>
+<td align="right">
+<nobr>29.968</nobr>
+</td>
+<td align="right">
+<nobr>1316.143</nobr>
+</td>
+<td align="right">
+<nobr>54.433</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper2</td>
+<td align="right">
+<nobr>470894</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>1231.518</nobr>
+</td>
+<td align="right">
+<nobr>59.109</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper3</td>
+<td align="right">
+<nobr>818587</nobr>
+</td>
+<td align="right">
+<nobr>29.969</nobr>
+</td>
+<td align="right">
+<nobr>1211.969</nobr>
+</td>
+<td align="right">
+<nobr>60.822</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper4</td>
+<td align="right">
+<nobr>3305466</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>1397.273</nobr>
+</td>
+<td align="right">
+<nobr>63.789</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper5</td>
+<td align="right">
+<nobr>3832409</nobr>
+</td>
+<td align="right">
+<nobr>29.951</nobr>
+</td>
+<td align="right">
+<nobr>1458.716</nobr>
+</td>
+<td align="right">
+<nobr>62.406</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper6</td>
+<td align="right">
+<nobr>1145586</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>1388.89</nobr>
+</td>
+<td align="right">
+<nobr>54.095</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:pic</td>
+<td align="right">
+<nobr>122513</nobr>
+</td>
+<td align="right">
+<nobr>29.975</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>16.821</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progc</td>
+<td align="right">
+<nobr>1124577</nobr>
+</td>
+<td align="right">
+<nobr>29.981</nobr>
+</td>
+<td align="right">
+<nobr>1416.971</nobr>
+</td>
+<td align="right">
+<nobr>52.781</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progl</td>
+<td align="right">
+<nobr>686076</nobr>
+</td>
+<td align="right">
+<nobr>29.966</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>39.459</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progp</td>
+<td align="right">
+<nobr>1089680</nobr>
+</td>
+<td align="right">
+<nobr>29.933</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>37.913</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:trans</td>
+<td align="right">
+<nobr>614358</nobr>
+</td>
+<td align="right">
+<nobr>29.954</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>32.833</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: LZ4 (Java+Unsafe)/block</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+        <p>LZ4 (Java+Unsafe), block mode</p>
+    </div>
+</div>
+<p>
+<ul>
+<li>classPath: build/classes
+lib/lz4/*.jar</li>
+<li>driverClass: com.ning.jcbm.lz4.Lz4JavaUnsafeDriver</li>
+<li>streaming: n/a</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+<th>
+<b>resultValueX</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">U:bib</td>
+<td align="right">
+<nobr>145220</nobr>
+</td>
+<td align="right">
+<nobr>29.944</nobr>
+</td>
+<td align="right">
+<nobr>514.582</nobr>
+</td>
+<td align="right">
+<nobr>52.188</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book1</td>
+<td align="right">
+<nobr>21484</nobr>
+</td>
+<td align="right">
+<nobr>29.933</nobr>
+</td>
+<td align="right">
+<nobr>526.212</nobr>
+</td>
+<td align="right">
+<nobr>66.935</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book2</td>
+<td align="right">
+<nobr>29810</nobr>
+</td>
+<td align="right">
+<nobr>29.961</nobr>
+</td>
+<td align="right">
+<nobr>579.613</nobr>
+</td>
+<td align="right">
+<nobr>55.369</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:geo</td>
+<td align="right">
+<nobr>868873</nobr>
+</td>
+<td align="right">
+<nobr>29.978</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>94.88</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:news</td>
+<td align="right">
+<nobr>49339</nobr>
+</td>
+<td align="right">
+<nobr>29.981</nobr>
+</td>
+<td align="right">
+<nobr>591.856</nobr>
+</td>
+<td align="right">
+<nobr>57.691</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj1</td>
+<td align="right">
+<nobr>2070739</nobr>
+</td>
+<td align="right">
+<nobr>29.984</nobr>
+</td>
+<td align="right">
+<nobr>1416.304</nobr>
+</td>
+<td align="right">
+<nobr>60.124</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj2</td>
+<td align="right">
+<nobr>83054</nobr>
+</td>
+<td align="right">
+<nobr>29.966</nobr>
+</td>
+<td align="right">
+<nobr>652.374</nobr>
+</td>
+<td align="right">
+<nobr>48.723</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper1</td>
+<td align="right">
+<nobr>364268</nobr>
+</td>
+<td align="right">
+<nobr>29.977</nobr>
+</td>
+<td align="right">
+<nobr>616.054</nobr>
+</td>
+<td align="right">
+<nobr>54.433</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper2</td>
+<td align="right">
+<nobr>208272</nobr>
+</td>
+<td align="right">
+<nobr>29.961</nobr>
+</td>
+<td align="right">
+<nobr>544.927</nobr>
+</td>
+<td align="right">
+<nobr>59.109</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper3</td>
+<td align="right">
+<nobr>392546</nobr>
+</td>
+<td align="right">
+<nobr>29.984</nobr>
+</td>
+<td align="right">
+<nobr>580.891</nobr>
+</td>
+<td align="right">
+<nobr>60.822</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper4</td>
+<td align="right">
+<nobr>2226691</nobr>
+</td>
+<td align="right">
+<nobr>29.986</nobr>
+</td>
+<td align="right">
+<nobr>940.888</nobr>
+</td>
+<td align="right">
+<nobr>63.789</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper5</td>
+<td align="right">
+<nobr>2639861</nobr>
+</td>
+<td align="right">
+<nobr>29.926</nobr>
+</td>
+<td align="right">
+<nobr>1005.649</nobr>
+</td>
+<td align="right">
+<nobr>62.406</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper6</td>
+<td align="right">
+<nobr>558394</nobr>
+</td>
+<td align="right">
+<nobr>29.972</nobr>
+</td>
+<td align="right">
+<nobr>677.038</nobr>
+</td>
+<td align="right">
+<nobr>54.095</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:pic</td>
+<td align="right">
+<nobr>70275</nobr>
+</td>
+<td align="right">
+<nobr>29.969</nobr>
+</td>
+<td align="right">
+<nobr>1147.711</nobr>
+</td>
+<td align="right">
+<nobr>16.821</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progc</td>
+<td align="right">
+<nobr>540728</nobr>
+</td>
+<td align="right">
+<nobr>29.977</nobr>
+</td>
+<td align="right">
+<nobr>681.399</nobr>
+</td>
+<td align="right">
+<nobr>52.781</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progl</td>
+<td align="right">
+<nobr>319675</nobr>
+</td>
+<td align="right">
+<nobr>29.972</nobr>
+</td>
+<td align="right">
+<nobr>728.771</nobr>
+</td>
+<td align="right">
+<nobr>39.459</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progp</td>
+<td align="right">
+<nobr>532282</nobr>
+</td>
+<td align="right">
+<nobr>29.943</nobr>
+</td>
+<td align="right">
+<nobr>837.127</nobr>
+</td>
+<td align="right">
+<nobr>37.913</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:trans</td>
+<td align="right">
+<nobr>286453</nobr>
+</td>
+<td align="right">
+<nobr>29.985</nobr>
+</td>
+<td align="right">
+<nobr>853.609</nobr>
+</td>
+<td align="right">
+<nobr>32.833</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: Snappy(JNI)/block</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+        <p>Snappy-JNI, block mode</p>
+    </div>
+</div>
+<p>
+<ul>
+<li>classPath: build/classes
+lib/snappy/*.jar</li>
+<li>driverClass: com.ning.jcbm.snappy.SnappyDriver</li>
+<li>streaming: n/a</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+<th>
+<b>resultValueX</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">U:bib</td>
+<td align="right">
+<nobr>191369</nobr>
+</td>
+<td align="right">
+<nobr>29.964</nobr>
+</td>
+<td align="right">
+<nobr>677.664</nobr>
+</td>
+<td align="right">
+<nobr>52.256</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book1</td>
+<td align="right">
+<nobr>21611</nobr>
+</td>
+<td align="right">
+<nobr>29.966</nobr>
+</td>
+<td align="right">
+<nobr>528.742</nobr>
+</td>
+<td align="right">
+<nobr>66.224</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book2</td>
+<td align="right">
+<nobr>32698</nobr>
+</td>
+<td align="right">
+<nobr>29.981</nobr>
+</td>
+<td align="right">
+<nobr>635.359</nobr>
+</td>
+<td align="right">
+<nobr>54.734</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:geo</td>
+<td align="right">
+<nobr>2044276</nobr>
+</td>
+<td align="right">
+<nobr>29.977</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>97.698</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:news</td>
+<td align="right">
+<nobr>53719</nobr>
+</td>
+<td align="right">
+<nobr>29.964</nobr>
+</td>
+<td align="right">
+<nobr>644.758</nobr>
+</td>
+<td align="right">
+<nobr>57.983</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj1</td>
+<td align="right">
+<nobr>1772901</nobr>
+</td>
+<td align="right">
+<nobr>29.95</nobr>
+</td>
+<td align="right">
+<nobr>1213.954</nobr>
+</td>
+<td align="right">
+<nobr>61.658</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj2</td>
+<td align="right">
+<nobr>96102</nobr>
+</td>
+<td align="right">
+<nobr>29.972</nobr>
+</td>
+<td align="right">
+<nobr>754.718</nobr>
+</td>
+<td align="right">
+<nobr>49.091</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper1</td>
+<td align="right">
+<nobr>394249</nobr>
+</td>
+<td align="right">
+<nobr>29.956</nobr>
+</td>
+<td align="right">
+<nobr>667.231</nobr>
+</td>
+<td align="right">
+<nobr>52.935</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper2</td>
+<td align="right">
+<nobr>237486</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>621.089</nobr>
+</td>
+<td align="right">
+<nobr>57.305</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper3</td>
+<td align="right">
+<nobr>409149</nobr>
+</td>
+<td align="right">
+<nobr>29.978</nobr>
+</td>
+<td align="right">
+<nobr>605.585</nobr>
+</td>
+<td align="right">
+<nobr>59.932</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper4</td>
+<td align="right">
+<nobr>1542998</nobr>
+</td>
+<td align="right">
+<nobr>29.984</nobr>
+</td>
+<td align="right">
+<nobr>652.031</nobr>
+</td>
+<td align="right">
+<nobr>61.561</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper5</td>
+<td align="right">
+<nobr>1784252</nobr>
+</td>
+<td align="right">
+<nobr>29.984</nobr>
+</td>
+<td align="right">
+<nobr>678.397</nobr>
+</td>
+<td align="right">
+<nobr>61.151</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper6</td>
+<td align="right">
+<nobr>570142</nobr>
+</td>
+<td align="right">
+<nobr>29.983</nobr>
+</td>
+<td align="right">
+<nobr>691.01</nobr>
+</td>
+<td align="right">
+<nobr>52.851</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:pic</td>
+<td align="right">
+<nobr>81224</nobr>
+</td>
+<td align="right">
+<nobr>29.938</nobr>
+</td>
+<td align="right">
+<nobr>1327.873</nobr>
+</td>
+<td align="right">
+<nobr>18.115</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progc</td>
+<td align="right">
+<nobr>555156</nobr>
+</td>
+<td align="right">
+<nobr>29.983</nobr>
+</td>
+<td align="right">
+<nobr>699.438</nobr>
+</td>
+<td align="right">
+<nobr>51.006</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progl</td>
+<td align="right">
+<nobr>373377</nobr>
+</td>
+<td align="right">
+<nobr>29.981</nobr>
+</td>
+<td align="right">
+<nobr>850.938</nobr>
+</td>
+<td align="right">
+<nobr>36.993</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progp</td>
+<td align="right">
+<nobr>589895</nobr>
+</td>
+<td align="right">
+<nobr>29.976</nobr>
+</td>
+<td align="right">
+<nobr>926.699</nobr>
+</td>
+<td align="right">
+<nobr>35.523</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:trans</td>
+<td align="right">
+<nobr>320925</nobr>
+</td>
+<td align="right">
+<nobr>29.978</nobr>
+</td>
+<td align="right">
+<nobr>956.573</nobr>
+</td>
+<td align="right">
+<nobr>34.449</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: Snappy(iq80)/block</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+        <p>Snappy-Java, block mode</p>
+    </div>
+</div>
+<p>
+<ul>
+<li>classPath: build/classes
+lib/iq80-snappy/*.jar</li>
+<li>driverClass: com.ning.jcbm.iq80snappy.Iq80SnappyDriver</li>
+<li>streaming: n/a</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+<th>
+<b>resultValueX</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">U:bib</td>
+<td align="right">
+<nobr>145625</nobr>
+</td>
+<td align="right">
+<nobr>29.965</nobr>
+</td>
+<td align="right">
+<nobr>515.656</nobr>
+</td>
+<td align="right">
+<nobr>55.445</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book1</td>
+<td align="right">
+<nobr>16138</nobr>
+</td>
+<td align="right">
+<nobr>29.957</nobr>
+</td>
+<td align="right">
+<nobr>394.961</nobr>
+</td>
+<td align="right">
+<nobr>68.25</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book2</td>
+<td align="right">
+<nobr>24291</nobr>
+</td>
+<td align="right">
+<nobr>29.985</nobr>
+</td>
+<td align="right">
+<nobr>471.935</nobr>
+</td>
+<td align="right">
+<nobr>56.758</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:geo</td>
+<td align="right">
+<nobr>531531</nobr>
+</td>
+<td align="right">
+<nobr>29.982</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>95.636</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:news</td>
+<td align="right">
+<nobr>40128</nobr>
+</td>
+<td align="right">
+<nobr>29.963</nobr>
+</td>
+<td align="right">
+<nobr>481.646</nobr>
+</td>
+<td align="right">
+<nobr>59.775</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj1</td>
+<td align="right">
+<nobr>1154139</nobr>
+</td>
+<td align="right">
+<nobr>29.925</nobr>
+</td>
+<td align="right">
+<nobr>790.944</nobr>
+</td>
+<td align="right">
+<nobr>61.221</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj2</td>
+<td align="right">
+<nobr>71088</nobr>
+</td>
+<td align="right">
+<nobr>29.97</nobr>
+</td>
+<td align="right">
+<nobr>558.308</nobr>
+</td>
+<td align="right">
+<nobr>49.794</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper1</td>
+<td align="right">
+<nobr>314551</nobr>
+</td>
+<td align="right">
+<nobr>29.984</nobr>
+</td>
+<td align="right">
+<nobr>531.852</nobr>
+</td>
+<td align="right">
+<nobr>55.332</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper2</td>
+<td align="right">
+<nobr>181007</nobr>
+</td>
+<td align="right">
+<nobr>29.978</nobr>
+</td>
+<td align="right">
+<nobr>473.323</nobr>
+</td>
+<td align="right">
+<nobr>59.339</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper3</td>
+<td align="right">
+<nobr>327328</nobr>
+</td>
+<td align="right">
+<nobr>29.977</nobr>
+</td>
+<td align="right">
+<nobr>484.5</nobr>
+</td>
+<td align="right">
+<nobr>62.006</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper4</td>
+<td align="right">
+<nobr>1360262</nobr>
+</td>
+<td align="right">
+<nobr>29.972</nobr>
+</td>
+<td align="right">
+<nobr>575.039</nobr>
+</td>
+<td align="right">
+<nobr>61.749</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper5</td>
+<td align="right">
+<nobr>1532480</nobr>
+</td>
+<td align="right">
+<nobr>29.98</nobr>
+</td>
+<td align="right">
+<nobr>582.734</nobr>
+</td>
+<td align="right">
+<nobr>60.842</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper6</td>
+<td align="right">
+<nobr>468678</nobr>
+</td>
+<td align="right">
+<nobr>29.972</nobr>
+</td>
+<td align="right">
+<nobr>568.245</nobr>
+</td>
+<td align="right">
+<nobr>53.906</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:pic</td>
+<td align="right">
+<nobr>58902</nobr>
+</td>
+<td align="right">
+<nobr>29.982</nobr>
+</td>
+<td align="right">
+<nobr>961.53</nobr>
+</td>
+<td align="right">
+<nobr>18.21</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progc</td>
+<td align="right">
+<nobr>456285</nobr>
+</td>
+<td align="right">
+<nobr>29.959</nobr>
+</td>
+<td align="right">
+<nobr>575.344</nobr>
+</td>
+<td align="right">
+<nobr>52.258</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progl</td>
+<td align="right">
+<nobr>306912</nobr>
+</td>
+<td align="right">
+<nobr>29.976</nobr>
+</td>
+<td align="right">
+<nobr>699.574</nobr>
+</td>
+<td align="right">
+<nobr>37.93</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progp</td>
+<td align="right">
+<nobr>490550</nobr>
+</td>
+<td align="right">
+<nobr>29.981</nobr>
+</td>
+<td align="right">
+<nobr>770.518</nobr>
+</td>
+<td align="right">
+<nobr>37.121</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:trans</td>
+<td align="right">
+<nobr>231807</nobr>
+</td>
+<td align="right">
+<nobr>29.981</nobr>
+</td>
+<td align="right">
+<nobr>690.865</nobr>
+</td>
+<td align="right">
+<nobr>38.058</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: LZF/block</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+        <p>LZF, block mode</p>
+    </div>
+</div>
+<p>
+<ul>
+<li>classPath: build/classes
+lib/lzf/*.jar</li>
+<li>driverClass: com.ning.jcbm.lzf.LzfDriver</li>
+<li>streaming: n/a</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+<th>
+<b>resultValueX</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">U:bib</td>
+<td align="right">
+<nobr>145865</nobr>
+</td>
+<td align="right">
+<nobr>29.955</nobr>
+</td>
+<td align="right">
+<nobr>516.691</nobr>
+</td>
+<td align="right">
+<nobr>53.879</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book1</td>
+<td align="right">
+<nobr>20428</nobr>
+</td>
+<td align="right">
+<nobr>29.971</nobr>
+</td>
+<td align="right">
+<nobr>499.715</nobr>
+</td>
+<td align="right">
+<nobr>62.646</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book2</td>
+<td align="right">
+<nobr>26675</nobr>
+</td>
+<td align="right">
+<nobr>29.981</nobr>
+</td>
+<td align="right">
+<nobr>518.32</nobr>
+</td>
+<td align="right">
+<nobr>54.603</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:geo</td>
+<td align="right">
+<nobr>117106</nobr>
+</td>
+<td align="right">
+<nobr>29.983</nobr>
+</td>
+<td align="right">
+<nobr>381.417</nobr>
+</td>
+<td align="right">
+<nobr>90.913</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:news</td>
+<td align="right">
+<nobr>39564</nobr>
+</td>
+<td align="right">
+<nobr>29.969</nobr>
+</td>
+<td align="right">
+<nobr>474.788</nobr>
+</td>
+<td align="right">
+<nobr>56.899</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj1</td>
+<td align="right">
+<nobr>966494</nobr>
+</td>
+<td align="right">
+<nobr>29.975</nobr>
+</td>
+<td align="right">
+<nobr>661.232</nobr>
+</td>
+<td align="right">
+<nobr>61.142</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj2</td>
+<td align="right">
+<nobr>63349</nobr>
+</td>
+<td align="right">
+<nobr>29.981</nobr>
+</td>
+<td align="right">
+<nobr>497.357</nobr>
+</td>
+<td align="right">
+<nobr>49.693</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper1</td>
+<td align="right">
+<nobr>340506</nobr>
+</td>
+<td align="right">
+<nobr>29.98</nobr>
+</td>
+<td align="right">
+<nobr>575.818</nobr>
+</td>
+<td align="right">
+<nobr>52.725</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper2</td>
+<td align="right">
+<nobr>203342</nobr>
+</td>
+<td align="right">
+<nobr>29.984</nobr>
+</td>
+<td align="right">
+<nobr>531.616</nobr>
+</td>
+<td align="right">
+<nobr>56.491</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper3</td>
+<td align="right">
+<nobr>365039</nobr>
+</td>
+<td align="right">
+<nobr>29.984</nobr>
+</td>
+<td align="right">
+<nobr>540.195</nobr>
+</td>
+<td align="right">
+<nobr>57.918</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper4</td>
+<td align="right">
+<nobr>1681777</nobr>
+</td>
+<td align="right">
+<nobr>29.958</nobr>
+</td>
+<td align="right">
+<nobr>711.293</nobr>
+</td>
+<td align="right">
+<nobr>58.513</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper5</td>
+<td align="right">
+<nobr>1943196</nobr>
+</td>
+<td align="right">
+<nobr>29.932</nobr>
+</td>
+<td align="right">
+<nobr>740.11</nobr>
+</td>
+<td align="right">
+<nobr>58.357</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper6</td>
+<td align="right">
+<nobr>510266</nobr>
+</td>
+<td align="right">
+<nobr>29.962</nobr>
+</td>
+<td align="right">
+<nobr>618.89</nobr>
+</td>
+<td align="right">
+<nobr>51.815</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:pic</td>
+<td align="right">
+<nobr>37428</nobr>
+</td>
+<td align="right">
+<nobr>29.977</nobr>
+</td>
+<td align="right">
+<nobr>611.102</nobr>
+</td>
+<td align="right">
+<nobr>16.283</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progc</td>
+<td align="right">
+<nobr>479104</nobr>
+</td>
+<td align="right">
+<nobr>29.975</nobr>
+</td>
+<td align="right">
+<nobr>603.783</nobr>
+</td>
+<td align="right">
+<nobr>50.307</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progl</td>
+<td align="right">
+<nobr>307391</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>700.705</nobr>
+</td>
+<td align="right">
+<nobr>37.134</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progp</td>
+<td align="right">
+<nobr>492565</nobr>
+</td>
+<td align="right">
+<nobr>29.978</nobr>
+</td>
+<td align="right">
+<nobr>773.767</nobr>
+</td>
+<td align="right">
+<nobr>35.77</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:trans</td>
+<td align="right">
+<nobr>221539</nobr>
+</td>
+<td align="right">
+<nobr>29.975</nobr>
+</td>
+<td align="right">
+<nobr>660.405</nobr>
+</td>
+<td align="right">
+<nobr>38.221</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: LZF/stream</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+        <p>LZF, streaming</p>
+    </div>
+</div>
+<p>
+<ul>
+<li>classPath: build/classes
+lib/lzf/*.jar</li>
+<li>driverClass: com.ning.jcbm.lzf.LzfDriver</li>
+<li>streaming: true</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+<th>
+<b>resultValueX</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">U:bib</td>
+<td align="right">
+<nobr>140729</nobr>
+</td>
+<td align="right">
+<nobr>29.98</nobr>
+</td>
+<td align="right">
+<nobr>498.072</nobr>
+</td>
+<td align="right">
+<nobr>53.879</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book1</td>
+<td align="right">
+<nobr>15827</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>387.133</nobr>
+</td>
+<td align="right">
+<nobr>62.646</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book2</td>
+<td align="right">
+<nobr>23147</nobr>
+</td>
+<td align="right">
+<nobr>29.954</nobr>
+</td>
+<td align="right">
+<nobr>450.169</nobr>
+</td>
+<td align="right">
+<nobr>54.603</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:geo</td>
+<td align="right">
+<nobr>107576</nobr>
+</td>
+<td align="right">
+<nobr>29.967</nobr>
+</td>
+<td align="right">
+<nobr>350.564</nobr>
+</td>
+<td align="right">
+<nobr>90.913</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:news</td>
+<td align="right">
+<nobr>35356</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>424.219</nobr>
+</td>
+<td align="right">
+<nobr>56.899</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj1</td>
+<td align="right">
+<nobr>843771</nobr>
+</td>
+<td align="right">
+<nobr>29.955</nobr>
+</td>
+<td align="right">
+<nobr>577.66</nobr>
+</td>
+<td align="right">
+<nobr>61.142</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj2</td>
+<td align="right">
+<nobr>57400</nobr>
+</td>
+<td align="right">
+<nobr>29.979</nobr>
+</td>
+<td align="right">
+<nobr>450.682</nobr>
+</td>
+<td align="right">
+<nobr>49.693</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper1</td>
+<td align="right">
+<nobr>294126</nobr>
+</td>
+<td align="right">
+<nobr>29.965</nobr>
+</td>
+<td align="right">
+<nobr>497.631</nobr>
+</td>
+<td align="right">
+<nobr>52.725</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper2</td>
+<td align="right">
+<nobr>175667</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>459.418</nobr>
+</td>
+<td align="right">
+<nobr>56.491</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper3</td>
+<td align="right">
+<nobr>311673</nobr>
+</td>
+<td align="right">
+<nobr>29.949</nobr>
+</td>
+<td align="right">
+<nobr>461.757</nobr>
+</td>
+<td align="right">
+<nobr>57.918</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper4</td>
+<td align="right">
+<nobr>1453967</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>614.626</nobr>
+</td>
+<td align="right">
+<nobr>58.513</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper5</td>
+<td align="right">
+<nobr>1676150</nobr>
+</td>
+<td align="right">
+<nobr>29.978</nobr>
+</td>
+<td align="right">
+<nobr>637.426</nobr>
+</td>
+<td align="right">
+<nobr>58.357</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper6</td>
+<td align="right">
+<nobr>434684</nobr>
+</td>
+<td align="right">
+<nobr>29.963</nobr>
+</td>
+<td align="right">
+<nobr>527.187</nobr>
+</td>
+<td align="right">
+<nobr>51.815</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:pic</td>
+<td align="right">
+<nobr>35403</nobr>
+</td>
+<td align="right">
+<nobr>29.964</nobr>
+</td>
+<td align="right">
+<nobr>578.277</nobr>
+</td>
+<td align="right">
+<nobr>16.283</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progc</td>
+<td align="right">
+<nobr>417446</nobr>
+</td>
+<td align="right">
+<nobr>29.961</nobr>
+</td>
+<td align="right">
+<nobr>526.325</nobr>
+</td>
+<td align="right">
+<nobr>50.307</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progl</td>
+<td align="right">
+<nobr>265711</nobr>
+</td>
+<td align="right">
+<nobr>29.975</nobr>
+</td>
+<td align="right">
+<nobr>605.683</nobr>
+</td>
+<td align="right">
+<nobr>37.134</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progp</td>
+<td align="right">
+<nobr>426856</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>670.638</nobr>
+</td>
+<td align="right">
+<nobr>35.77</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:trans</td>
+<td align="right">
+<nobr>193970</nobr>
+</td>
+<td align="right">
+<nobr>29.977</nobr>
+</td>
+<td align="right">
+<nobr>578.184</nobr>
+</td>
+<td align="right">
+<nobr>38.221</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: LZO-java/block</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+        <p>LZO-java, block mode</p>
+    </div>
+</div>
+<p>
+<ul>
+<li>classPath: build/classes
+lib/lzo-java/*.jar</li>
+<li>driverClass: com.ning.jcbm.lzo.LzoJavaDriver</li>
+<li>streaming: n/a</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+<th>
+<b>resultValueX</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">U:bib</td>
+<td align="right">
+<nobr>49213</nobr>
+</td>
+<td align="right">
+<nobr>29.957</nobr>
+</td>
+<td align="right">
+<nobr>174.312</nobr>
+</td>
+<td align="right">
+<nobr>52.3</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book1</td>
+<td align="right">
+<nobr>6081</nobr>
+</td>
+<td align="right">
+<nobr>29.968</nobr>
+</td>
+<td align="right">
+<nobr>148.768</nobr>
+</td>
+<td align="right">
+<nobr>64.587</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book2</td>
+<td align="right">
+<nobr>8322</nobr>
+</td>
+<td align="right">
+<nobr>29.967</nobr>
+</td>
+<td align="right">
+<nobr>161.778</nobr>
+</td>
+<td align="right">
+<nobr>54.299</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:geo</td>
+<td align="right">
+<nobr>154291</nobr>
+</td>
+<td align="right">
+<nobr>29.978</nobr>
+</td>
+<td align="right">
+<nobr>502.618</nobr>
+</td>
+<td align="right">
+<nobr>98.392</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:news</td>
+<td align="right">
+<nobr>14738</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>176.834</nobr>
+</td>
+<td align="right">
+<nobr>57.396</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj1</td>
+<td align="right">
+<nobr>509456</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>348.568</nobr>
+</td>
+<td align="right">
+<nobr>60.114</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj2</td>
+<td align="right">
+<nobr>26329</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>206.762</nobr>
+</td>
+<td align="right">
+<nobr>47.691</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper1</td>
+<td align="right">
+<nobr>101086</nobr>
+</td>
+<td align="right">
+<nobr>29.976</nobr>
+</td>
+<td align="right">
+<nobr>170.964</nobr>
+</td>
+<td align="right">
+<nobr>53.024</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper2</td>
+<td align="right">
+<nobr>60982</nobr>
+</td>
+<td align="right">
+<nobr>29.969</nobr>
+</td>
+<td align="right">
+<nobr>159.513</nobr>
+</td>
+<td align="right">
+<nobr>56.682</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper3</td>
+<td align="right">
+<nobr>108168</nobr>
+</td>
+<td align="right">
+<nobr>29.972</nobr>
+</td>
+<td align="right">
+<nobr>160.13</nobr>
+</td>
+<td align="right">
+<nobr>58.363</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper4</td>
+<td align="right">
+<nobr>524825</nobr>
+</td>
+<td align="right">
+<nobr>29.97</nobr>
+</td>
+<td align="right">
+<nobr>221.882</nobr>
+</td>
+<td align="right">
+<nobr>60.477</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper5</td>
+<td align="right">
+<nobr>615662</nobr>
+</td>
+<td align="right">
+<nobr>29.968</nobr>
+</td>
+<td align="right">
+<nobr>234.202</nobr>
+</td>
+<td align="right">
+<nobr>59.637</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper6</td>
+<td align="right">
+<nobr>148749</nobr>
+</td>
+<td align="right">
+<nobr>29.955</nobr>
+</td>
+<td align="right">
+<nobr>180.455</nobr>
+</td>
+<td align="right">
+<nobr>51.382</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:pic</td>
+<td align="right">
+<nobr>25669</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>419.16</nobr>
+</td>
+<td align="right">
+<nobr>16.991</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progc</td>
+<td align="right">
+<nobr>145559</nobr>
+</td>
+<td align="right">
+<nobr>29.959</nobr>
+</td>
+<td align="right">
+<nobr>183.537</nobr>
+</td>
+<td align="right">
+<nobr>49.966</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progl</td>
+<td align="right">
+<nobr>94979</nobr>
+</td>
+<td align="right">
+<nobr>29.98</nobr>
+</td>
+<td align="right">
+<nobr>216.463</nobr>
+</td>
+<td align="right">
+<nobr>37.346</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progp</td>
+<td align="right">
+<nobr>148677</nobr>
+</td>
+<td align="right">
+<nobr>29.96</nobr>
+</td>
+<td align="right">
+<nobr>233.695</nobr>
+</td>
+<td align="right">
+<nobr>34.899</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:trans</td>
+<td align="right">
+<nobr>83970</nobr>
+</td>
+<td align="right">
+<nobr>29.971</nobr>
+</td>
+<td align="right">
+<nobr>250.345</nobr>
+</td>
+<td align="right">
+<nobr>34.505</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: LZ4 HC (JNI)/block</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+        <p>LZ4 HC (JNI), block mode</p>
+    </div>
+</div>
+<p>
+<ul>
+<li>classPath: build/classes
+lib/lz4/*.jar</li>
+<li>driverClass: com.ning.jcbm.lz4.Lz4HcJNIDriver</li>
+<li>streaming: n/a</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+<th>
+<b>resultValueX</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">U:bib</td>
+<td align="right">
+<nobr>468326</nobr>
+</td>
+<td align="right">
+<nobr>29.979</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>36.093</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book1</td>
+<td align="right">
+<nobr>55483</nobr>
+</td>
+<td align="right">
+<nobr>29.971</nobr>
+</td>
+<td align="right">
+<nobr>1357.247</nobr>
+</td>
+<td align="right">
+<nobr>47.247</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book2</td>
+<td align="right">
+<nobr>77012</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>1496.83</nobr>
+</td>
+<td align="right">
+<nobr>38.875</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:geo</td>
+<td align="right">
+<nobr>459642</nobr>
+</td>
+<td align="right">
+<nobr>29.962</nobr>
+</td>
+<td align="right">
+<nobr>1498.104</nobr>
+</td>
+<td align="right">
+<nobr>83.655</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:news</td>
+<td align="right">
+<nobr>120555</nobr>
+</td>
+<td align="right">
+<nobr>29.976</nobr>
+</td>
+<td align="right">
+<nobr>1446.383</nobr>
+</td>
+<td align="right">
+<nobr>44.002</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj1</td>
+<td align="right">
+<nobr>3536501</nobr>
+</td>
+<td align="right">
+<nobr>29.94</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>57.445</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj2</td>
+<td align="right">
+<nobr>198450</nobr>
+</td>
+<td align="right">
+<nobr>29.984</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>39.334</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper1</td>
+<td align="right">
+<nobr>991705</nobr>
+</td>
+<td align="right">
+<nobr>29.977</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>43.538</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper2</td>
+<td align="right">
+<nobr>594055</nobr>
+</td>
+<td align="right">
+<nobr>29.979</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>43.846</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper3</td>
+<td align="right">
+<nobr>1023826</nobr>
+</td>
+<td align="right">
+<nobr>29.984</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>49.222</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper4</td>
+<td align="right">
+<nobr>3836818</nobr>
+</td>
+<td align="right">
+<nobr>29.982</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>56.255</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper5</td>
+<td align="right">
+<nobr>4323727</nobr>
+</td>
+<td align="right">
+<nobr>29.982</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>56.266</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper6</td>
+<td align="right">
+<nobr>1412119</nobr>
+</td>
+<td align="right">
+<nobr>29.983</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>44.821</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:pic</td>
+<td align="right">
+<nobr>174024</nobr>
+</td>
+<td align="right">
+<nobr>29.938</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>13.094</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progc</td>
+<td align="right">
+<nobr>1396486</nobr>
+</td>
+<td align="right">
+<nobr>29.971</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>43.549</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progl</td>
+<td align="right">
+<nobr>840566</nobr>
+</td>
+<td align="right">
+<nobr>29.972</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>28.953</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progp</td>
+<td align="right">
+<nobr>1504959</nobr>
+</td>
+<td align="right">
+<nobr>29.978</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>29.101</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:trans</td>
+<td align="right">
+<nobr>700566</nobr>
+</td>
+<td align="right">
+<nobr>29.975</nobr>
+</td>
+<td align="right">
+<nobr>1499.9</nobr>
+</td>
+<td align="right">
+<nobr>24.753</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: QuickLZ/L3/block</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+        <p>QuickLZ (level 3), block mode
+</p>
+    </div>
+</div>
+<p>
+<ul>
+<li>classPath: build/classes</li>
+<li>driverClass: com.ning.jcbm.quicklz.QuickLZDriver3</li>
+<li>streaming: n/a</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+<th>
+<b>resultValueX</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">U:bib</td>
+<td align="right">
+<nobr>56434</nobr>
+</td>
+<td align="right">
+<nobr>29.977</nobr>
+</td>
+<td align="right">
+<nobr>199.757</nobr>
+</td>
+<td align="right">
+<nobr>39.534</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book1</td>
+<td align="right">
+<nobr>7049</nobr>
+</td>
+<td align="right">
+<nobr>29.981</nobr>
+</td>
+<td align="right">
+<nobr>172.378</nobr>
+</td>
+<td align="right">
+<nobr>53.581</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book2</td>
+<td align="right">
+<nobr>9619</nobr>
+</td>
+<td align="right">
+<nobr>29.984</nobr>
+</td>
+<td align="right">
+<nobr>186.885</nobr>
+</td>
+<td align="right">
+<nobr>42.955</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:geo</td>
+<td align="right">
+<nobr>48987</nobr>
+</td>
+<td align="right">
+<nobr>29.975</nobr>
+</td>
+<td align="right">
+<nobr>159.595</nobr>
+</td>
+<td align="right">
+<nobr>79.199</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:news</td>
+<td align="right">
+<nobr>14798</nobr>
+</td>
+<td align="right">
+<nobr>29.978</nobr>
+</td>
+<td align="right">
+<nobr>177.529</nobr>
+</td>
+<td align="right">
+<nobr>45.733</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj1</td>
+<td align="right">
+<nobr>302767</nobr>
+</td>
+<td align="right">
+<nobr>29.982</nobr>
+</td>
+<td align="right">
+<nobr>207.097</nobr>
+</td>
+<td align="right">
+<nobr>54.157</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj2</td>
+<td align="right">
+<nobr>24421</nobr>
+</td>
+<td align="right">
+<nobr>29.952</nobr>
+</td>
+<td align="right">
+<nobr>191.914</nobr>
+</td>
+<td align="right">
+<nobr>39.541</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper1</td>
+<td align="right">
+<nobr>103514</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>175.086</nobr>
+</td>
+<td align="right">
+<nobr>44.164</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper2</td>
+<td align="right">
+<nobr>65021</nobr>
+</td>
+<td align="right">
+<nobr>29.976</nobr>
+</td>
+<td align="right">
+<nobr>170.041</nobr>
+</td>
+<td align="right">
+<nobr>47.04</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper3</td>
+<td align="right">
+<nobr>110449</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>163.505</nobr>
+</td>
+<td align="right">
+<nobr>50.217</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper4</td>
+<td align="right">
+<nobr>475552</nobr>
+</td>
+<td align="right">
+<nobr>29.968</nobr>
+</td>
+<td align="right">
+<nobr>201.062</nobr>
+</td>
+<td align="right">
+<nobr>52.928</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper5</td>
+<td align="right">
+<nobr>564678</nobr>
+</td>
+<td align="right">
+<nobr>29.972</nobr>
+</td>
+<td align="right">
+<nobr>214.784</nobr>
+</td>
+<td align="right">
+<nobr>52.434</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper6</td>
+<td align="right">
+<nobr>146972</nobr>
+</td>
+<td align="right">
+<nobr>29.979</nobr>
+</td>
+<td align="right">
+<nobr>178.158</nobr>
+</td>
+<td align="right">
+<nobr>43.923</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:pic</td>
+<td align="right">
+<nobr>23155</nobr>
+</td>
+<td align="right">
+<nobr>29.977</nobr>
+</td>
+<td align="right">
+<nobr>378.058</nobr>
+</td>
+<td align="right">
+<nobr>14.781</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progc</td>
+<td align="right">
+<nobr>144063</nobr>
+</td>
+<td align="right">
+<nobr>29.962</nobr>
+</td>
+<td align="right">
+<nobr>181.631</nobr>
+</td>
+<td align="right">
+<nobr>42.041</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progl</td>
+<td align="right">
+<nobr>101628</nobr>
+</td>
+<td align="right">
+<nobr>29.97</nobr>
+</td>
+<td align="right">
+<nobr>231.698</nobr>
+</td>
+<td align="right">
+<nobr>28.846</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progp</td>
+<td align="right">
+<nobr>152285</nobr>
+</td>
+<td align="right">
+<nobr>29.969</nobr>
+</td>
+<td align="right">
+<nobr>239.288</nobr>
+</td>
+<td align="right">
+<nobr>28.237</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:trans</td>
+<td align="right">
+<nobr>89382</nobr>
+</td>
+<td align="right">
+<nobr>29.965</nobr>
+</td>
+<td align="right">
+<nobr>266.529</nobr>
+</td>
+<td align="right">
+<nobr>24.868</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: Gzip/JDK/stream</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+        <p>JDK Gzip/Deflate, streaming
+</p>
+    </div>
+</div>
+<p>
+<ul>
+<li>classPath: build/classes</li>
+<li>driverClass: com.ning.jcbm.gzip.JDKGzipDriver</li>
+<li>streaming: true</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+<th>
+<b>resultValueX</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">U:bib</td>
+<td align="right">
+<nobr>44529</nobr>
+</td>
+<td align="right">
+<nobr>29.965</nobr>
+</td>
+<td align="right">
+<nobr>157.677</nobr>
+</td>
+<td align="right">
+<nobr>31.657</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book1</td>
+<td align="right">
+<nobr>5515</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>134.899</nobr>
+</td>
+<td align="right">
+<nobr>40.789</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book2</td>
+<td align="right">
+<nobr>7813</nobr>
+</td>
+<td align="right">
+<nobr>29.968</nobr>
+</td>
+<td align="right">
+<nobr>151.882</nobr>
+</td>
+<td align="right">
+<nobr>33.831</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:geo</td>
+<td align="right">
+<nobr>28398</nobr>
+</td>
+<td align="right">
+<nobr>29.97</nobr>
+</td>
+<td align="right">
+<nobr>92.534</nobr>
+</td>
+<td align="right">
+<nobr>66.823</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:news</td>
+<td align="right">
+<nobr>11180</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>134.148</nobr>
+</td>
+<td align="right">
+<nobr>38.396</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj1</td>
+<td align="right">
+<nobr>178495</nobr>
+</td>
+<td align="right">
+<nobr>29.976</nobr>
+</td>
+<td align="right">
+<nobr>122.118</nobr>
+</td>
+<td align="right">
+<nobr>47.949</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj2</td>
+<td align="right">
+<nobr>19048</nobr>
+</td>
+<td align="right">
+<nobr>29.965</nobr>
+</td>
+<td align="right">
+<nobr>149.624</nobr>
+</td>
+<td align="right">
+<nobr>33.02</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper1</td>
+<td align="right">
+<nobr>86464</nobr>
+</td>
+<td align="right">
+<nobr>29.963</nobr>
+</td>
+<td align="right">
+<nobr>146.299</nobr>
+</td>
+<td align="right">
+<nobr>34.898</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper2</td>
+<td align="right">
+<nobr>55603</nobr>
+</td>
+<td align="right">
+<nobr>29.971</nobr>
+</td>
+<td align="right">
+<nobr>145.434</nobr>
+</td>
+<td align="right">
+<nobr>36.198</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper3</td>
+<td align="right">
+<nobr>92177</nobr>
+</td>
+<td align="right">
+<nobr>29.971</nobr>
+</td>
+<td align="right">
+<nobr>136.464</nobr>
+</td>
+<td align="right">
+<nobr>38.843</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper4</td>
+<td align="right">
+<nobr>314488</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>132.939</nobr>
+</td>
+<td align="right">
+<nobr>41.48</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper5</td>
+<td align="right">
+<nobr>355339</nobr>
+</td>
+<td align="right">
+<nobr>29.976</nobr>
+</td>
+<td align="right">
+<nobr>135.14</nobr>
+</td>
+<td align="right">
+<nobr>41.576</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper6</td>
+<td align="right">
+<nobr>119132</nobr>
+</td>
+<td align="right">
+<nobr>29.971</nobr>
+</td>
+<td align="right">
+<nobr>144.447</nobr>
+</td>
+<td align="right">
+<nobr>34.893</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:pic</td>
+<td align="right">
+<nobr>19482</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>318.134</nobr>
+</td>
+<td align="right">
+<nobr>11.001</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progc</td>
+<td align="right">
+<nobr>115644</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>145.748</nobr>
+</td>
+<td align="right">
+<nobr>33.67</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progl</td>
+<td align="right">
+<nobr>88022</nobr>
+</td>
+<td align="right">
+<nobr>29.969</nobr>
+</td>
+<td align="right">
+<nobr>200.684</nobr>
+</td>
+<td align="right">
+<nobr>22.68</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progp</td>
+<td align="right">
+<nobr>126727</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>199.106</nobr>
+</td>
+<td align="right">
+<nobr>22.726</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:trans</td>
+<td align="right">
+<nobr>75554</nobr>
+</td>
+<td align="right">
+<nobr>29.966</nobr>
+</td>
+<td align="right">
+<nobr>225.292</nobr>
+</td>
+<td align="right">
+<nobr>20.32</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: BZip2/stream</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+        <p>Commons-compress BZip2 implementation</p>
+    </div>
+</div>
+<p>
+<ul>
+<li>classPath: build/classes
+lib/jakarta/*.jar</li>
+<li>driverClass: com.ning.jcbm.bzip2.BZip2Driver</li>
+<li>streaming: true</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+<th>
+<b>resultValueX</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">U:bib</td>
+<td align="right">
+<nobr>4697</nobr>
+</td>
+<td align="right">
+<nobr>29.977</nobr>
+</td>
+<td align="right">
+<nobr>16.626</nobr>
+</td>
+<td align="right">
+<nobr>24.615</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book1</td>
+<td align="right">
+<nobr>580</nobr>
+</td>
+<td align="right">
+<nobr>29.984</nobr>
+</td>
+<td align="right">
+<nobr>14.182</nobr>
+</td>
+<td align="right">
+<nobr>33.322</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book2</td>
+<td align="right">
+<nobr>808</nobr>
+</td>
+<td align="right">
+<nobr>29.979</nobr>
+</td>
+<td align="right">
+<nobr>15.701</nobr>
+</td>
+<td align="right">
+<nobr>28.307</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:geo</td>
+<td align="right">
+<nobr>3889</nobr>
+</td>
+<td align="right">
+<nobr>29.978</nobr>
+</td>
+<td align="right">
+<nobr>12.669</nobr>
+</td>
+<td align="right">
+<nobr>55.537</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:news</td>
+<td align="right">
+<nobr>1187</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>14.242</nobr>
+</td>
+<td align="right">
+<nobr>33.564</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj1</td>
+<td align="right">
+<nobr>19305</nobr>
+</td>
+<td align="right">
+<nobr>29.977</nobr>
+</td>
+<td align="right">
+<nobr>13.207</nobr>
+</td>
+<td align="right">
+<nobr>50.219</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj2</td>
+<td align="right">
+<nobr>2123</nobr>
+</td>
+<td align="right">
+<nobr>29.979</nobr>
+</td>
+<td align="right">
+<nobr>16.669</nobr>
+</td>
+<td align="right">
+<nobr>31.825</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper1</td>
+<td align="right">
+<nobr>9994</nobr>
+</td>
+<td align="right">
+<nobr>29.969</nobr>
+</td>
+<td align="right">
+<nobr>16.907</nobr>
+</td>
+<td align="right">
+<nobr>31.156</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper2</td>
+<td align="right">
+<nobr>6011</nobr>
+</td>
+<td align="right">
+<nobr>29.969</nobr>
+</td>
+<td align="right">
+<nobr>15.723</nobr>
+</td>
+<td align="right">
+<nobr>30.506</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper3</td>
+<td align="right">
+<nobr>10817</nobr>
+</td>
+<td align="right">
+<nobr>29.967</nobr>
+</td>
+<td align="right">
+<nobr>16.016</nobr>
+</td>
+<td align="right">
+<nobr>34.086</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper4</td>
+<td align="right">
+<nobr>32963</nobr>
+</td>
+<td align="right">
+<nobr>29.969</nobr>
+</td>
+<td align="right">
+<nobr>13.936</nobr>
+</td>
+<td align="right">
+<nobr>39.049</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper5</td>
+<td align="right">
+<nobr>35829</nobr>
+</td>
+<td align="right">
+<nobr>29.984</nobr>
+</td>
+<td align="right">
+<nobr>13.623</nobr>
+</td>
+<td align="right">
+<nobr>40.43</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper6</td>
+<td align="right">
+<nobr>13730</nobr>
+</td>
+<td align="right">
+<nobr>29.972</nobr>
+</td>
+<td align="right">
+<nobr>16.647</nobr>
+</td>
+<td align="right">
+<nobr>32.295</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:pic</td>
+<td align="right">
+<nobr>2457</nobr>
+</td>
+<td align="right">
+<nobr>29.963</nobr>
+</td>
+<td align="right">
+<nobr>40.135</nobr>
+</td>
+<td align="right">
+<nobr>9.696</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progc</td>
+<td align="right">
+<nobr>13290</nobr>
+</td>
+<td align="right">
+<nobr>29.971</nobr>
+</td>
+<td align="right">
+<nobr>16.751</nobr>
+</td>
+<td align="right">
+<nobr>31.648</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progl</td>
+<td align="right">
+<nobr>8922</nobr>
+</td>
+<td align="right">
+<nobr>29.975</nobr>
+</td>
+<td align="right">
+<nobr>20.337</nobr>
+</td>
+<td align="right">
+<nobr>21.743</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progp</td>
+<td align="right">
+<nobr>13227</nobr>
+</td>
+<td align="right">
+<nobr>29.964</nobr>
+</td>
+<td align="right">
+<nobr>20.788</nobr>
+</td>
+<td align="right">
+<nobr>21.748</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:trans</td>
+<td align="right">
+<nobr>6963</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>20.757</nobr>
+</td>
+<td align="right">
+<nobr>19.13</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: LZMA-orig/block</h2>
+<div class="description">
+<div xmlns="" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.sun.com/japex/testSuite">
+        <p>7Zip's LZMA, block mode</p>
+    </div>
+</div>
+<p>
+<ul>
+<li>classPath: build/classes
+lib/lzma/*.jar</li>
+<li>driverClass: com.ning.jcbm.lzma.LzmaDriver</li>
+<li>streaming: n/a</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+<th>
+<b>resultValueX</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">U:bib</td>
+<td align="right">
+<nobr>6755</nobr>
+</td>
+<td align="right">
+<nobr>29.979</nobr>
+</td>
+<td align="right">
+<nobr>23.909</nobr>
+</td>
+<td align="right">
+<nobr>27.453</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book1</td>
+<td align="right">
+<nobr>935</nobr>
+</td>
+<td align="right">
+<nobr>29.99</nobr>
+</td>
+<td align="right">
+<nobr>22.857</nobr>
+</td>
+<td align="right">
+<nobr>33.96</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:book2</td>
+<td align="right">
+<nobr>1336</nobr>
+</td>
+<td align="right">
+<nobr>29.98</nobr>
+</td>
+<td align="right">
+<nobr>25.961</nobr>
+</td>
+<td align="right">
+<nobr>27.794</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:geo</td>
+<td align="right">
+<nobr>3615</nobr>
+</td>
+<td align="right">
+<nobr>29.97</nobr>
+</td>
+<td align="right">
+<nobr>11.779</nobr>
+</td>
+<td align="right">
+<nobr>51.952</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:news</td>
+<td align="right">
+<nobr>1810</nobr>
+</td>
+<td align="right">
+<nobr>29.974</nobr>
+</td>
+<td align="right">
+<nobr>21.717</nobr>
+</td>
+<td align="right">
+<nobr>31.514</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj1</td>
+<td align="right">
+<nobr>21874</nobr>
+</td>
+<td align="right">
+<nobr>29.973</nobr>
+</td>
+<td align="right">
+<nobr>14.966</nobr>
+</td>
+<td align="right">
+<nobr>43.694</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:obj2</td>
+<td align="right">
+<nobr>3088</nobr>
+</td>
+<td align="right">
+<nobr>29.979</nobr>
+</td>
+<td align="right">
+<nobr>24.246</nobr>
+</td>
+<td align="right">
+<nobr>24.871</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper1</td>
+<td align="right">
+<nobr>12159</nobr>
+</td>
+<td align="right">
+<nobr>29.964</nobr>
+</td>
+<td align="right">
+<nobr>20.573</nobr>
+</td>
+<td align="right">
+<nobr>32.43</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper2</td>
+<td align="right">
+<nobr>8011</nobr>
+</td>
+<td align="right">
+<nobr>29.975</nobr>
+</td>
+<td align="right">
+<nobr>20.951</nobr>
+</td>
+<td align="right">
+<nobr>33.086</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper3</td>
+<td align="right">
+<nobr>12482</nobr>
+</td>
+<td align="right">
+<nobr>29.957</nobr>
+</td>
+<td align="right">
+<nobr>18.488</nobr>
+</td>
+<td align="right">
+<nobr>36.61</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper4</td>
+<td align="right">
+<nobr>37792</nobr>
+</td>
+<td align="right">
+<nobr>29.971</nobr>
+</td>
+<td align="right">
+<nobr>15.977</nobr>
+</td>
+<td align="right">
+<nobr>40.351</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper5</td>
+<td align="right">
+<nobr>41634</nobr>
+</td>
+<td align="right">
+<nobr>29.966</nobr>
+</td>
+<td align="right">
+<nobr>15.839</nobr>
+</td>
+<td align="right">
+<nobr>40.572</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:paper6</td>
+<td align="right">
+<nobr>16437</nobr>
+</td>
+<td align="right">
+<nobr>29.966</nobr>
+</td>
+<td align="right">
+<nobr>19.933</nobr>
+</td>
+<td align="right">
+<nobr>32.712</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:pic</td>
+<td align="right">
+<nobr>4213</nobr>
+</td>
+<td align="right">
+<nobr>29.971</nobr>
+</td>
+<td align="right">
+<nobr>68.801</nobr>
+</td>
+<td align="right">
+<nobr>7.96</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progc</td>
+<td align="right">
+<nobr>16148</nobr>
+</td>
+<td align="right">
+<nobr>29.972</nobr>
+</td>
+<td align="right">
+<nobr>20.353</nobr>
+</td>
+<td align="right">
+<nobr>31.597</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progl</td>
+<td align="right">
+<nobr>13361</nobr>
+</td>
+<td align="right">
+<nobr>29.975</nobr>
+</td>
+<td align="right">
+<nobr>30.456</nobr>
+</td>
+<td align="right">
+<nobr>20.829</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:progp</td>
+<td align="right">
+<nobr>19240</nobr>
+</td>
+<td align="right">
+<nobr>29.967</nobr>
+</td>
+<td align="right">
+<nobr>30.235</nobr>
+</td>
+<td align="right">
+<nobr>20.881</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">U:trans</td>
+<td align="right">
+<nobr>11572</nobr>
+</td>
+<td align="right">
+<nobr>29.971</nobr>
+</td>
+<td align="right">
+<nobr>34.5</nobr>
+</td>
+<td align="right">
+<nobr>17.76</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Results Per Test</h2>
+<br/>
+<center>
+<img src="testcase0.jpg"/>
+</center>
+<br/>
+<br/>
+<center>
+<img src="testcase1.jpg"/>
+</center>
+<br/>
+<br/>
+<center>
+<img src="testcase2.jpg"/>
+</center>
+<br/>
+<br/>
+<br/>
+<small>
+<hr/>
+<font size="-2">
+                        Generated using <a href="https://japex.dev.java.net">Japex</a> version 
+                        1.2.2</font>
+</small>
+</body>
+</html>
