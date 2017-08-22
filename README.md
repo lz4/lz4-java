@@ -71,8 +71,8 @@ int decompressedLength2 = decompressor2.decompress(compressed, 0, compressedLeng
 
 # xxhash Java
 
-xxhash hashing for Java, based on Yann Collet's work available at
-http://code.google.com/p/xxhash/. xxhash is a non-cryptographic, extremly fast
+xxhash hashing for Java, based on Yann Collet's work available at https://github.com/Cyan4973/xxHash (old version
+http://code.google.com/p/xxhash/). xxhash is a non-cryptographic, extremly fast
 and high-quality ([SMHasher](http://code.google.com/p/smhasher/wiki/SMHasher)
 score of 10) hash function.
 
