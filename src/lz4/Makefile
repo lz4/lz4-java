@@ -1,19 +1,19 @@
 # ################################################################
 # LZ4 library - Makefile
-# Copyright (C) Yann Collet 2011-2014
+# Copyright (C) Yann Collet 2011-2016
 # All rights reserved.
-# 
+#
 # BSD license
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
-# 
+#
 # * Redistributions of source code must retain the above copyright notice, this
 #   list of conditions and the following disclaimer.
-# 
+#
 # * Redistributions in binary form must reproduce the above copyright notice, this
 #   list of conditions and the following disclaimer in the documentation and/or
 #   other materials provided with the distribution.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -24,38 +24,33 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# 
+#
 # You can contact the author at :
-#  - LZ4 source repository : http://code.google.com/p/lz4/
+#  - LZ4 source repository : https://github.com/Cyan4973/lz4
 #  - LZ4 forum froup : https://groups.google.com/forum/#!forum/lz4c
 # ################################################################
 
 # Version numbers
-VERSION=123
-export RELEASE=r$(VERSION)
-LIBVER_MAJOR=`sed -n '/define LZ4_VERSION_MAJOR/s/.*[[:blank:]]\([0-9][0-9]*\).*/\1/p' < lz4.h`
-LIBVER_MINOR=`sed -n '/define LZ4_VERSION_MINOR/s/.*[[:blank:]]\([0-9][0-9]*\).*/\1/p' < lz4.h`
-LIBVER_PATCH=`sed -n '/define LZ4_VERSION_RELEASE/s/.*[[:blank:]]\([0-9][0-9]*\).*/\1/p' < lz4.h`
-LIBVER=$(LIBVER_MAJOR).$(LIBVER_MINOR).$(LIBVER_PATCH)
+LIBVER_MAJOR_SCRIPT:=`sed -n '/define LZ4_VERSION_MAJOR/s/.*[[:blank:]]\([0-9][0-9]*\).*/\1/p' < ./lz4.h`
+LIBVER_MINOR_SCRIPT:=`sed -n '/define LZ4_VERSION_MINOR/s/.*[[:blank:]]\([0-9][0-9]*\).*/\1/p' < ./lz4.h`
+LIBVER_PATCH_SCRIPT:=`sed -n '/define LZ4_VERSION_RELEASE/s/.*[[:blank:]]\([0-9][0-9]*\).*/\1/p' < ./lz4.h`
+LIBVER_SCRIPT:= $(LIBVER_MAJOR_SCRIPT).$(LIBVER_MINOR_SCRIPT).$(LIBVER_PATCH_SCRIPT)
+LIBVER_MAJOR := $(shell echo $(LIBVER_MAJOR_SCRIPT))
+LIBVER_MINOR := $(shell echo $(LIBVER_MINOR_SCRIPT))
+LIBVER_PATCH := $(shell echo $(LIBVER_PATCH_SCRIPT))
+LIBVER  := $(shell echo $(LIBVER_SCRIPT))
 
-DESTDIR?=
-PREFIX ?= /usr
-CC     := $(CC)
-CFLAGS ?= -O3
-CFLAGS += -I. -std=c99 -Wall -Wextra -Wundef -Wshadow -Wstrict-prototypes -DLZ4_VERSION=\"$(RELEASE)\"
+BUILD_STATIC:= yes
 
-LIBDIR?= $(PREFIX)/lib
-INCLUDEDIR=$(PREFIX)/include
-PRGDIR = programs
-DISTRIBNAME=lz4-$(RELEASE).tar.gz
+CPPFLAGS+= -DXXH_NAMESPACE=LZ4_
+CFLAGS  ?= -O3
+DEBUGFLAGS:=-g -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow \
+           -Wswitch-enum -Wdeclaration-after-statement -Wstrict-prototypes -Wundef \
+           -Wpointer-arith -Wstrict-aliasing=1
+CFLAGS  += $(MOREFLAGS)
+FLAGS    = $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)
 
 
-# Define *.exe as extension for Windows systems
-ifneq (,$(filter Windows%,$(OS)))
-EXT =.exe
-else
-EXT =
-endif
 
 # OS X linker doesn't support -soname, and use different extension
 # see : https://developer.apple.com/library/mac/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/DynamicLibraryDesignGuidelines.html
@@ -71,99 +66,105 @@ else
 	SHARED_EXT_VER = $(SHARED_EXT).$(LIBVER)
 endif
 
-TEXT = lz4.c lz4.h lz4hc.c lz4hc.h \
-	liblz4.pc.in Makefile \
-	lz4_format_description.txt NEWS LICENSE README.md \
-	cmake_unofficial/CMakeLists.txt \
-	$(PRGDIR)/fullbench.c $(PRGDIR)/lz4cli.c \
-	$(PRGDIR)/datagen.c $(PRGDIR)/fuzzer.c \
-	$(PRGDIR)/lz4io.c $(PRGDIR)/lz4io.h \
-	$(PRGDIR)/bench.c $(PRGDIR)/bench.h \
-	$(PRGDIR)/xxhash.c $(PRGDIR)/xxhash.h \
-	$(PRGDIR)/lz4.1 $(PRGDIR)/lz4c.1 $(PRGDIR)/lz4cat.1 \
-	$(PRGDIR)/Makefile $(PRGDIR)/COPYING
-NONTEXT = LZ4_Streaming_Format.odt
-SOURCES = $(TEXT) $(NONTEXT)
+LIBLZ4 = liblz4.$(SHARED_EXT_VER)
 
+default: lib-release
 
-default: liblz4
-	@cd $(PRGDIR); $(MAKE) -e
+lib-release: liblz4.a liblz4
 
-all: liblz4 lz4programs
+lib: CFLAGS += $(DEBUGFLAGS)
+lib: lib-release
 
-lz4programs: lz4.c lz4hc.c
-	@cd $(PRGDIR); $(MAKE) -e all
+all: lib
 
-liblz4: lz4.c lz4hc.c
+all32: CFLAGS+=-m32
+all32: all
+
+liblz4.a: *.c
+ifeq ($(BUILD_STATIC),yes)
 	@echo compiling static library
 	@$(CC) $(CPPFLAGS) $(CFLAGS) -c $^
-	@$(AR) rcs liblz4.a lz4.o lz4hc.o
-	@echo compiling dynamic library
-	@$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared $^ -fPIC $(SONAME_FLAGS) -o $@.$(SHARED_EXT_VER)
+	@$(AR) rcs $@ *.o
+endif
+
+$(LIBLZ4): *.c
+	@echo compiling dynamic library $(LIBVER)
+ifneq (,$(filter Windows%,$(OS)))
+	@$(CC) $(FLAGS) -DLZ4_DLL_EXPORT=1 -shared $^ -o dll\$@.dll
+	dlltool -D dll\liblz4.dll -d dll\liblz4.def -l dll\liblz4.lib
+else
+	@$(CC) $(FLAGS) -shared $^ -fPIC $(SONAME_FLAGS) -o $@
 	@echo creating versioned links
-	@ln -sf $@.$(SHARED_EXT_VER) $@.$(SHARED_EXT_MAJOR)
-	@ln -sf $@.$(SHARED_EXT_VER) $@.$(SHARED_EXT)
+	@ln -sf $@ liblz4.$(SHARED_EXT_MAJOR)
+	@ln -sf $@ liblz4.$(SHARED_EXT)
+endif
+
+liblz4: $(LIBLZ4)
 
 clean:
-	@rm -f core *.o *.a *.$(SHARED_EXT) *.$(SHARED_EXT).* $(DISTRIBNAME) *.sha1 liblz4.pc
-	@cd $(PRGDIR); $(MAKE) clean
-	@cd examples; $(MAKE) clean
-	@echo Cleaning completed
+	@$(RM) core *.o liblz4.pc dll/liblz4.dll dll/liblz4.lib
+	@$(RM) *.a *.$(SHARED_EXT) *.$(SHARED_EXT_MAJOR) *.$(SHARED_EXT_VER)
+	@echo Cleaning library completed
 
 
-#------------------------------------------------------------------------
-#make install is validated only for Linux, OSX, kFreeBSD and Hurd targets
-ifneq (,$(filter $(shell uname),Linux Darwin GNU/kFreeBSD GNU))
+#-----------------------------------------------------------------------------
+# make install is validated only for Linux, OSX, BSD, Hurd and Solaris targets
+#-----------------------------------------------------------------------------
+ifneq (,$(filter $(shell uname),Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD NetBSD DragonFly SunOS))
+
+ifneq (,$(filter $(shell uname),SunOS))
+INSTALL ?= ginstall
+else
+INSTALL ?= install
+endif
+
+PREFIX     ?= /usr/local
+DESTDIR    ?=
+LIBDIR     ?= $(PREFIX)/lib
+INCLUDEDIR ?= $(PREFIX)/include
+
+ifneq (,$(filter $(shell uname),OpenBSD FreeBSD NetBSD DragonFly))
+PKGCONFIGDIR ?= $(PREFIX)/libdata/pkgconfig
+else
+PKGCONFIGDIR ?= $(LIBDIR)/pkgconfig
+endif
+
+INSTALL_LIB  ?= $(INSTALL) -m 755
+INSTALL_DATA ?= $(INSTALL) -m 644
 
 liblz4.pc: liblz4.pc.in Makefile
 	@echo creating pkgconfig
 	@sed -e 's|@PREFIX@|$(PREFIX)|' \
-            -e 's|@LIBDIR@|$(LIBDIR)|' \
-            -e 's|@INCLUDEDIR@|$(INCLUDEDIR)|' \
-            -e 's|@VERSION@|$(VERSION)|' \
-             $< >$@
+         -e 's|@LIBDIR@|$(LIBDIR)|' \
+         -e 's|@INCLUDEDIR@|$(INCLUDEDIR)|' \
+         -e 's|@VERSION@|$(LIBVER)|' \
+          $< >$@
 
-install: liblz4 liblz4.pc
-	@install -d -m 755 $(DESTDIR)$(LIBDIR)/pkgconfig/ $(DESTDIR)$(INCLUDEDIR)/
-	@install -m 755 liblz4.$(SHARED_EXT_VER) $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT_VER)
-	@cp -a liblz4.$(SHARED_EXT_MAJOR) $(DESTDIR)$(LIBDIR)
-	@cp -a liblz4.$(SHARED_EXT) $(DESTDIR)$(LIBDIR)
-	@cp -a liblz4.pc $(DESTDIR)$(LIBDIR)/pkgconfig/
-	@install -m 644 liblz4.a $(DESTDIR)$(LIBDIR)/liblz4.a
-	@install -m 644 lz4.h $(DESTDIR)$(INCLUDEDIR)/lz4.h
-	@install -m 644 lz4hc.h $(DESTDIR)$(INCLUDEDIR)/lz4hc.h
-	@echo lz4 static and shared library installed
-	@cd $(PRGDIR); $(MAKE) -e install
+install: lib liblz4.pc
+	@$(INSTALL) -d -m 755 $(DESTDIR)$(PKGCONFIGDIR)/ $(DESTDIR)$(INCLUDEDIR)/
+	@$(INSTALL_DATA) liblz4.pc $(DESTDIR)$(PKGCONFIGDIR)/
+	@echo Installing libraries
+ifeq ($(BUILD_STATIC),yes)
+	@$(INSTALL_LIB) liblz4.a $(DESTDIR)$(LIBDIR)/liblz4.a
+endif
+	@$(INSTALL_LIB) liblz4.$(SHARED_EXT_VER) $(DESTDIR)$(LIBDIR)
+	@ln -sf liblz4.$(SHARED_EXT_VER) $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT_MAJOR)
+	@ln -sf liblz4.$(SHARED_EXT_VER) $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT)
+	@echo Installing includes
+	@$(INSTALL_DATA) lz4.h $(DESTDIR)$(INCLUDEDIR)/lz4.h
+	@$(INSTALL_DATA) lz4hc.h $(DESTDIR)$(INCLUDEDIR)/lz4hc.h
+	@$(INSTALL_DATA) lz4frame.h $(DESTDIR)$(INCLUDEDIR)/lz4frame.h
+	@echo lz4 static and shared libraries installed
 
 uninstall:
-	rm -f $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT)
-	rm -f $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT_MAJOR)
-	rm -f $(DESTDIR)$(LIBDIR)/pkgconfig/liblz4.pc
-	[ -x $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT_VER) ] && rm -f $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT_VER)
-	[ -f $(DESTDIR)$(LIBDIR)/liblz4.a ] && rm -f $(DESTDIR)$(LIBDIR)/liblz4.a
-	[ -f $(DESTDIR)$(INCLUDEDIR)/lz4.h ] && rm -f $(DESTDIR)$(INCLUDEDIR)/lz4.h
-	[ -f $(DESTDIR)$(INCLUDEDIR)/lz4hc.h ] && rm -f $(DESTDIR)$(INCLUDEDIR)/lz4hc.h
+	@$(RM) $(DESTDIR)$(LIBDIR)/pkgconfig/liblz4.pc
+	@$(RM) $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT)
+	@$(RM) $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT_MAJOR)
+	@$(RM) $(DESTDIR)$(LIBDIR)/liblz4.$(SHARED_EXT_VER)
+	@$(RM) $(DESTDIR)$(LIBDIR)/liblz4.a
+	@$(RM) $(DESTDIR)$(INCLUDEDIR)/lz4.h
+	@$(RM) $(DESTDIR)$(INCLUDEDIR)/lz4hc.h
+	@$(RM) $(DESTDIR)$(INCLUDEDIR)/lz4frame.h
 	@echo lz4 libraries successfully uninstalled
-	@cd $(PRGDIR); $(MAKE) uninstall
-
-dist: clean
-	@install -dD -m 700 lz4-$(RELEASE)/programs/
-	@install -dD -m 700 lz4-$(RELEASE)/cmake_unofficial/
-	@for f in $(TEXT); do \
-		tr -d '\r' < $$f > .tmp; \
-		install -m 600 .tmp lz4-$(RELEASE)/$$f; \
-	done
-	@rm .tmp
-	@for f in $(NONTEXT); do \
-		install -m 600 $$f lz4-$(RELEASE)/$$f; \
-	done
-	@tar -czf $(DISTRIBNAME) lz4-$(RELEASE)/
-	@rm -rf lz4-$(RELEASE)
-	@sha1sum $(DISTRIBNAME) > $(DISTRIBNAME).sha1
-	@echo Distribution $(DISTRIBNAME) built
-
-test:
-	@cd examples; $(MAKE) -e $@
-	@cd $(PRGDIR); $(MAKE) -e $@
 
 endif
