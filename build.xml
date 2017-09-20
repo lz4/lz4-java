@@ -215,7 +215,7 @@
       </assertions>
       <classpath>
         <path location="${build}/jni" />
-        <!--<path location="${src}/resources" />-->
+        <path location="${src}/resources" />
         <path location="${src}/test-resources" />
         <path location="${build}/classes" />
         <path location="${build}/unsafe-classes" />
