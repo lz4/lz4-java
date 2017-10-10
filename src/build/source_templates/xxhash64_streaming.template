@@ -21,20 +21,29 @@ final class StreamingXXHash64Java${type} extends AbstractStreamingXXHash64Java {
       return new StreamingXXHash64Java${type}(seed);
     }
 
+    @Override
+    public StreamingXXHash64 newStreamingHash(XXHash64State savedState) {
+      return new StreamingXXHash64Java${type}((XXHash64JavaState) savedState);
+    }
+
   }
 
   StreamingXXHash64Java${type}(long seed) {
     super(seed);
   }
 
+  StreamingXXHash64Java${type}(XXHash64JavaState savedState) {
+    super(savedState);
+  }
+
   @Override
   public long getValue() {
     long h64;
-    if (totalLen >= 32) {
-      long v1 = this.v1;
-      long v2 = this.v2;
-      long v3 = this.v3;
-      long v4 = this.v4;
+    if (state.totalLen >= 32) {
+      long v1 = state.v1;
+      long v2 = state.v2;
+      long v3 = state.v3;
+      long v4 = state.v4;
 
       h64 = rotateLeft(v1, 1) + rotateLeft(v2, 7) + rotateLeft(v3, 12) + rotateLeft(v4, 18);
 
@@ -50,27 +59,27 @@ final class StreamingXXHash64Java${type} extends AbstractStreamingXXHash64Java {
       v4 *= PRIME64_2; v4 = rotateLeft(v4, 31); v4 *= PRIME64_1; h64 ^= v4;
       h64 = h64*PRIME64_1 + PRIME64_4;
     } else {
-      h64 = seed + PRIME64_5;
+      h64 = state.seed + PRIME64_5;
     }
 
-    h64 += totalLen;
+    h64 += state.totalLen;
 
     int off = 0;
-    while (off <= memSize - 8) {
-      long k1 = readLongLE(memory, off);
+    while (off <= state.memSize - 8) {
+      long k1 = readLongLE(state.memory, off);
 	  k1 *= PRIME64_2; k1 = rotateLeft(k1, 31); k1 *= PRIME64_1; h64 ^= k1;
       h64 = rotateLeft(h64, 27) * PRIME64_1 + PRIME64_4;
       off += 8;
     }
 
-    if (off <= memSize - 4) {
-      h64 ^= (readIntLE(memory, off) & 0xFFFFFFFFL) * PRIME64_1;
+    if (off <= state.memSize - 4) {
+      h64 ^= (readIntLE(state.memory, off) & 0xFFFFFFFFL) * PRIME64_1;
       h64 = rotateLeft(h64, 23) * PRIME64_2 + PRIME64_3;
       off += 4;
     }
 
-    while (off < memSize) {
-      h64 ^= (memory[off] & 0xFF) * PRIME64_5;
+    while (off < state.memSize) {
+      h64 ^= (state.memory[off] & 0xFF) * PRIME64_5;
       h64 = rotateLeft(h64, 11) * PRIME64_1;
       ++off;
     }
@@ -88,45 +97,45 @@ final class StreamingXXHash64Java${type} extends AbstractStreamingXXHash64Java {
   public void update(byte[] buf, int off, int len) {
     checkRange(buf, off, len);
 
-    totalLen += len;
+    state.totalLen += len;
 
-    if (memSize + len < 32) { // fill in tmp buffer
-      System.arraycopy(buf, off, memory, memSize, len);
-      memSize += len;
+    if (state.memSize + len < 32) { // fill in tmp buffer
+      System.arraycopy(buf, off, state.memory, state.memSize, len);
+      state.memSize += len;
       return;
     }
 
     final int end = off + len;
 
-    if (memSize > 0) { // data left from previous update
-      System.arraycopy(buf, off, memory, memSize, 32 - memSize);
+    if (state.memSize > 0) { // data left from previous update
+      System.arraycopy(buf, off, state.memory, state.memSize, 32 - state.memSize);
 
-      v1 += readLongLE(memory, 0) * PRIME64_2;
-      v1 = rotateLeft(v1, 31);
-      v1 *= PRIME64_1;
+      state.v1 += readLongLE(state.memory, 0) * PRIME64_2;
+      state.v1 = rotateLeft(state.v1, 31);
+      state.v1 *= PRIME64_1;
 
-      v2 += readLongLE(memory, 8) * PRIME64_2;
-      v2 = rotateLeft(v2, 31);
-      v2 *= PRIME64_1;
+      state.v2 += readLongLE(state.memory, 8) * PRIME64_2;
+      state.v2 = rotateLeft(state.v2, 31);
+      state.v2 *= PRIME64_1;
 
-      v3 += readLongLE(memory, 16) * PRIME64_2;
-      v3 = rotateLeft(v3, 31);
-      v3 *= PRIME64_1;
+      state.v3 += readLongLE(state.memory, 16) * PRIME64_2;
+      state.v3 = rotateLeft(state.v3, 31);
+      state.v3 *= PRIME64_1;
 
-      v4 += readLongLE(memory, 24) * PRIME64_2;
-      v4 = rotateLeft(v4, 31);
-      v4 *= PRIME64_1;
+      state.v4 += readLongLE(state.memory, 24) * PRIME64_2;
+      state.v4 = rotateLeft(state.v4, 31);
+      state.v4 *= PRIME64_1;
 
-      off += 32 - memSize;
-      memSize = 0;
+      off += 32 - state.memSize;
+      state.memSize = 0;
     }
 
     {
       final int limit = end - 32;
-      long v1 = this.v1;
-      long v2 = this.v2;
-      long v3 = this.v3;
-      long v4 = this.v4;
+      long v1 = state.v1;
+      long v2 = state.v2;
+      long v3 = state.v3;
+      long v4 = state.v4;
 
       while (off <= limit) {
         v1 += readLongLE(buf, off) * PRIME64_2;
@@ -150,15 +159,15 @@ final class StreamingXXHash64Java${type} extends AbstractStreamingXXHash64Java {
         off += 8;
       }
 
-      this.v1 = v1;
-      this.v2 = v2;
-      this.v3 = v3;
-      this.v4 = v4;
+      state.v1 = v1;
+      state.v2 = v2;
+      state.v3 = v3;
+      state.v4 = v4;
     }
 
     if (off < end) {
-      System.arraycopy(buf, off, memory, 0, end - off);
-      memSize = end - off;
+      System.arraycopy(buf, off, state.memory, 0, end - off);
+      state.memSize = end - off;
     }
   }
 

@@ -21,32 +21,41 @@ final class StreamingXXHash32Java${type} extends AbstractStreamingXXHash32Java {
       return new StreamingXXHash32Java${type}(seed);
     }
 
+    @Override
+    public StreamingXXHash32 newStreamingHash(XXHash32State savedState) {
+      return new StreamingXXHash32Java${type}((XXHash32JavaState) savedState);
+    }
+
   }
 
   StreamingXXHash32Java${type}(int seed) {
     super(seed);
   }
 
+  StreamingXXHash32Java${type}(XXHash32JavaState savedState) {
+    super(savedState);
+  }
+
   @Override
   public int getValue() {
     int h32;
-    if (totalLen >= 16) {
-      h32 = rotateLeft(v1, 1) + rotateLeft(v2, 7) + rotateLeft(v3, 12) + rotateLeft(v4, 18);
+    if (state.totalLen >= 16) {
+      h32 = rotateLeft(state.v1, 1) + rotateLeft(state.v2, 7) + rotateLeft(state.v3, 12) + rotateLeft(state.v4, 18);
     } else {
-      h32 = seed + PRIME5;
+      h32 = state.seed + PRIME5;
     }
 
-    h32 += totalLen;
+    h32 += state.totalLen;
 
     int off = 0;
-    while (off <= memSize - 4) {
-      h32 += readIntLE(memory, off) * PRIME3;
+    while (off <= state.memSize - 4) {
+      h32 += readIntLE(state.memory, off) * PRIME3;
       h32 = rotateLeft(h32, 17) * PRIME4;
       off += 4;
     }
 
-    while (off < memSize) {
-      h32 += (readByte(memory, off) & 0xFF) * PRIME5;
+    while (off < state.memSize) {
+      h32 += (readByte(state.memory, off) & 0xFF) * PRIME5;
       h32 = rotateLeft(h32, 11) * PRIME1;
       ++off;
     }
@@ -64,45 +73,45 @@ final class StreamingXXHash32Java${type} extends AbstractStreamingXXHash32Java {
   public void update(byte[] buf, int off, int len) {
     checkRange(buf, off, len);
 
-    totalLen += len;
+    state.totalLen += len;
 
-    if (memSize + len < 16) { // fill in tmp buffer
-      System.arraycopy(buf, off, memory, memSize, len);
-      memSize += len;
+    if (state.memSize + len < 16) { // fill in tmp buffer
+      System.arraycopy(buf, off, state.memory, state.memSize, len);
+      state.memSize += len;
       return;
     }
 
     final int end = off + len;
 
-    if (memSize > 0) { // data left from previous update
-      System.arraycopy(buf, off, memory, memSize, 16 - memSize);
+    if (state.memSize > 0) { // data left from previous update
+      System.arraycopy(buf, off, state.memory, state.memSize, 16 - state.memSize);
 
-      v1 += readIntLE(memory, 0) * PRIME2;
-      v1 = rotateLeft(v1, 13);
-      v1 *= PRIME1;
+      state.v1 += readIntLE(state.memory, 0) * PRIME2;
+      state.v1 = rotateLeft(state.v1, 13);
+      state.v1 *= PRIME1;
 
-      v2 += readIntLE(memory, 4) * PRIME2;
-      v2 = rotateLeft(v2, 13);
-      v2 *= PRIME1;
+      state.v2 += readIntLE(state.memory, 4) * PRIME2;
+      state.v2 = rotateLeft(state.v2, 13);
+      state.v2 *= PRIME1;
 
-      v3 += readIntLE(memory, 8) * PRIME2;
-      v3 = rotateLeft(v3, 13);
-      v3 *= PRIME1;
+      state.v3 += readIntLE(state.memory, 8) * PRIME2;
+      state.v3 = rotateLeft(state.v3, 13);
+      state.v3 *= PRIME1;
 
-      v4 += readIntLE(memory, 12) * PRIME2;
-      v4 = rotateLeft(v4, 13);
-      v4 *= PRIME1;
+      state.v4 += readIntLE(state.memory, 12) * PRIME2;
+      state.v4 = rotateLeft(state.v4, 13);
+      state.v4 *= PRIME1;
 
-      off += 16 - memSize;
-      memSize = 0;
+      off += 16 - state.memSize;
+      state.memSize = 0;
     }
 
     {
       final int limit = end - 16;
-      int v1 = this.v1;
-      int v2 = this.v2;
-      int v3 = this.v3;
-      int v4 = this.v4;
+      int v1 = state.v1;
+      int v2 = state.v2;
+      int v3 = state.v3;
+      int v4 = state.v4;
 
       while (off <= limit) {
         v1 += readIntLE(buf, off) * PRIME2;
@@ -126,15 +135,15 @@ final class StreamingXXHash32Java${type} extends AbstractStreamingXXHash32Java {
         off += 4;
       }
 
-      this.v1 = v1;
-      this.v2 = v2;
-      this.v3 = v3;
-      this.v4 = v4;
+      state.v1 = v1;
+      state.v2 = v2;
+      state.v3 = v3;
+      state.v4 = v4;
     }
 
     if (off < end) {
-      System.arraycopy(buf, off, memory, 0, end - off);
-      memSize = end - off;
+      System.arraycopy(buf, off, state.memory, 0, end - off);
+      state.memSize = end - off;
     }
   }
 

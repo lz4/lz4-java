@@ -44,6 +44,7 @@ public abstract class StreamingXXHash32 {
 
     StreamingXXHash32 newStreamingHash(int seed);
 
+    StreamingXXHash32 newStreamingHash(XXHash32State savedState);
   }
 
   final int seed;
@@ -73,6 +74,12 @@ public abstract class StreamingXXHash32 {
    * seed remains unchanged.
    */
   public abstract void reset();
+
+  /**
+   * Returns an opaque object that encapsulates the current state of the hash. This can be used later
+   * to get a new StreamingXXHash32 object that can continue from there.
+   */
+  public abstract XXHash32State getState();
 
   @Override
   public String toString() {
