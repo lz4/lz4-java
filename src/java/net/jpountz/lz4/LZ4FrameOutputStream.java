@@ -14,7 +14,6 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
-import net.jpountz.util.Utils;
 import net.jpountz.xxhash.StreamingXXHash32;
 import net.jpountz.xxhash.XXHash32;
 import net.jpountz.xxhash.XXHashFactory;
@@ -113,13 +112,30 @@ public class LZ4FrameOutputStream extends FilterOutputStream {
    * @throws IOException if an I/O error occurs
    */
   public LZ4FrameOutputStream(OutputStream out, BLOCKSIZE blockSize, long knownSize, FLG.Bits... bits) throws IOException {
+    this(out, blockSize, knownSize, LZ4Factory.fastestInstance().fastCompressor(),
+        XXHashFactory.fastestInstance().hash32(), bits);
+  }
+
+  /**
+   * Creates a new {@link OutputStream} that will compress data using the specified instances of {@link LZ4Compressor} and {@link XXHash32}.
+   *
+   * @param out the output stream to compress
+   * @param blockSize the BLOCKSIZE to use
+   * @param knownSize the size of the uncompressed data. A value less than zero means unknown.
+   * @param compressor the {@link LZ4Compressor} instance to use to compress data
+   * @param checksum the {@link XXHash32} instance to use to check data for integrity
+   * @param bits a set of features to use
+   * @throws IOException if an I/O error occurs
+   */
+  public LZ4FrameOutputStream(OutputStream out, BLOCKSIZE blockSize, long knownSize,
+                              LZ4Compressor compressor, XXHash32 checksum, FLG.Bits... bits) throws IOException {
     super(out);
-    compressor = LZ4Factory.fastestInstance().fastCompressor();
-    checksum = XXHashFactory.fastestInstance().hash32();
+    this.compressor = compressor;
+    this.checksum = checksum;
     frameInfo = new FrameInfo(new FLG(FLG.DEFAULT_VERSION, bits), new BD(blockSize));
     maxBlockSize = frameInfo.getBD().getBlockMaximumSize();
     buffer = ByteBuffer.allocate(maxBlockSize).order(ByteOrder.LITTLE_ENDIAN);
-    compressedBuffer = new byte[compressor.maxCompressedLength(maxBlockSize)];
+    compressedBuffer = new byte[this.compressor.maxCompressedLength(maxBlockSize)];
     if (frameInfo.getFLG().isEnabled(FLG.Bits.CONTENT_SIZE) && knownSize < 0) {
       throw new IllegalArgumentException("Known size must be greater than zero in order to use the known size feature");
     }
