@@ -113,7 +113,7 @@ public class LZ4FrameOutputStream extends FilterOutputStream {
    */
   public LZ4FrameOutputStream(OutputStream out, BLOCKSIZE blockSize, long knownSize, FLG.Bits... bits) throws IOException {
     this(out, blockSize, knownSize, LZ4Factory.fastestInstance().fastCompressor(),
-        XXHashFactory.fastestInstance().hash32(), bits);
+	 XXHashFactory.fastestInstance().hash32(), bits);
   }
 
   /**
