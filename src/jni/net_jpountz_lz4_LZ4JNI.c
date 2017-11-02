@@ -34,10 +34,10 @@ static void throw_OOM(JNIEnv *env) {
 
 /*
  * Class:     net_jpountz_lz4_LZ4JNI
- * Method:    LZ4_compress_limitedOutput
+ * Method:    LZ4_compress
  * Signature: ([BLjava/nio/ByteBuffer;II[BLjava/nio/ByteBuffer;II)I
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress_1limitedOutput
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress
   (JNIEnv *env, jclass cls, jbyteArray srcArray, jobject srcBuffer, jint srcOff, jint srcLen, jbyteArray destArray, jobject destBuffer, jint destOff, jint maxDestLen) {
 
   char* in;
@@ -66,7 +66,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress_1limitedOutput
     return 0;
   }
 
-  compressed = LZ4_compress_limitedOutput(in + srcOff, out + destOff, srcLen, maxDestLen);
+  compressed = LZ4_compress_default(in + srcOff, out + destOff, srcLen, maxDestLen);
 
   if (srcArray != NULL) {
     (*env)->ReleasePrimitiveArrayCritical(env, srcArray, in, 0);
@@ -113,7 +113,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
     return 0;
   }
 
-  compressed = LZ4_compressHC2_limitedOutput(in + srcOff, out + destOff, srcLen, maxDestLen, compressionLevel);
+  compressed = LZ4_compress_HC(in + srcOff, out + destOff, srcLen, maxDestLen, compressionLevel);
 
   if (srcArray != NULL) {
     (*env)->ReleasePrimitiveArrayCritical(env, srcArray, in, 0);

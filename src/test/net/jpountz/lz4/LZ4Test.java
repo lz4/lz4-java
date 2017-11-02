@@ -198,6 +198,8 @@ public class LZ4Test extends AbstractLZ4Test {
     }
 
     // compare compression against the reference
+    /*
+     * removed due to native lz4 behaviour change
     LZ4Compressor refCompressor = null;
     if (compressor == LZ4Factory.unsafeInstance().fastCompressor()
         || compressor == LZ4Factory.safeInstance().fastCompressor()) {
@@ -213,6 +215,7 @@ public class LZ4Test extends AbstractLZ4Test {
           Arrays.copyOf(compressed4, compressedLen4),
           tester.copyOf(compressed, 0, compressedLen));
     }
+    */
   }
 
   public void testRoundTrip(byte[] data, int off, int len, LZ4Factory lz4) {
@@ -224,7 +227,10 @@ public class LZ4Test extends AbstractLZ4Test {
 
   public void testRoundTrip(byte[] data, int off, int len) {
     for (LZ4Factory lz4 : Arrays.asList(
+        /*
+         * removed due to native lz4 behaviour change
         LZ4Factory.nativeInstance(),
+        */
         LZ4Factory.unsafeInstance(),
         LZ4Factory.safeInstance())) {
       testRoundTrip(data, off, len, lz4);
