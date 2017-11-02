@@ -145,6 +145,9 @@ If ivy is not installed yet, ant can take care of it for you, just run
 
 ## Instructions
 
+For lz4-java 1.5.0 or newer, first run `git submodule init` and then `git submodule update`
+to initialize the `lz4` submodule in `src/lz4`.
+
 Then run `ant`. It will:
 
  - generate some Java source files in `build/java` from the templates that are
