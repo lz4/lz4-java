@@ -34,10 +34,14 @@ static void throw_OOM(JNIEnv *env) {
 
 /*
  * Class:     net_jpountz_lz4_LZ4JNI
- * Method:    LZ4_compress
+ * Method:    LZ4_compress_limitedOutput
  * Signature: ([BLjava/nio/ByteBuffer;II[BLjava/nio/ByteBuffer;II)I
+ *
+ * Though LZ4_compress_limitedOutput is no longer called as it was deprecated,
+ * keep the method name of LZ4_compress_limitedOutput for backward compatibility,
+ * so that the old JNI bindings in src/resources can still be used.
  */
-JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress_1limitedOutput
   (JNIEnv *env, jclass cls, jbyteArray srcArray, jobject srcBuffer, jint srcOff, jint srcLen, jbyteArray destArray, jobject destBuffer, jint destOff, jint maxDestLen) {
 
   char* in;
