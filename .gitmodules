@@ -1,3 +1,3 @@
 [submodule "src/lz4"]
 	path = src/lz4
-	url = git@github.com:lz4/lz4.git
+	url = https://github.com/lz4/lz4.git
