@@ -24,10 +24,13 @@ import net.jpountz.xxhash.StreamingXXHash32;
 import net.jpountz.xxhash.XXHashFactory;
 
 /**
- * Streaming LZ4.
- * <p>
+ * Streaming LZ4 (not compatible with the LZ4 Frame format).
  * This class compresses data into fixed-size blocks of compressed data.
+ * This class uses its own format and is not compatible with the LZ4 Frame format.
+ * For interoperability with other LZ4 tools, use {@link LZ4FrameOutputStream},
+ * which is compatible with the LZ4 Frame format. This class remains for backward compatibility.
  * @see LZ4BlockInputStream
+ * @see LZ4FrameOutputStream
  */
 public final class LZ4BlockOutputStream extends FilterOutputStream {
 

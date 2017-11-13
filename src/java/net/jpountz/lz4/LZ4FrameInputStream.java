@@ -25,7 +25,7 @@ import java.nio.ByteOrder;
 import java.util.Locale;
 
 /**
- * A partial implementation of the v1.5.1 LZ4 Frame format. This class is NOT thread safe.
+ * Implementation of the v1.5.1 LZ4 Frame format. This class is NOT thread safe.
  * <p>
  * Not Supported:<ul>
  * <li>Dependent blocks</li>
