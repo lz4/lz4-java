@@ -32,7 +32,7 @@ import net.jpountz.xxhash.XXHashFactory;
  * @see LZ4BlockInputStream
  * @see LZ4FrameOutputStream
  */
-public final class LZ4BlockOutputStream extends FilterOutputStream {
+public class LZ4BlockOutputStream extends FilterOutputStream {
 
   static final byte[] MAGIC = new byte[] { 'L', 'Z', '4', 'B', 'l', 'o', 'c', 'k' };
   static final int MAGIC_LENGTH = MAGIC.length;

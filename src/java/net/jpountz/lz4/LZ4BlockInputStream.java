@@ -39,7 +39,7 @@ import net.jpountz.xxhash.XXHashFactory;
  * support {@link #mark(int)}/{@link #reset()}.
  * @see LZ4BlockOutputStream
  */
-public final class LZ4BlockInputStream extends FilterInputStream {
+public class LZ4BlockInputStream extends FilterInputStream {
 
   private final LZ4FastDecompressor decompressor;
   private final Checksum checksum;
