@@ -284,7 +284,7 @@ public class LZ4FrameInputStream extends FilterInputStream {
       }
       readBlock();
     }
-    return buffer.get();
+    return (int)buffer.get() & 0xFF;
   }
 
   @Override
