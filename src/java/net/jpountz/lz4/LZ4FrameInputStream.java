@@ -307,6 +307,9 @@ public class LZ4FrameInputStream extends FilterInputStream {
 
   @Override
   public long skip(long n) throws IOException {
+    if (n <= 0) {
+      return 0;
+    }
     while (buffer.remaining() == 0) {
       if (frameInfo.isFinished()) {
 	if (!nextFrameInfo()) {

@@ -172,14 +172,14 @@ public final class LZ4BlockInputStream extends FilterInputStream {
 
   @Override
   public long skip(long n) throws IOException {
-    if (finished) {
-      return -1;
+    if (n <= 0 || finished) {
+      return 0;
     }
     if (o == originalLen) {
       refill();
     }
     if (finished) {
-      return -1;
+      return 0;
     }
     final int skipped = (int) Math.min(n, originalLen - o);
     o += skipped;
