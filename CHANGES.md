@@ -3,7 +3,7 @@
 ## 1.4.1
 
  - [#120](https://github.com/lz4/lz4-java/pull/120)
-   Fix LZ4{Block|Frame}InputStream.skip() to return 0 when when n <= 0 or EOF. (Xiaoyan Lin)
+   Fix LZ4{Block|Frame}InputStream.skip() to return 0 when n <= 0 or EOF. (Xiaoyan Lin)
 
  - [#117](https://github.com/lz4/lz4-java/issues/117)
    Fix LZ4FrameInputStream.read() to return a correct value when reading a byte >= 128. (sorenop)
