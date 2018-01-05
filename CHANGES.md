@@ -1,5 +1,18 @@
 # Change log
 
+## 1.4.1
+
+ - [#120](https://github.com/lz4/lz4-java/pull/120)
+   Fix LZ4{Block|Frame}InputStream.skip() to return 0 when n <= 0 or EOF. (Xiaoyan Lin)
+
+ - [#117](https://github.com/lz4/lz4-java/issues/117)
+   Fix LZ4FrameInputStream.read() to return a correct value when reading a byte >= 128. (sorenop)
+
+ - [#109](https://github.com/lz4/lz4-java/pull/109)
+   Update xxHash URL in README.md. (lyrachord)
+
+ - Improve the documentation. (Rei Odaira)
+
 ## 1.4.0
 
  - The project page has been moved to
