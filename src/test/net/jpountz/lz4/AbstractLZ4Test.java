@@ -31,12 +31,13 @@ public abstract class AbstractLZ4Test extends RandomizedTest {
     T allocate(int length);
     T copyOf(byte[] array);
     byte[] copyOf(T data, int off, int len);
+    int maxCompressedLength(int len);
     int compress(LZ4Compressor compressor, T src, int srcOff, int srcLen, T dest, int destOff, int maxDestLen);
     int decompress(LZ4FastDecompressor decompressor, T src, int srcOff, T dest, int destOff, int destLen);
     int decompress(LZ4SafeDecompressor decompressor, T src, int srcOff, int srcLen, T dest, int destOff, int maxDestLen);
     void fill(T instance, byte b);
 
-    public static final Tester<byte[]> BYTE_ARRAY = new Tester<byte[]>() {
+    public static class ByteArrayTester implements Tester<byte[]> {
 
       @Override
       public byte[] allocate(int length) {
@@ -51,6 +52,11 @@ public abstract class AbstractLZ4Test extends RandomizedTest {
       @Override
       public byte[] copyOf(byte[] data, int off, int len) {
         return Arrays.copyOfRange(data, off, off + len);
+      }
+
+      @Override
+      public int maxCompressedLength(int len) {
+	return LZ4Utils.maxCompressedLength(len);
       }
 
       @Override
@@ -75,9 +81,29 @@ public abstract class AbstractLZ4Test extends RandomizedTest {
       public void fill(byte[] instance, byte b) {
         Arrays.fill(instance, b);
       }
+    }
+    public static final Tester<byte[]> BYTE_ARRAY = new ByteArrayTester();
+    public static final Tester<byte[]> BYTE_ARRAY_WITH_LENGTH = new ByteArrayTester() {
+      @Override
+      public int compress(LZ4Compressor compressor, byte[] src, int srcOff,
+          int srcLen, byte[] dest, int destOff, int maxDestLen) {
+        return new LZ4CompressorWithLength(compressor).compress(src, srcOff, srcLen, dest, destOff, maxDestLen);
+      }
+
+      @Override
+      public int decompress(LZ4FastDecompressor decompressor,
+          byte[] src, int srcOff, byte[] dest, int destOff, int destLen) {
+        return new LZ4DecompressorWithLength(decompressor).decompress(src, srcOff, dest, destOff);
+      }
+
+      @Override
+      public int decompress(LZ4SafeDecompressor decompressor,
+          byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
+        return -1;
+      }
     };
 
-    public static final Tester<ByteBuffer> BYTE_BUFFER = new Tester<ByteBuffer>() {
+    public static class ByteBufferTester implements Tester<ByteBuffer> {
 
       @Override
       public ByteBuffer allocate(int length) {
@@ -117,6 +143,11 @@ public abstract class AbstractLZ4Test extends RandomizedTest {
       }
 
       @Override
+      public int maxCompressedLength(int len) {
+	return LZ4Utils.maxCompressedLength(len);
+      }
+
+      @Override
       public int compress(LZ4Compressor compressor, ByteBuffer src, int srcOff,
           int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
         return compressor.compress(src, srcOff, srcLen, dest, destOff, maxDestLen);
@@ -140,9 +171,27 @@ public abstract class AbstractLZ4Test extends RandomizedTest {
           instance.put(i, b);
         }
       }
-      
-    };
+    }
+    public static final Tester<ByteBuffer> BYTE_BUFFER = new ByteBufferTester();
+    public static final Tester<ByteBuffer> BYTE_BUFFER_WITH_LENGTH = new ByteBufferTester() {
+      @Override
+      public int compress(LZ4Compressor compressor, ByteBuffer src, int srcOff,
+          int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
+        return new LZ4CompressorWithLength(compressor).compress(src, srcOff, srcLen, dest, destOff, maxDestLen);
+      }
 
+      @Override
+      public int decompress(LZ4FastDecompressor decompressor, ByteBuffer src,
+          int srcOff, ByteBuffer dest, int destOff, int destLen) {
+        return new LZ4DecompressorWithLength(decompressor).decompress(src, srcOff, dest, destOff);
+      }
+
+      @Override
+      public int decompress(LZ4SafeDecompressor decompressor, ByteBuffer src,
+          int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
+        return -1;
+      }
+    };
   }
 
   protected class RandomBytes {

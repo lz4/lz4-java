@@ -108,7 +108,7 @@ public class LZ4Test extends AbstractLZ4Test {
       LZ4Compressor compressor,
       LZ4FastDecompressor decompressor,
       LZ4SafeDecompressor decompressor2) {
-    for (Tester<?> tester : Arrays.asList(Tester.BYTE_ARRAY, Tester.BYTE_BUFFER)) {
+    for (Tester<?> tester : Arrays.asList(Tester.BYTE_ARRAY, Tester.BYTE_BUFFER, Tester.BYTE_ARRAY_WITH_LENGTH, Tester.BYTE_BUFFER_WITH_LENGTH)) {
       testRoundTrip(tester, data, off, len, compressor, decompressor, decompressor2);
     }
   }
@@ -119,7 +119,7 @@ public class LZ4Test extends AbstractLZ4Test {
       LZ4Compressor compressor,
       LZ4FastDecompressor decompressor,
       LZ4SafeDecompressor decompressor2) {
-    final int maxCompressedLength = LZ4Utils.maxCompressedLength(len);
+    final int maxCompressedLength = tester.maxCompressedLength(len);
     // "maxCompressedLength + 1" for the over-estimated compressed length test below
     final T compressed = tester.allocate(maxCompressedLength + 1);
     final int compressedLen = tester.compress(compressor,
@@ -148,51 +148,53 @@ public class LZ4Test extends AbstractLZ4Test {
       // OK
     }
 
-    if (len > 0) {
-      // decompression dest is too small
+    if (tester != Tester.BYTE_ARRAY_WITH_LENGTH && tester != Tester.BYTE_BUFFER_WITH_LENGTH) {
+      if (len > 0) {
+	// decompression dest is too small
+	try {
+	  tester.decompress(decompressor, compressed, 0, restored, 0, len - 1);
+	  fail();
+	} catch (LZ4Exception e) {
+	  // OK
+	}
+      }
+
+      // decompression dest is too large
+      final T restored2 = tester.allocate(len+1);
       try {
-        tester.decompress(decompressor, compressed, 0, restored, 0, len - 1);
-        fail();
+	final int cpLen = tester.decompress(decompressor, compressed, 0, restored2, 0, len + 1);
+	fail("compressedLen=" + cpLen);
       } catch (LZ4Exception e) {
-        // OK
+	// OK
       }
-    }
 
-    // decompression dest is too large
-    final T restored2 = tester.allocate(len+1);
-    try {
-      final int cpLen = tester.decompress(decompressor, compressed, 0, restored2, 0, len + 1);
-      fail("compressedLen=" + cpLen);
-    } catch (LZ4Exception e) {
-      // OK
-    }
-
-    // try decompression when only the size of the compressed buffer is known
-    if (len > 0) {
-      tester.fill(restored, randomByte());
-      assertEquals(len, tester.decompress(decompressor2, compressed, 0, compressedLen, restored, 0, len));
-      assertArrayEquals(Arrays.copyOfRange(data, off, off + len), tester.copyOf(restored, 0, len));
-      tester.fill(restored, randomByte());
-    } else {
-      assertEquals(0, tester.decompress(decompressor2, compressed, 0, compressedLen, tester.allocate(1), 0, 1));
-    }
-
-    // over-estimated compressed length
-    try {
-      final int decompressedLen = tester.decompress(decompressor2, compressed, 0, compressedLen + 1, tester.allocate(len + 100), 0, len + 100);
-      fail("decompressedLen=" + decompressedLen);
-    } catch (LZ4Exception e) {
-      // OK
-    }
-
-    // under-estimated compressed length
-    try {
-      final int decompressedLen = tester.decompress(decompressor2, compressed, 0, compressedLen - 1, tester.allocate(len + 100), 0, len + 100);
-      if (!(decompressor2 instanceof LZ4JNISafeDecompressor)) {
-        fail("decompressedLen=" + decompressedLen);
+      // try decompression when only the size of the compressed buffer is known
+      if (len > 0) {
+	tester.fill(restored, randomByte());
+	assertEquals(len, tester.decompress(decompressor2, compressed, 0, compressedLen, restored, 0, len));
+	assertArrayEquals(Arrays.copyOfRange(data, off, off + len), tester.copyOf(restored, 0, len));
+	tester.fill(restored, randomByte());
+      } else {
+	assertEquals(0, tester.decompress(decompressor2, compressed, 0, compressedLen, tester.allocate(1), 0, 1));
       }
-    } catch (LZ4Exception e) {
-      // OK
+
+      // over-estimated compressed length
+      try {
+	final int decompressedLen = tester.decompress(decompressor2, compressed, 0, compressedLen + 1, tester.allocate(len + 100), 0, len + 100);
+	fail("decompressedLen=" + decompressedLen);
+      } catch (LZ4Exception e) {
+	// OK
+      }
+
+      // under-estimated compressed length
+      try {
+	final int decompressedLen = tester.decompress(decompressor2, compressed, 0, compressedLen - 1, tester.allocate(len + 100), 0, len + 100);
+	if (!(decompressor2 instanceof LZ4JNISafeDecompressor)) {
+	  fail("decompressedLen=" + decompressedLen);
+	}
+      } catch (LZ4Exception e) {
+	// OK
+      }
     }
   }
 
