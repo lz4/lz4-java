@@ -23,15 +23,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
-import java.util.Random;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import com.carrotsearch.randomizedtesting.RandomizedRunner;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
-@RunWith(RandomizedRunner.class)
 public class LZ4Test extends AbstractLZ4Test {
 
   @Test

@@ -30,12 +30,9 @@ import java.util.zip.Checksum;
 import net.jpountz.xxhash.XXHashFactory;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import com.carrotsearch.randomizedtesting.RandomizedRunner;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
-@RunWith(RandomizedRunner.class)
 public class LZ4BlockStreamingTest extends AbstractLZ4Test {
 
   // An input stream that might read less data than it is able to

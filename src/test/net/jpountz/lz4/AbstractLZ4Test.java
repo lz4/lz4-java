@@ -22,7 +22,6 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.carrotsearch.randomizedtesting.generators.RandomPicks;
 
 public abstract class AbstractLZ4Test extends RandomizedTest {
 
