@@ -25,6 +25,7 @@ import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 

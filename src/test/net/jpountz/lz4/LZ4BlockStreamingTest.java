@@ -30,6 +30,7 @@ import java.util.zip.Checksum;
 import net.jpountz.xxhash.XXHashFactory;
 
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 

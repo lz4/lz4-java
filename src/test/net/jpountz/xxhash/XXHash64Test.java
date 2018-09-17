@@ -20,6 +20,7 @@ import net.jpountz.lz4.AbstractLZ4Test;
 import net.jpountz.util.SafeUtils;
 
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
