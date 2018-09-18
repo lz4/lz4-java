@@ -105,7 +105,7 @@
   </target>
 
   <target name="generate-sources" depends="init">
-    <ivy:cachepath organisation="org.mvel" module="mvel2" revision="2.1.5.Final"
+    <ivy:cachepath organisation="org.mvel" module="mvel2" revision="2.3.2.Final"
       inline="true" conf="default" transitive="true" pathid="mvel.classpath"/>
     <mkdir dir="${build}/java" />
     <java
