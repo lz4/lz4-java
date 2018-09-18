@@ -110,6 +110,7 @@
     <mkdir dir="${build}/java" />
     <java
       fork="true"
+      failonerror="true"
       classpathref="mvel.classpath"
       classname="org.mvel2.sh.Main"
       dir="${src}/build/source_templates">
