@@ -178,6 +178,9 @@
       <includepath path="${src}/lz4/lib" />
       <includepath path="${java.home}/../include" />
       <includepath path="${java.home}/../include/${platform}/" />
+      <!-- In Java 9, java.home points not to jre/ but to the top directory -->
+      <includepath path="${java.home}/include" />
+      <includepath path="${java.home}/include/${platform}/" />
       <includepath path="${build}/jni-headers" />
       <fileset dir="${src}/lz4/lib" includes="lz4.c, lz4hc.c, xxhash.c" />
       <fileset dir="${src}/jni" includes="*.c" />
