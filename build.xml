@@ -295,6 +295,21 @@
     </jar>
   </target>
 
+  <target name="jar-no-jni" description="generate JAR without native libraries">
+    <property name="skip.jni" value="true" />
+    <antcall target="-jar-no-jni" />
+  </target>
+
+  <target name="-jar-no-jni" depends="compile">
+    <mkdir dir="${dist}" />
+    <jar
+      destfile="${dist}/${ivy.module}-no-jni-${ivy.revision}.jar">
+      <fileset dir="${build}/classes" />
+      <fileset dir="${build}/unsafe-classes" />
+      <fileset dir="${build}/generated-classes" />
+    </jar>
+  </target>
+
   <target name="bundle" description="makes the JAR a valid OSGi bundle" depends="install-bnd, jar">
     <taskdef resource="aQute/bnd/ant/taskdef.properties" classpathref="bnd.classpath"/>
     <property name="packages.version" value="${ivy.revision}"/>
