@@ -199,16 +199,53 @@
       encoding="UTF-8"
       debug="true"
       destdir="${build}/test-classes">
-      <classpath>
-        <path location="${build}/classes" />
-        <path location="${build}/unsafe-classes" />
-        <path location="${build}/generated-classes" />
-        <fileset dir="lib" includes="*.jar" />
-      </classpath>
+      <classpath refid="${prop.compile.tests.classpath}" />
     </javac>
   </target>
 
-  <target name="test" description="run tests" depends="compile-tests, install-junit4">
+  <path id="compile.tests.classpath">
+    <pathelement path="${build}/classes" />
+    <pathelement path="${build}/unsafe-classes" />
+    <pathelement path="${build}/generated-classes" />
+    <fileset dir="lib" includes="*.jar" />
+  </path>
+
+  <path id="compile.tests.classpath.with.jar">
+    <pathelement path="${lz4-java.jar}" />
+    <fileset dir="lib" includes="*.jar" />
+  </path>
+
+  <path id="test.classpath">
+    <pathelement path="${build}/jni" />
+    <pathelement path="${src}/resources" />
+    <pathelement path="${src}/test-resources" />
+    <pathelement path="${build}/classes" />
+    <pathelement path="${build}/unsafe-classes" />
+    <pathelement path="${build}/generated-classes" />
+    <pathelement path="${build}/test-classes" />
+    <fileset dir="${lib}" includes="*.jar" />
+  </path>
+
+  <path id="test.classpath.with.jar">
+    <pathelement path="${lz4-java.jar}" />
+    <pathelement path="${src}/test-resources" />
+    <pathelement path="${build}/test-classes" />
+    <fileset dir="${lib}" includes="*.jar" />
+  </path>
+
+  <target name="test" description="run tests">
+    <property name="prop.compile.tests.classpath" value="compile.tests.classpath" />
+    <property name="prop.test.classpath" value="test.classpath" />
+    <antcall target="-test" />
+  </target>
+
+  <target name="test-jar" description="run tests with jar specified by lz4-java.jar property">
+    <property name="prop.compile.tests.classpath" value="compile.tests.classpath.with.jar" />
+    <property name="prop.test.classpath" value="test.classpath.with.jar" />
+    <antcall target="-test" />
+  </target>
+
+  <target name="-test" depends="compile-tests, install-junit4">
     <mkdir dir="${build}/tests" />
     <junit4:junit4
       dir="${java.io.tmpdir}"
@@ -217,16 +254,7 @@
       <assertions>
         <enable package="net.jpountz.lz4"/>
       </assertions>
-      <classpath>
-        <path location="${build}/jni" />
-        <path location="${src}/resources" />
-        <path location="${src}/test-resources" />
-        <path location="${build}/classes" />
-        <path location="${build}/unsafe-classes" />
-        <path location="${build}/generated-classes" />
-        <path location="${build}/test-classes" />
-        <fileset dir="${lib}" includes="*.jar" />
-      </classpath>
+      <classpath refid="${prop.test.classpath}" />
       <fileset dir="${build}/test-classes/">
         <include name="**/*Test.class" />
         <exclude name="**/*$*" />
