@@ -369,6 +369,11 @@
 
   <target name="dist" description="package" depends="bundle,docs,sources,makepom" />
 
+  <target name="dist-skip-jni" description="package without building native libraries">
+    <property name="skip.jni" value="true" />
+    <antcall target="dist" />
+  </target>
+
   <target name="forbidden-apis" description="check API usage" depends="install-forbidden-apis,compile">
     <forbidden-apis internalRuntimeForbidden="true" classpathref="forbidden-apis.classpath">
       <bundledSignatures name="jdk-unsafe-${javac.target}"/>
