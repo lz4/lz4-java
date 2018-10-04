@@ -79,4 +79,8 @@ final class LZ4JNIFastDecompressor extends LZ4FastDecompressor {
     }
   }
 
+  public int decompress(long srcAddr, long destAddr, int maxDestLen) {
+      return LZ4JNI.LZ4_decompress_fast_addr(srcAddr, destAddr, maxDestLen);
+  }
+
 }

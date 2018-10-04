@@ -94,7 +94,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
   char* in;
   char* out;
   jint compressed;
-  
+
   if (srcArray != NULL) {
     in = (char*) (*env)->GetPrimitiveArrayCritical(env, srcArray, 0);
   } else {
@@ -104,7 +104,7 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC
   if (in == NULL) {
     throw_OOM(env);
     return 0;
-  } 
+  }
 
   if (destArray != NULL) {
     out = (char*) (*env)->GetPrimitiveArrayCritical(env, destArray, 0);
@@ -141,24 +141,24 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1fast
   char* in;
   char* out;
   jint compressed;
-  
+
   if (srcArray != NULL) {
     in = (char*) (*env)->GetPrimitiveArrayCritical(env, srcArray, 0);
   } else {
     in = (char*) (*env)->GetDirectBufferAddress(env, srcBuffer);
-  } 
-  
+  }
+
   if (in == NULL) {
     throw_OOM(env);
     return 0;
-  } 
-    
+  }
+
   if (destArray != NULL) {
     out = (char*) (*env)->GetPrimitiveArrayCritical(env, destArray, 0);
   } else {
     out = (char*) (*env)->GetDirectBufferAddress(env, destBuffer);
-  } 
-  
+  }
+
   if (out == NULL) {
     throw_OOM(env);
     return 0;
@@ -179,6 +179,47 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1fast
 
 /*
  * Class:     net_jpountz_lz4_LZ4JNI
+ * Method:    LZ4_compress_addr
+ * Signature: (JIJI)I
+ */
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compress_1addr
+  (JNIEnv *env, jclass cls, jlong srcAddr, jint srcLen, jlong destAddr, jint maxDestLen) {
+  return LZ4_compress_default((const char*) srcAddr, (char*) destAddr, srcLen, maxDestLen);
+}
+
+/*
+ * Class:     net_jpountz_lz4_LZ4JNI
+ * Method:    LZ4_compressHC_addr
+ * Signature: (JIJII)I
+ */
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1compressHC_1addr
+  (JNIEnv *env, jclass cls, jlong srcAddr, jint srcLen, jlong destAddr, jint maxDestLen,
+  int compressionLevel) {
+  return LZ4_compress_HC((const char*) srcAddr, (char*) destAddr, srcLen, maxDestLen, compressionLevel);
+}
+
+/*
+ * Class:     net_jpountz_lz4_LZ4JNI
+ * Method:    LZ4_decompress_fast_addr
+ * Signature: (JJI)I
+ */
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1fast_1addr
+  (JNIEnv *env, jclass cls, jlong srcAddr, jlong destAddr, jint maxDestLen) {
+  return LZ4_decompress_fast((const char*) srcAddr, (char*) destAddr, maxDestLen);
+}
+
+/*
+ * Class:     net_jpountz_lz4_LZ4JNI
+ * Method:    LZ4_decompress_safe_addr
+ * Signature: (JIJI)I
+ */
+JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1safe_1addr
+  (JNIEnv *env, jclass cls, jlong srcAddr, jint srcLen, jlong destAddr, jint maxDestLen) {
+  return LZ4_decompress_safe((const char*) srcAddr, (char*) destAddr, srcLen, maxDestLen);
+}
+
+/*
+ * Class:     net_jpountz_lz4_LZ4JNI
  * Method:    LZ4_decompress_safe
  * Signature: ([BLjava/nio/ByteBuffer;II[BLjava/nio/ByteBuffer;II)I
  */
@@ -193,19 +234,19 @@ JNIEXPORT jint JNICALL Java_net_jpountz_lz4_LZ4JNI_LZ4_1decompress_1safe
     in = (char*) (*env)->GetPrimitiveArrayCritical(env, srcArray, 0);
   } else {
     in = (char*) (*env)->GetDirectBufferAddress(env, srcBuffer);
-  } 
-  
+  }
+
   if (in == NULL) {
     throw_OOM(env);
     return 0;
-  } 
-    
+  }
+
   if (destArray != NULL) {
     out = (char*) (*env)->GetPrimitiveArrayCritical(env, destArray, 0);
   } else {
     out = (char*) (*env)->GetDirectBufferAddress(env, destBuffer);
-  } 
-  
+  }
+
   if (out == NULL) {
     throw_OOM(env);
     return 0;
