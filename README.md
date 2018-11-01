@@ -115,7 +115,7 @@ int hash = hash32.getValue();
 
 # Download
 
-You can download released artifacts from [Maven Central](http://repo1.maven.org/maven2/org/lz4/lz4-java/).
+You can download released artifacts from [Maven Central](https://search.maven.org/search?q=g:org.lz4%20a:lz4-java).
 
 # Documentation
 
