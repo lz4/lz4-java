@@ -15,6 +15,14 @@ package net.jpountz.xxhash;
  */
 
 
+/**
+ * Fast {@link StreamingXXHash64} implemented with JNI bindings.
+ * The methods are synchronized to avoid a race condition
+ * between freeing the native memory in finalize() and using it in
+ * reset(), getValue(), and update().  Note that GC can call finalize()
+ * after calling checkState() and before using XXHashJNI if the caller
+ * does not retain a reference to this object.
+ */
 final class StreamingXXHash64JNI extends StreamingXXHash64 {
 
   static class Factory implements StreamingXXHash64.Factory {
@@ -42,26 +50,26 @@ final class StreamingXXHash64JNI extends StreamingXXHash64 {
   }
 
   @Override
-  public void reset() {
+  public synchronized void reset() {
     checkState();
     XXHashJNI.XXH64_free(state);
     state = XXHashJNI.XXH64_init(seed);
   }
 
   @Override
-  public long getValue() {
+  public synchronized long getValue() {
     checkState();
     return XXHashJNI.XXH64_digest(state);
   }
 
   @Override
-  public void update(byte[] bytes, int off, int len) {
+  public synchronized void update(byte[] bytes, int off, int len) {
     checkState();
     XXHashJNI.XXH64_update(state, bytes, off, len);
   }
 
   @Override
-  protected void finalize() throws Throwable {
+  protected synchronized void finalize() throws Throwable {
     super.finalize();
     // free memory
     XXHashJNI.XXH64_free(state);
