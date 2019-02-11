@@ -320,6 +320,9 @@
       <fileset dir="${build}/unsafe-classes" />
       <fileset dir="${build}/generated-classes" />
       <fileset dir="${build}/jni" erroronmissingdir="false" />
+      <manifest>
+	<attribute name="Automatic-Module-Name" value="org.lz4.lz4-java"/>
+      </manifest>
     </jar>
   </target>
 
