@@ -1,5 +1,23 @@
 # Change log
 
+## 1.5.1
+
+- [#135](https://github.com/lz4/lz4-java/issues/135)
+  Updated the JNI binding for Win32/amd64 from old LZ4 r123
+  to LZ4 1.8.3. (Rei Odaira)
+
+- [#134](https://github.com/lz4/lz4-java/issues/134)
+  Added Automatic-Module-Name to the manifest to support
+  the Java 9 modularity. (Rei Odaira)
+
+- [#131](https://github.com/lz4/lz4-java/issues/131)
+  Made the StreamingXXHash*JNI methods synchronized to avoid
+  a rare-case race condition with GC. (Roman Leventov, Rei Odaira)
+
+- [#128](https://github.com/lz4/lz4-java/pull/128)
+  Changed the Maven Central download link from a direct link
+  to a search link. (Adam Retter)
+
 ## 1.5.0
 
  - Upgraded LZ4 to 1.8.3. Updated JNI bindings for Linux/amd64,
