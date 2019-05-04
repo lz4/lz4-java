@@ -29,7 +29,7 @@ import static net.jpountz.lz4.LZ4Constants.MAX_COMPRESSION_LEVEL;
  * <p>
  * This class has 3 instances<ul>
  * <li>a {@link #nativeInstance() native} instance which is a JNI binding to
- * <a href="http://code.google.com/p/lz4/">the original LZ4 C implementation</a>.
+ * <a href="https://github.com/lz4/lz4">the original LZ4 C implementation</a>.
  * <li>a {@link #safeInstance() safe Java} instance which is a pure Java port
  * of the original C library,</li>
  * <li>an {@link #unsafeInstance() unsafe Java} instance which is a Java port
