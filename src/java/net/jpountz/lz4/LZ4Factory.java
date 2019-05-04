@@ -74,6 +74,13 @@ public final class LZ4Factory {
    * either not use this instance in webapps or to put this library in the lib
    * directory of your servlet container so that it is loaded by the system
    * class loader.
+   * <li>From lz4-java version 1.6.0, a {@link LZ4FastDecompressor} instance
+   * returned by {@link #fastDecompressor()} of this instance is SLOWER
+   * than a {@link LZ4SafeDecompressor} instance returned by
+   * {@link #safeDecompressor()}, due to a change in the original LZ4
+   * C implementation. The corresponding C API function is deprecated.
+   * Hence use of {@link #fastDecompressor()} is deprecated
+   * for this instance.
    * </ol>
    *
    * @return a {@link LZ4Factory} instance that returns compressors and
@@ -257,8 +264,11 @@ public final class LZ4Factory {
 
   /**
    * Returns a {@link LZ4FastDecompressor} instance.
+   * Use of this method is deprecated for the {@link #nativeInstance() native instance}.
    *
    * @return a {@link LZ4FastDecompressor} instance
+   *
+   * @see #nativeInstance()
    */
   public LZ4FastDecompressor fastDecompressor() {
     return fastDecompressor;

@@ -21,7 +21,14 @@ import java.nio.ByteBuffer;
  * Use {@link LZ4SafeDecompressor} if you only know the size of the
  * compressed stream.
  * <p>
+ * From lz4-java 1.6.0, it is deprecated to use a JNI-binding instance
+ * of this class; i.e., an instasnce returned by
+ * {@link LZ4Factory#fastDecompressor()} of {@link LZ4Factory#nativeInstance()}.
+ * Please see {@link LZ4Factory#nativeInstance()} for details.
+ * <p>
  * Instances of this class are thread-safe.
+ *
+ * @see LZ4Factory#nativeInstance()
  */
 public abstract class LZ4FastDecompressor implements LZ4Decompressor {
 
