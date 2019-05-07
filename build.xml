@@ -42,6 +42,10 @@
    <os family="mac"/>
   </condition>
 
+  <condition property="java10+">
+    <javaversion atleast="10"/>
+  </condition>
+
   <target name="clean" description="clean working copy">
     <delete dir="${build}" />
     <delete dir="${dist}" />
@@ -128,7 +132,8 @@
       target="${javac.target}"
       encoding="UTF-8"
       debug="true"
-      destdir="${build}/classes"/>
+      destdir="${build}/classes"
+      nativeHeaderDir="${build}/jni-headers"/>
     <mkdir dir="${build}/unsafe-classes" />
     <javac
       includeAntRuntime="false"
@@ -155,7 +160,16 @@
     </javac>
   </target>
 
-  <target name="generate-headers" depends="compile-java" unless="${skip.jni}">
+  <target name="check-skip-jni-or-java10+">
+    <condition property="skip.jni.or.java10+">
+      <or>
+        <istrue value="${skip.jni}"/>
+        <istrue value="${java10+}"/>
+      </or>
+    </condition>
+  </target>
+
+  <target name="generate-headers" depends="compile-java,check-skip-jni-or-java10+" unless="${skip.jni.or.java10+}">
     <mkdir dir="${build}/jni-headers" />
     <javah
       destDir="${build}/jni-headers">
