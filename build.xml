@@ -58,9 +58,7 @@
     <os family="mac"/>
   </condition>
 
-  <condition property="java10+">
-    <javaversion atleast="10"/>
-  </condition>
+  <property name="java10+" value="false"/>
 
   <target name="clean" description="clean working copy">
     <delete dir="${build}" />
@@ -155,7 +153,7 @@
       encoding="UTF-8"
       debug="true"
       destdir="${build}/classes"
-      nativeHeaderDir="${build}/jni-headers"/>
+      />
     <mkdir dir="${build}/unsafe-classes" />
     <javac
       includeAntRuntime="false"
