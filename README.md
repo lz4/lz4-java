@@ -43,7 +43,7 @@ Have a look at LZ4Factory for more information.
    especially if CPU endianness differs, but the compressed streams can be
    safely decompressed by any decompressor implementation on any platform.
 
-## Example
+## Examples
 
 ```java
 LZ4Factory factory = LZ4Factory.fastestInstance();
@@ -69,6 +69,20 @@ int compressedLength2 = decompressor.decompress(compressed, 0, restored, 0, deco
 LZ4SafeDecompressor decompressor2 = factory.safeDecompressor();
 int decompressedLength2 = decompressor2.decompress(compressed, 0, compressedLength, restored, 0);
 // decompressedLength == decompressedLength2
+```
+
+```java
+byte[] data = "12345345234572".getBytes("UTF-8");
+final int decompressedLength = data.length;
+
+LZ4FrameOutputStream outStream = new LZ4FrameOutputStream(new FileOutputStream(new File("test.lz4")));
+outStream.write(data);
+outStream.close();
+
+byte[] restored = new byte[decompressedLength];
+LZ4FrameInputStream inStream = new LZ4FrameInputStream(new FileInputStream(new File("test.lz4")));
+inStream.read(restored);
+inStream.close();
 ```
 
 # xxhash Java
