@@ -1,5 +1,24 @@
 # Change log
 
+## 1.6.0
+
+- Upgraded LZ4 to 1.9.1. Updated the JNI bindings,
+  except for the one for Linux/i386.
+  Decompression speed is improved on amd64.
+
+- Deprecated use of LZ4FastDecompressor of a native instance
+  because the corresponding C API function is deprecated.
+  See [the release note of LZ4 1.9.0](https://github.com/lz4/lz4/releases/tag/v1.9.0) for details.
+  Updated javadoc accordingly.
+
+- [#134](https://github.com/lz4/lz4-java/issues/134)
+  [#137](https://github.com/lz4/lz4-java/issues/137)
+  Changed the module name from org.lz4.lz4-java to org.lz4.java
+  to avoid using - in the module name. (severn-everett, Oliver Eikemeier, Rei Odaira)
+
+- Enabled build with Java 11. Note that the distribution is still
+  built with Java 7. (Rei Odaira)
+
 ## 1.5.1
 
 - [#135](https://github.com/lz4/lz4-java/issues/135)
