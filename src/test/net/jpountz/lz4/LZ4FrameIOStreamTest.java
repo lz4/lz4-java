@@ -279,9 +279,10 @@ public class LZ4FrameIOStreamTest {
   public void testStreamWithContentSize() throws IOException {
     final File lz4File = Files.createTempFile("lz4test", ".lz4").toFile();
     try {
+      final long knownSize = tmpFile.length();
       try (OutputStream os = new LZ4FrameOutputStream(new FileOutputStream(lz4File),
                                                       LZ4FrameOutputStream.BLOCKSIZE.SIZE_4MB,
-                                                      tmpFile.length(),
+                                                      knownSize,
                                                       LZ4FrameOutputStream.FLG.Bits.BLOCK_INDEPENDENCE,
                                                       LZ4FrameOutputStream.FLG.Bits.CONTENT_CHECKSUM,
                                                       LZ4FrameOutputStream.FLG.Bits.CONTENT_SIZE)) {
@@ -289,7 +290,31 @@ public class LZ4FrameIOStreamTest {
           copy(is, os);
         }
       }
-      try (InputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File))) {
+      try (LZ4FrameInputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File))) {
+        Assert.assertEquals(is.getExpectedContentSize(), knownSize);
+        Assert.assertTrue(is.isExpectedContentSizeDefined());
+        validateStreamEquals(is, tmpFile);
+      }
+    } finally {
+      lz4File.delete();
+    }
+  }
+
+  @Test
+  public void testStreamWithoutContentSize() throws IOException {
+    final File lz4File = Files.createTempFile("lz4test", ".lz4").toFile();
+    try {
+      try (OutputStream os = new LZ4FrameOutputStream(new FileOutputStream(lz4File),
+              LZ4FrameOutputStream.BLOCKSIZE.SIZE_4MB,
+              LZ4FrameOutputStream.FLG.Bits.BLOCK_INDEPENDENCE,
+              LZ4FrameOutputStream.FLG.Bits.CONTENT_CHECKSUM)) {
+        try (InputStream is = new FileInputStream(tmpFile)) {
+          copy(is, os);
+        }
+      }
+      try (LZ4FrameInputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File))) {
+        Assert.assertEquals(is.getExpectedContentSize(), -1L);
+        Assert.assertFalse(is.isExpectedContentSizeDefined());
         validateStreamEquals(is, tmpFile);
       }
     } finally {

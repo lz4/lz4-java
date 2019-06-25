@@ -348,4 +348,19 @@ public class LZ4FrameInputStream extends FilterInputStream {
     return false;
   }
 
+  /**
+   * Returns the optional Content Size value set in Frame Descriptor.
+   * If the Content Size is not set (FLG.Bits.CONTENT_SIZE not enabled) in compressed file -1L is returned
+   */
+  public long getExpectedContentSize() {
+    return expectedContentSize;
+  }
+
+  /**
+   * Checks if the optionnal Content Size is setted (FLG.Bits.CONTENT_SIZE is enabled)
+   */
+  public boolean isExpectedContentSizeDefined() {
+    return expectedContentSize >= 0;
+  }
+
 }
