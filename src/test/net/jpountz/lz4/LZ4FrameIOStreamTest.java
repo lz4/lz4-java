@@ -290,8 +290,8 @@ public class LZ4FrameIOStreamTest {
           copy(is, os);
         }
       }
-      try (LZ4FrameInputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File))) {
-        Assert.assertEquals(is.getExpectedContentSize(), knownSize);
+      try (LZ4FrameInputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File), true)) {
+        Assert.assertEquals(knownSize, is.getExpectedContentSize());
         Assert.assertTrue(is.isExpectedContentSizeDefined());
         validateStreamEquals(is, tmpFile);
       }
@@ -312,8 +312,8 @@ public class LZ4FrameIOStreamTest {
           copy(is, os);
         }
       }
-      try (LZ4FrameInputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File))) {
-        Assert.assertEquals(is.getExpectedContentSize(), -1L);
+      try (LZ4FrameInputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File), true)) {
+        Assert.assertEquals(-1L, is.getExpectedContentSize());
         Assert.assertFalse(is.isExpectedContentSizeDefined());
         validateStreamEquals(is, tmpFile);
       }
@@ -346,11 +346,27 @@ public class LZ4FrameIOStreamTest {
           }
         }
       }
-      try (InputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File))) {
+      try (LZ4FrameInputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File))) {
+        try {
+          is.getExpectedContentSize();
+          Assert.assertFalse(true);
+        } catch (UnsupportedOperationException e) {
+          // OK
+        }
+        Assert.assertFalse(is.isExpectedContentSizeDefined());
         validateStreamEquals(is, tmpFile);
         validateStreamEquals(is, tmpFile);
         validateStreamEquals(is, tmpFile);
         validateStreamEquals(is, tmpFile);
+      }
+      try (LZ4FrameInputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File), true)) {
+        Assert.assertEquals(-1L, is.getExpectedContentSize());
+        Assert.assertFalse(is.isExpectedContentSizeDefined());
+        validateStreamEquals(is, tmpFile);
+        Assert.assertEquals(-1, is.read());
+        final byte[] tmpBuff = new byte[10];
+        Assert.assertEquals(-1, is.read(tmpBuff, 0, 10));
+        Assert.assertEquals(0, is.skip(1));
       }
     } finally {
       lz4File.delete();
