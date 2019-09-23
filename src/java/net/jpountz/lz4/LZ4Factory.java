@@ -248,6 +248,11 @@ public final class LZ4Factory {
    *   <li>A compression level higher than 17 would be treated as 17.</li>
    *   <li>A compression level lower than 1 would be treated as 9.</li>
    * </ol>
+   * Note that compression levels from different implementations
+   * (native, unsafe Java, and safe Java) cannot be compared with one another.
+   * Specifically, the native implementation of a high compression level
+   * is not necessarily faster than the safe/unsafe Java implementation
+   * of the same compression level.
    *
    * @param compressionLevel the compression level between [1, 17]; the higher the level, the higher the compression ratio
    * @return a {@link LZ4Compressor} which requires more memory than
