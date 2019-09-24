@@ -73,7 +73,7 @@ public enum Native {
     File dir = new File(tempFolder);
 
     File[] tempLibFiles = dir.listFiles(new FilenameFilter() {
-	private final String searchPattern = "liblz4-java";
+	private final String searchPattern = "liblz4-java-";
 	public boolean accept(File dir, String name) {
 	  return name.startsWith(searchPattern) && !name.endsWith(".lck");
 	}
@@ -117,7 +117,7 @@ public enum Native {
     File tempLib;
     File tempLibLock;
     try {
-      tempLib = File.createTempFile("liblz4-java", "." + os().libExtension);
+      tempLib = File.createTempFile("liblz4-java-", "." + os().libExtension);
       tempLibLock = new File(tempLib.getAbsolutePath() + ".lck");
       // copy to tempLib
       FileOutputStream out = new FileOutputStream(tempLib);
