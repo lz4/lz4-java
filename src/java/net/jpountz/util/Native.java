@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FilenameFilter;
 
 /** FOR INTERNAL USE ONLY */
 public enum Native {
@@ -67,10 +68,37 @@ public enum Native {
     return loaded;
   }
 
+  private static void cleanupOldTempLibs() {
+    String tempFolder = new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
+    File dir = new File(tempFolder);
+
+    File[] tempLibFiles = dir.listFiles(new FilenameFilter() {
+	private final String searchPattern = "liblz4-java";
+	public boolean accept(File dir, String name) {
+	  return name.startsWith(searchPattern) && !name.endsWith(".lck");
+	}
+      });
+    if(tempLibFiles != null) {
+      for(File tempLibFile : tempLibFiles) {
+	File lckFile = new File(tempLibFile.getAbsolutePath() + ".lck");
+	if(!lckFile.exists()) {
+	  try {
+	    tempLibFile.delete();
+	  }
+	  catch(SecurityException e) {
+	    System.err.println("Failed to delete old temp lib" + e.getMessage());
+	  }
+	}
+      }
+    }
+  }
+
   public static synchronized void load() {
     if (loaded) {
       return;
     }
+
+    cleanupOldTempLibs();
 
     // Try to load lz4-java (liblz4-java.so on Linux) from the java.library.path.
     try {
@@ -87,8 +115,10 @@ public enum Native {
       throw new UnsupportedOperationException("Unsupported OS/arch, cannot find " + resourceName + ". Please try building from source.");
     }
     File tempLib;
+    File tempLibLock;
     try {
       tempLib = File.createTempFile("liblz4-java", "." + os().libExtension);
+      tempLibLock = new File(tempLib.getAbsolutePath() + ".lck");
       // copy to tempLib
       FileOutputStream out = new FileOutputStream(tempLib);
       try {
@@ -108,6 +138,9 @@ public enum Native {
         }
         System.load(tempLib.getAbsolutePath());
         loaded = true;
+	if (!tempLibLock.exists()) {
+	  new FileOutputStream(tempLibLock).close();
+	}
       } finally {
         try {
           if (out != null) {
@@ -122,6 +155,9 @@ public enum Native {
           } else {
             // try to delete on exit, does it work on Windows?
             tempLib.deleteOnExit();
+	    if (tempLibLock.exists()) {
+	      tempLibLock.deleteOnExit();
+	    }
           }
         }
       }
