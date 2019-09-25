@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
+import java.io.File;
+import java.io.FilenameFilter;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -30,6 +32,39 @@ import static org.junit.Assert.*;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 
 public class LZ4Test extends AbstractLZ4Test {
+
+  @Test
+  public void testLockFileOfTemporaryNativeLibrary() {
+    // Load the native library
+    LZ4JNI.LZ4_compressBound(100);
+    String tempFolder = new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
+    File tempDir = new File(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath());
+    // A temporary library must be accompanied by a lock file.
+    File[] tempLibFiles = tempDir.listFiles(new FilenameFilter() {
+	public boolean accept(File dir, String name) {
+	  return name.startsWith("liblz4-java-") && !name.endsWith(".lck");
+	}
+      });
+    if (tempLibFiles != null) {
+      for (File tempLibFile : tempLibFiles) {
+	File lckFile = new File(tempLibFile.getAbsolutePath() + ".lck");
+	assertTrue(tempLibFile.getAbsolutePath(), lckFile.exists());
+      }
+    }
+    // A lock file must be accompanied by a temporary library.
+    File[] tempLockFiles = tempDir.listFiles(new FilenameFilter() {
+	public boolean accept(File dir, String name) {
+	  return name.startsWith("liblz4-java-") && name.endsWith(".lck");
+	}
+      });
+    if (tempLockFiles != null) {
+      for (File tempLockFile : tempLockFiles) {
+	String tempLockFilePath = tempLockFile.getAbsolutePath();
+	File libFile = new File(tempLockFilePath.substring(0, tempLockFilePath.length() - 4));
+	assertTrue(tempLockFilePath, libFile.exists());
+      }
+    }
+  }
 
   @Test
   @Repeat(iterations=50)
