@@ -14,30 +14,28 @@ package net.jpountz.xxhash;
  * limitations under the License.
  */
 
-import static net.jpountz.xxhash.XXHashConstants.PRIME64_1;
-import static net.jpountz.xxhash.XXHashConstants.PRIME64_2;
-
 abstract class AbstractStreamingXXHash64Java extends StreamingXXHash64 {
 
-  int memSize;
-  long v1, v2, v3, v4;
-  long totalLen;
-  final byte[] memory;
+  final XXHash64JavaState state;
 
   AbstractStreamingXXHash64Java(long seed) {
     super(seed);
-    memory = new byte[32];
-    reset();
+    state = new XXHash64JavaState(seed);
+  }
+
+  AbstractStreamingXXHash64Java(XXHash64JavaState savedState) {
+    super(savedState.seed);
+    state = new XXHash64JavaState(savedState);
   }
 
   @Override
   public void reset() {
-    v1 = seed + PRIME64_1 + PRIME64_2;
-    v2 = seed + PRIME64_2;
-    v3 = seed + 0;
-    v4 = seed - PRIME64_1;
-    totalLen = 0;
-    memSize = 0;
+    state.reset();
   }
 
+  @Override
+  public XXHash64State getState() {
+    // Return a copy of the internal state
+    return new XXHash64JavaState(state);
+  }
 }

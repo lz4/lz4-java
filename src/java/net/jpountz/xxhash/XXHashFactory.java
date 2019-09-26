@@ -230,6 +230,20 @@ public final class XXHashFactory {
   }
 
   /**
+   * Return a new {@link StreamingXXHash32} instance that continues from the saved state.
+   *
+   * @param savedState the saved state to use.
+   * @return a {@link StreamingXXHash32} instance
+   */
+  public StreamingXXHash32 newStreamingHash32(XXHash32State savedState) {
+    if (this != NATIVE_INSTANCE && savedState instanceof XXHash32JavaState) {
+      return streamingHash32Factory.newStreamingHash(savedState);
+    } else {
+      throw new UnsupportedOperationException("Resumable state is only supported by the Java implementations");
+    }
+  }
+
+  /**
    * Return a new {@link StreamingXXHash64} instance.
    *
    * @param seed the seed to use
@@ -237,6 +251,20 @@ public final class XXHashFactory {
    */
   public StreamingXXHash64 newStreamingHash64(long seed) {
     return streamingHash64Factory.newStreamingHash(seed);
+  }
+
+  /**
+   * Return a new {@link StreamingXXHash64} instance that continues from the saved state.
+   *
+   * @param savedState the saved state to use.
+   * @return a {@link StreamingXXHash64} instance
+   */
+  public StreamingXXHash64 newStreamingHash64(XXHash64State savedState) {
+    if (this != NATIVE_INSTANCE && savedState instanceof XXHash64JavaState) {
+      return streamingHash64Factory.newStreamingHash(savedState);
+    } else {
+      throw new UnsupportedOperationException("Resumable state is only supported by the Java implementations");
+    }
   }
 
   /**

@@ -34,6 +34,11 @@ final class StreamingXXHash64JNI extends StreamingXXHash64 {
       return new StreamingXXHash64JNI(seed);
     }
 
+    @Override
+    public StreamingXXHash64 newStreamingHash(XXHash64State savedState) {
+      throw new UnsupportedOperationException("The JNI implementation does not support resuming from a saved state");
+    }
+
   }
 
   private long state;
@@ -54,6 +59,12 @@ final class StreamingXXHash64JNI extends StreamingXXHash64 {
     checkState();
     XXHashJNI.XXH64_free(state);
     state = XXHashJNI.XXH64_init(seed);
+  }
+
+  /** JNI implementation does not support saving the internal state. */
+  @Override
+  public XXHash64State getState() {
+    throw new UnsupportedOperationException("The JNI implementation does not support resuming from a saved state");
   }
 
   @Override
