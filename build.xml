@@ -28,6 +28,13 @@
 
   <property name="ivy.jar.version" value="2.2.0"/>
   <property name="ivy.jar.name" value="ivy-${ivy.jar.version}.jar"/>
+  <condition property="ivy.xml.name" value="ivy-pure-java.xml" else="ivy.xml">
+    <istrue value="${lz4-pure-java}"/>
+  </condition>
+
+  <condition property="skip.jni" value="true">
+    <istrue value="${lz4-pure-java}"/>
+  </condition>
 
   <condition property="platform" value="linux">
    <os name="Linux"/>
@@ -95,7 +102,7 @@
 
   <target name="init">
     <tstamp />
-    <ivy:resolve conf="test" />
+    <ivy:resolve file="${ivy.xml.name}" conf="test" />
     <ivy:retrieve />
   </target>
 
@@ -325,7 +332,12 @@
     </jar>
   </target>
 
-  <target name="jar" description="generate JAR" depends="compile">
+  <target name="jar" description="generate JAR" depends="compile, -jar, -jar-pure-java">
+    <!-- Either one of -jar or -jar-pure-java is actually called,
+	 depending on the value of the lz4-pure-java property. -->
+  </target>
+
+  <target name="-jar" unless="${lz4-pure-java}">
     <mkdir dir="${dist}" />
     <jar
       destfile="${dist}/${ivy.module}.jar">
@@ -340,18 +352,16 @@
     </jar>
   </target>
 
-  <target name="jar-no-jni" description="generate JAR without native libraries">
-    <property name="skip.jni" value="true" />
-    <antcall target="-jar-no-jni" />
-  </target>
-
-  <target name="-jar-no-jni" depends="compile">
+  <target name="-jar-pure-java" if="${lz4-pure-java}">
     <mkdir dir="${dist}" />
     <jar
-      destfile="${dist}/${ivy.module}-no-jni-${ivy.revision}.jar">
+      destfile="${dist}/${ivy.module}.jar">
       <fileset dir="${build}/classes" />
       <fileset dir="${build}/unsafe-classes" />
       <fileset dir="${build}/generated-classes" />
+      <manifest>
+	<attribute name="Automatic-Module-Name" value="org.lz4.pure.java"/>
+      </manifest>
     </jar>
   </target>
 
@@ -376,7 +386,7 @@
 
   <target name="makepom" description="generate a pom file">
     <ivy:makepom
-        ivyfile="${basedir}/ivy.xml"
+        ivyfile="${basedir}/${ivy.xml.name}"
         pomfile="${dist}/${ivy.module}-${ivy.revision}.pom"
         templatefile="${src}/build/pom.template">
       <mapping conf="default" scope="compile" />
