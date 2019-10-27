@@ -31,6 +31,9 @@
   <condition property="ivy.xml.name" value="ivy-pure-java.xml" else="ivy.xml">
     <istrue value="${lz4-pure-java}"/>
   </condition>
+  <condition property="pom.template.name" value="pom-pure-java.template" else="pom.template">
+    <istrue value="${lz4-pure-java}"/>
+  </condition>
 
   <condition property="skip.jni" value="true">
     <istrue value="${lz4-pure-java}"/>
@@ -388,7 +391,7 @@
     <ivy:makepom
         ivyfile="${basedir}/${ivy.xml.name}"
         pomfile="${dist}/${ivy.module}-${ivy.revision}.pom"
-        templatefile="${src}/build/pom.template">
+        templatefile="${src}/build/${pom.template.name}">
       <mapping conf="default" scope="compile" />
       <mapping conf="test" scope="test" />
     </ivy:makepom>
