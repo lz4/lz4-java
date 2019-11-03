@@ -167,4 +167,28 @@ public class XXHash64Test extends AbstractLZ4Test {
     }
   }
 
+  @Test
+  public void testClose() {
+    StreamingXXHash64 hash = XXHashFactory.nativeInstance().newStreamingHash64(randomInt());
+    hash.close();
+    hash.close();
+    try {
+      hash.getValue();
+      assertTrue(hash.toString(), false);
+    } catch (AssertionError e) {
+      // OK
+    }
+    try {
+      hash.update(null, 0, 0);
+      assertTrue(hash.toString(), false);
+    } catch (AssertionError e) {
+      // OK
+    }
+    try {
+      hash.reset();
+      assertTrue(hash.toString(), false);
+    } catch (AssertionError e) {
+      // OK
+    }
+  }
 }

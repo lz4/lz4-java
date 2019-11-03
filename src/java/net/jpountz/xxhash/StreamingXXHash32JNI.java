@@ -68,11 +68,22 @@ final class StreamingXXHash32JNI extends StreamingXXHash32 {
   }
 
   @Override
+  public synchronized void close() {
+    if (state != 0) {
+      super.close();
+      XXHashJNI.XXH32_free(state);
+      state = 0;
+    }
+  }
+
+  @Override
   protected synchronized void finalize() throws Throwable {
     super.finalize();
-    // free memory
-    XXHashJNI.XXH32_free(state);
-    state = 0;
+    if (state != 0) {
+      // free memory
+      XXHashJNI.XXH32_free(state);
+      state = 0;
+    }
   }
 
 }

@@ -1,6 +1,7 @@
 package net.jpountz.xxhash;
 
 import java.util.zip.Checksum;
+import java.io.Closeable;
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +39,7 @@ import java.util.zip.Checksum;
  * <p>
  * Instances of this class are <b>not</b> thread-safe.
  */
-public abstract class StreamingXXHash64 {
+public abstract class StreamingXXHash64 implements Closeable {
 
   interface Factory {
 
@@ -73,6 +74,16 @@ public abstract class StreamingXXHash64 {
    * seed remains unchanged.
    */
   public abstract void reset();
+
+  /**
+   * Releases any system resources associated with this instance.
+   * It is not mandatory to call this method after using this instance
+   * because the system resources are released anyway when this instance
+   * is reclaimed by GC.
+   */
+  @Override
+  public void close() {
+  }
 
   @Override
   public String toString() {
