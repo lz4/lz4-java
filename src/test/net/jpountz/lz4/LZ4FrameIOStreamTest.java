@@ -276,6 +276,27 @@ public class LZ4FrameIOStreamTest {
     }
   }
 
+  @Test
+  public void testSkippableOnly() throws IOException {
+    final File lz4File = Files.createTempFile("lz4test", ".lz4").toFile();
+    try {
+      try (FileOutputStream fos = new FileOutputStream(lz4File)) {
+        final int skipSize = 1 << 10;
+        final ByteBuffer skipBuffer = ByteBuffer.allocate(skipSize + 8).order(ByteOrder.LITTLE_ENDIAN);
+        skipBuffer.putInt(LZ4FrameInputStream.MAGIC_SKIPPABLE_BASE | 0x00000007); // anything 00 through FF should work
+        skipBuffer.putInt(skipSize);
+        final byte[] skipRandom = new byte[skipSize];
+        new Random(478278L).nextBytes(skipRandom);
+        skipBuffer.put(skipRandom);
+        fos.write(skipBuffer.array());
+      }
+      try (InputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File))) {
+	Assert.assertEquals(-1, is.read());
+      }
+    } finally {
+      lz4File.delete();
+    }
+  }
 
   @Test
   public void testStreamWithContentSize() throws IOException {
