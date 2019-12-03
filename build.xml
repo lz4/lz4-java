@@ -23,8 +23,8 @@
   <property name="dist"  location="dist"/>
   <property name="lib" location="lib" />
 
-  <property name="javac.source" value="1.6" />
-  <property name="javac.target" value="1.6" />
+  <property name="javac.source" value="1.7" />
+  <property name="javac.target" value="1.7" />
 
   <property name="ivy.jar.version" value="2.2.0"/>
   <property name="ivy.jar.name" value="ivy-${ivy.jar.version}.jar"/>
