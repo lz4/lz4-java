@@ -114,56 +114,44 @@ public enum Native {
     if (is == null) {
       throw new UnsupportedOperationException("Unsupported OS/arch, cannot find " + resourceName + ". Please try building from source.");
     }
-    File tempLib;
-    File tempLibLock;
+    File tempLib = null;
+    File tempLibLock = null;
     try {
-      tempLib = File.createTempFile("liblz4-java-", "." + os().libExtension);
-      tempLibLock = new File(tempLib.getAbsolutePath() + ".lck");
+      // Create the .lck file first to avoid a race condition
+      // with other concurrently running Java processes using lz4-java.
+      tempLibLock = File.createTempFile("liblz4-java-", "." + os().libExtension + ".lck");
+      tempLib = new File(tempLibLock.getAbsolutePath().replaceFirst(".lck$", ""));
       // copy to tempLib
-      FileOutputStream out = new FileOutputStream(tempLib);
-      try {
-        byte[] buf = new byte[4096];
-        while (true) {
-          int read = is.read(buf);
-          if (read == -1) {
-            break;
-          }
-          out.write(buf, 0, read);
-        }
-        try {
-          out.close();
-          out = null;
-        } catch (IOException e) {
-          // ignore
-        }
-        System.load(tempLib.getAbsolutePath());
-        loaded = true;
-	if (!tempLibLock.exists()) {
-	  new FileOutputStream(tempLibLock).close();
+      try (FileOutputStream out = new FileOutputStream(tempLib)) {
+	byte[] buf = new byte[4096];
+	while (true) {
+	  int read = is.read(buf);
+	  if (read == -1) {
+	    break;
+	  }
+	  out.write(buf, 0, read);
 	}
-      } finally {
-        try {
-          if (out != null) {
-            out.close();
-          }
-        } catch (IOException e) {
-          // ignore
-        }
-        if (tempLib != null && tempLib.exists()) {
-          if (!loaded) {
-            tempLib.delete();
-          } else {
-            // try to delete on exit, does it work on Windows?
-            tempLib.deleteOnExit();
-	    if (tempLibLock.exists()) {
-	      tempLibLock.deleteOnExit();
-	    }
-          }
-        }
       }
+      System.load(tempLib.getAbsolutePath());
+      loaded = true;
     } catch (IOException e) {
-        throw new ExceptionInInitializerError("Cannot unpack liblz4-java");
+      throw new ExceptionInInitializerError("Cannot unpack liblz4-java: " + e);
+    } finally {
+      if (!loaded) {
+	if (tempLib != null && tempLib.exists()) {
+	  if (!tempLib.delete()) {
+	    throw new ExceptionInInitializerError("Cannot unpack liblz4-java / cannot delete a temporary native library " + tempLib);
+	  }
+	}
+	if (tempLibLock != null && tempLibLock.exists()) {
+	  if (!tempLibLock.delete()) {
+	    throw new ExceptionInInitializerError("Cannot unpack liblz4-java / cannot delete a temporary lock file " + tempLibLock);
+	  }
+	}
+      } else {
+	tempLib.deleteOnExit();
+	tempLibLock.deleteOnExit();
+      }
     }
   }
-
 }
