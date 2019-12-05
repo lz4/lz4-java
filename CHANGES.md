@@ -1,5 +1,35 @@
 # Change log
 
+## 1.7.0
+
+- Upgraded LZ4 to 1.9.2. Updated the JNI bindings.
+
+- [#148](https://github.com/lz4/lz4-java/issues/148)
+  Added changes to release lz4-pure-java artifact. (Evelyn Zhang, Rei Odaira)
+
+- [#144](https://github.com/lz4/lz4-java/pull/144)
+  Added getExpectedContentSize() and isExpectedContentSizeDefined() to
+  LZ4FrameInputStream to expose the content size information.
+  Added a new constructor to LZ4FrameInputStream to specify whether
+  it is going to read only one frame or all of the concatenated frames.
+  (Bastien Fiorentino, Rei Odaira)
+
+- [#143](https://github.com/lz4/lz4-java/pull/143)
+  Improved LZ4BlockInputStream by avoiding throwing an exception
+  when stopOnEmptyBlock == false. (Josh Rosen)
+
+- [#141](https://github.com/lz4/lz4-java/issues/141)
+  Renamed the bundle definition file according to the renamed project. (apirom9, Rei Odaira)
+
+- [#132](https://github.com/lz4/lz4-java/issues/132)
+  Fixed an issue on Windows by deleting old temporary files
+  for the native lib at start-up time. (Brian S. O'Neill, Rei Odaira)
+
+- [#131](https://github.com/lz4/lz4-java/issues/131)
+  Supported close() in StreamingXXHash. (Roman Leventov, Rei Odaira)
+
+- Raised the javac source and target level to 1.7. (Rei Odaira)
+
 ## 1.6.0
 
 - Upgraded LZ4 to 1.9.1. Updated the JNI bindings,
