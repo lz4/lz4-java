@@ -13,7 +13,7 @@
 -->
 
 <ivy-module version="2.0">
-  <info organisation="org.lz4" module="lz4-java" revision="1.6-SNAPSHOT" />
+  <info organisation="org.lz4" module="lz4-java" revision="1.8-SNAPSHOT" />
 
   <configurations defaultconfmapping="default->default">
     <conf name="default" />
