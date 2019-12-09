@@ -131,6 +131,8 @@ int hash = hash32.getValue();
 
 You can download released artifacts from [Maven Central](https://search.maven.org/search?q=g:org.lz4%20a:lz4-java).
 
+You can download pure-Java lz4-java from [Maven Central](https://search.maven.org/search?q=g:org.lz4%20a:lz4-pure-java). These artifacts include the Safe and Unsafe Java versions but not JNI bindings. (Experimental)
+
 # Documentation
 
  - [lz4](https://lz4.github.io/lz4-java/1.7.0/docs/net/jpountz/lz4/package-summary.html)
