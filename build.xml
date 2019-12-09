@@ -451,6 +451,11 @@
     <antcall target="-stage" />
   </target>
 
+  <target name="stage-skip-test" description="deploy to release repo, skipping tests" depends="install-maven-ant-tasks,forbidden-apis">
+    <property name="skip.jni" value="true" />
+    <antcall target="-stage" />
+  </target>
+
   <target name="-stage" depends="clean,dist">
     <deploy repositoryid="sonatype-nexus-staging" repositoryurl="https://oss.sonatype.org/service/local/staging/deploy/maven2" />
   </target>
