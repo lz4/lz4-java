@@ -57,6 +57,7 @@ public class LZ4FrameInputStream extends FilterInputStream {
   private int maxBlockSize = -1;
   private long expectedContentSize = -1L;
   private long totalContentSize = 0L;
+  private boolean firstFrameHeaderRead = false;
 
   private LZ4FrameOutputStream.FrameInfo frameInfo = null;
 
@@ -119,7 +120,6 @@ public class LZ4FrameInputStream extends FilterInputStream {
     this.decompressor = decompressor;
     this.checksum = checksum;
     this.readSingleFrame = readSingleFrame;
-    nextFrameInfo();
   }
 
 
@@ -211,6 +211,7 @@ public class LZ4FrameInputStream extends FilterInputStream {
     rawBuffer = new byte[maxBlockSize];
     buffer = ByteBuffer.wrap(rawBuffer);
     buffer.limit(0);
+    firstFrameHeaderRead = true;
   }
 
   private final ByteBuffer readNumberBuff = ByteBuffer.allocate(LZ4FrameOutputStream.LONG_BYTES).order(ByteOrder.LITTLE_ENDIAN);
@@ -312,9 +313,9 @@ public class LZ4FrameInputStream extends FilterInputStream {
 
   @Override
   public int read() throws IOException {
-    while (buffer.remaining() == 0) {
-      if (frameInfo.isFinished()) {
-        if (readSingleFrame) {
+    while (!firstFrameHeaderRead || buffer.remaining() == 0) {
+      if (!firstFrameHeaderRead || frameInfo.isFinished()) {
+        if (firstFrameHeaderRead && readSingleFrame) {
           return -1;
         }
 	if (!nextFrameInfo()) {
@@ -331,9 +332,9 @@ public class LZ4FrameInputStream extends FilterInputStream {
     if ((off < 0) || (len < 0) || (off + len > b.length)) {
       throw new IndexOutOfBoundsException();
     }
-    while (buffer.remaining() == 0) {
-      if (frameInfo.isFinished()) {
-        if (readSingleFrame) {
+    while (!firstFrameHeaderRead || buffer.remaining() == 0) {
+      if (!firstFrameHeaderRead || frameInfo.isFinished()) {
+        if (firstFrameHeaderRead && readSingleFrame) {
           return -1;
         }
 	if (!nextFrameInfo()) {
@@ -352,9 +353,9 @@ public class LZ4FrameInputStream extends FilterInputStream {
     if (n <= 0) {
       return 0;
     }
-    while (buffer.remaining() == 0) {
-      if (frameInfo.isFinished()) {
-        if (readSingleFrame) {
+    while (!firstFrameHeaderRead || buffer.remaining() == 0) {
+      if (!firstFrameHeaderRead || frameInfo.isFinished()) {
+        if (firstFrameHeaderRead && readSingleFrame) {
           return 0;
         }
 	if (!nextFrameInfo()) {
@@ -402,9 +403,14 @@ public class LZ4FrameInputStream extends FilterInputStream {
    *
    * @see #LZ4FrameInputStream(InputStream, LZ4SafeDecompressor,  XXHash32, boolean)
    */
-  public long getExpectedContentSize() {
+  public long getExpectedContentSize() throws IOException {
     if (!readSingleFrame) {
       throw new UnsupportedOperationException("Operation not permitted when multiple frames can be read");
+    }
+    if (!firstFrameHeaderRead) {
+      if (!nextFrameInfo()) {
+	return -1L;
+      }
     }
     return expectedContentSize;
   }
@@ -414,8 +420,13 @@ public class LZ4FrameInputStream extends FilterInputStream {
    *
    * @return true if this instance is supposed to read only one frame and if the optional content size is set in the frame.
    */
-  public boolean isExpectedContentSizeDefined() {
+  public boolean isExpectedContentSizeDefined() throws IOException {
     if (readSingleFrame) {
+      if (!firstFrameHeaderRead) {
+	if (!nextFrameInfo()) {
+	  return false;
+	}
+      }
       return expectedContentSize >= 0;
     } else {
       return false;
