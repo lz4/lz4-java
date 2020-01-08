@@ -52,6 +52,10 @@
    <os family="mac"/>
   </condition>
 
+  <condition property="isMacOS">
+    <os family="mac"/>
+  </condition>
+
   <condition property="java10+">
     <javaversion atleast="10"/>
   </condition>
@@ -210,6 +214,7 @@
       <fileset dir="${src}/lz4/lib" includes="lz4.c, lz4hc.c, xxhash.c" />
       <fileset dir="${src}/jni" includes="*.c" />
       <linker />
+      <compilerarg value="-mmacosx-version-min=10.9" if="${isMacOS}"/>
     </cpptasks:cc>
   </target>
 
