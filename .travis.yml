@@ -15,11 +15,11 @@ jobs:
         - tar xvzf apache-ant-1.10.6-bin.tar.gz
         - ./apache-ant-1.10.6/bin/ant ivy-bootstrap
         - ./apache-ant-1.10.6/bin/ant init
-        script:
-          - ./apache-ant-1.10.6/bin/ant dist
-          - ./apache-ant-1.10.6/bin/ant test
-          - ./apache-ant-1.10.6/bin/ant clean
-          - ./apache-ant-1.10.6/bin/ant test-skip-jni
+      script:
+        - ./apache-ant-1.10.6/bin/ant dist
+        - ./apache-ant-1.10.6/bin/ant test
+        - ./apache-ant-1.10.6/bin/ant clean
+        - ./apache-ant-1.10.6/bin/ant test-skip-jni
 
     - name: macOS test
       os: osx
@@ -32,8 +32,8 @@ jobs:
         - tar xvzf apache-ant-1.10.6-bin.tar.gz
         - ./apache-ant-1.10.6/bin/ant ivy-bootstrap
         - ./apache-ant-1.10.6/bin/ant init
-        script:
-          - ./apache-ant-1.10.6/bin/ant dist
-          - ./apache-ant-1.10.6/bin/ant test
-          - ./apache-ant-1.10.6/bin/ant clean
-          - ./apache-ant-1.10.6/bin/ant test-skip-jni
+      script:
+        - ./apache-ant-1.10.6/bin/ant dist
+        - ./apache-ant-1.10.6/bin/ant test
+        - ./apache-ant-1.10.6/bin/ant clean
+        - ./apache-ant-1.10.6/bin/ant test-skip-jni
