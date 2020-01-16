@@ -75,7 +75,7 @@
 
   <target name="-ivy-install" unless="ivy.available">
     <mkdir dir="${user.home}/.ant/lib" />
-    <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.jar.version}/${ivy.jar.name}" dest="${user.home}/.ant/lib/${ivy.jar.name}"/>
+    <get src="https://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.jar.version}/${ivy.jar.name}" dest="${user.home}/.ant/lib/${ivy.jar.name}"/>
   </target>
 
   <target name="install-cpptasks" unless="cpptasks.available">
