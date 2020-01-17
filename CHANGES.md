@@ -1,5 +1,13 @@
 # Change log
 
+## 1.7.1
+
+- [#156](https://github.com/lz4/lz4-java/issues/156)
+  Fixed the JNI binding of macOS Darwin/x86_64 to support 10.9 and above.
+  (Takeshi Yamamuro, Lars Francke, Rei Odaira)
+
+- Added macOS, arm64, and ppc64le support in Travis CI. (Rei Odaira)
+
 ## 1.7.0
 
 - Upgraded LZ4 to 1.9.2. Updated the JNI bindings.
