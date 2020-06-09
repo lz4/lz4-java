@@ -3,6 +3,8 @@ package net.jpountz.xxhash;
 import java.nio.ByteBuffer;
 
 /*
+ * Copyright 2020 Linnaea Von Lavia and the lz4-java contributors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
