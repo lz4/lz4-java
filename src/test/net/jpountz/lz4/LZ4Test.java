@@ -32,6 +32,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
+import com.carrotsearch.randomizedtesting.annotations.Seed;
+import com.carrotsearch.randomizedtesting.annotations.Seeds;
 
 public class LZ4Test extends AbstractLZ4Test {
 
@@ -90,12 +92,14 @@ public class LZ4Test extends AbstractLZ4Test {
     if (len >= LZ4Constants.RUN_MASK) {
       baos.write(LZ4Constants.RUN_MASK << LZ4Constants.ML_BITS);
       len -= LZ4Constants.RUN_MASK;
+      while (len >= 255) {
+        baos.write(255);
+        len -= 255;
+      }
+      baos.write(len);
+    } else {
+      baos.write(len << LZ4Constants.ML_BITS);
     }
-    while (len >= 255) {
-      baos.write(255);
-      len -= 255;
-    }
-    baos.write(len);
     try {
       baos.write(decompressed);
     } catch (IOException e) {
@@ -138,6 +142,10 @@ public class LZ4Test extends AbstractLZ4Test {
     assertArrayEquals(decompressed, restored);
   }
 
+  @Seeds({
+    @Seed("69CCC65267F3C588"),  // Seed that generates len < 16
+    @Seed()
+  })
   @Test
   public void testUncompressSafeWorstCase() {
     for (LZ4SafeDecompressor decompressor : SAFE_DECOMPRESSORS) {
