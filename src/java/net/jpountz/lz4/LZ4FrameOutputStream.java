@@ -203,6 +203,10 @@ public class LZ4FrameOutputStream extends FilterOutputStream {
     // Make sure there's no stale data
     Arrays.fill(compressedBuffer, (byte) 0);
 
+    if (frameInfo.isEnabled(FLG.Bits.CONTENT_CHECKSUM)) {
+      frameInfo.updateStreamHash(buffer.array(), 0, buffer.position());
+    }
+
     int compressedLength = compressor.compress(buffer.array(), 0, buffer.position(), compressedBuffer, 0);
     final byte[] bufferToWrite;
     final int compressMethod;
@@ -253,10 +257,6 @@ public class LZ4FrameOutputStream extends FilterOutputStream {
       writeBlock();
     }
     buffer.put((byte) b);
-
-    if (frameInfo.isEnabled(FLG.Bits.CONTENT_CHECKSUM)) {
-      frameInfo.updateStreamHash(new byte[]{(byte) b}, 0, 1);
-    }
   }
 
   @Override
@@ -271,19 +271,12 @@ public class LZ4FrameOutputStream extends FilterOutputStream {
       int sizeWritten = buffer.remaining();
       // fill remaining space in buffer
       buffer.put(b, off, sizeWritten);
-      if (frameInfo.isEnabled(FLG.Bits.CONTENT_CHECKSUM)) {
-        frameInfo.updateStreamHash(b, off, sizeWritten);
-      }
       writeBlock();
       // compute new offset and length
       off += sizeWritten;
       len -= sizeWritten;
     }
     buffer.put(b, off, len);
-
-    if (frameInfo.isEnabled(FLG.Bits.CONTENT_CHECKSUM)) {
-      frameInfo.updateStreamHash(b, off, len);
-    }
   }
 
   @Override
