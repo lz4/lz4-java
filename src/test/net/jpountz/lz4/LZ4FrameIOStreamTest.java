@@ -345,6 +345,25 @@ public class LZ4FrameIOStreamTest {
     }
   }
 
+  @Test
+  public void testInputOutputWithBlockChecksum() throws IOException {
+    final File lz4File = Files.createTempFile("lz4test", ".lz4").toFile();
+    try {
+      try (OutputStream os = new LZ4FrameOutputStream(new FileOutputStream(lz4File),
+                                                      LZ4FrameOutputStream.BLOCKSIZE.SIZE_64KB,
+                                                      LZ4FrameOutputStream.FLG.Bits.BLOCK_INDEPENDENCE,
+                                                      LZ4FrameOutputStream.FLG.Bits.BLOCK_CHECKSUM)) {
+        try (InputStream is = new FileInputStream(tmpFile)) {
+          copy(is, os);
+        }
+      }
+      try (InputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File))) {
+        validateStreamEquals(is, tmpFile);
+      }
+    } finally {
+      lz4File.delete();
+    }
+  }
 
   @Test
   public void testInputOutputMultipleFrames() throws IOException {
