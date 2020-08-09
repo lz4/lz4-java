@@ -151,7 +151,11 @@ public enum Native {
 	  }
 	}
       } else {
-	tempLib.deleteOnExit();
+        final String keepEnv = System.getenv("LZ4JAVA_KEEP_TEMP_JNI_LIB");
+        final String keepProp = System.getProperty("lz4java.jnilib.temp.keep");
+        if ((keepEnv == null || !keepEnv.equals("true")) &&
+            (keepProp == null || !keepProp.equals("true")))
+          tempLib.deleteOnExit();
 	tempLibLock.deleteOnExit();
       }
     }
