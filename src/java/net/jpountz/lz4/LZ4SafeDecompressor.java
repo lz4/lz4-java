@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
- * LZ4 decompressor that requires the size of the compressed data to be known.
+ * LZ4 decompressor that does not require the size of the compressed data to be known.
  * <p>
  * Implementations of this class are usually a little slower than those of
  * {@link LZ4FastDecompressor} but do not require the size of the original data to
