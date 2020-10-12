@@ -10,15 +10,15 @@ jobs:
         - wget https://github.com/lz4/lz4/archive/v1.9.2.tar.gz
         - tar xzvf v1.9.2.tar.gz
         - pushd lz4-1.9.2 && make && sudo make install && popd
-        - wget http://apache.osuosl.org/ant/binaries/apache-ant-1.10.8-bin.tar.gz
-        - tar xvzf apache-ant-1.10.8-bin.tar.gz
-        - ./apache-ant-1.10.8/bin/ant ivy-bootstrap
-        - ./apache-ant-1.10.8/bin/ant init
+        - wget http://apache.osuosl.org/ant/binaries/apache-ant-1.10.9-bin.tar.gz
+        - tar xvzf apache-ant-1.10.9-bin.tar.gz
+        - ./apache-ant-1.10.9/bin/ant ivy-bootstrap
+        - ./apache-ant-1.10.9/bin/ant init
       script:
-        - ./apache-ant-1.10.8/bin/ant dist
-        - ./apache-ant-1.10.8/bin/ant test
-        - ./apache-ant-1.10.8/bin/ant clean
-        - ./apache-ant-1.10.8/bin/ant test-skip-jni
+        - ./apache-ant-1.10.9/bin/ant dist
+        - ./apache-ant-1.10.9/bin/ant test
+        - ./apache-ant-1.10.9/bin/ant clean
+        - ./apache-ant-1.10.9/bin/ant test-skip-jni
 
     - name: Linux test (arm64)
       os: linux
@@ -27,15 +27,15 @@ jobs:
         - wget https://github.com/lz4/lz4/archive/v1.9.2.tar.gz
         - tar xzvf v1.9.2.tar.gz
         - pushd lz4-1.9.2 && make && sudo make install && popd
-        - wget http://apache.osuosl.org/ant/binaries/apache-ant-1.10.8-bin.tar.gz
-        - tar xvzf apache-ant-1.10.8-bin.tar.gz
-        - ./apache-ant-1.10.8/bin/ant ivy-bootstrap
-        - ./apache-ant-1.10.8/bin/ant init
+        - wget http://apache.osuosl.org/ant/binaries/apache-ant-1.10.9-bin.tar.gz
+        - tar xvzf apache-ant-1.10.9-bin.tar.gz
+        - ./apache-ant-1.10.9/bin/ant ivy-bootstrap
+        - ./apache-ant-1.10.9/bin/ant init
       script:
-        - ./apache-ant-1.10.8/bin/ant dist
-        - ./apache-ant-1.10.8/bin/ant test
-        - ./apache-ant-1.10.8/bin/ant clean
-        - ./apache-ant-1.10.8/bin/ant test-skip-jni
+        - ./apache-ant-1.10.9/bin/ant dist
+        - ./apache-ant-1.10.9/bin/ant test
+        - ./apache-ant-1.10.9/bin/ant clean
+        - ./apache-ant-1.10.9/bin/ant test-skip-jni
 
     - name: Linux test (ppc64le)
       os: linux
@@ -44,15 +44,15 @@ jobs:
         - wget https://github.com/lz4/lz4/archive/v1.9.2.tar.gz
         - tar xzvf v1.9.2.tar.gz
         - pushd lz4-1.9.2 && make && sudo make install && popd
-        - wget http://apache.osuosl.org/ant/binaries/apache-ant-1.10.8-bin.tar.gz
-        - tar xvzf apache-ant-1.10.8-bin.tar.gz
-        - ./apache-ant-1.10.8/bin/ant ivy-bootstrap
-        - ./apache-ant-1.10.8/bin/ant init
+        - wget http://apache.osuosl.org/ant/binaries/apache-ant-1.10.9-bin.tar.gz
+        - tar xvzf apache-ant-1.10.9-bin.tar.gz
+        - ./apache-ant-1.10.9/bin/ant ivy-bootstrap
+        - ./apache-ant-1.10.9/bin/ant init
       script:
-        - ./apache-ant-1.10.8/bin/ant dist
-        - ./apache-ant-1.10.8/bin/ant test
-        - ./apache-ant-1.10.8/bin/ant clean
-        - ./apache-ant-1.10.8/bin/ant test-skip-jni
+        - ./apache-ant-1.10.9/bin/ant dist
+        - ./apache-ant-1.10.9/bin/ant test
+        - ./apache-ant-1.10.9/bin/ant clean
+        - ./apache-ant-1.10.9/bin/ant test-skip-jni
 
     - name: macOS test
       os: osx
@@ -61,12 +61,12 @@ jobs:
         - wget https://github.com/lz4/lz4/archive/v1.9.2.tar.gz
         - tar xzvf v1.9.2.tar.gz
         - pushd lz4-1.9.2 && make && sudo make install && popd
-        - wget http://apache.osuosl.org/ant/binaries/apache-ant-1.10.8-bin.tar.gz
-        - tar xvzf apache-ant-1.10.8-bin.tar.gz
-        - ./apache-ant-1.10.8/bin/ant ivy-bootstrap
-        - ./apache-ant-1.10.8/bin/ant init
+        - wget http://apache.osuosl.org/ant/binaries/apache-ant-1.10.9-bin.tar.gz
+        - tar xvzf apache-ant-1.10.9-bin.tar.gz
+        - ./apache-ant-1.10.9/bin/ant ivy-bootstrap
+        - ./apache-ant-1.10.9/bin/ant init
       script:
-        - ./apache-ant-1.10.8/bin/ant dist
-        - ./apache-ant-1.10.8/bin/ant test
-        - ./apache-ant-1.10.8/bin/ant clean
-        - ./apache-ant-1.10.8/bin/ant test-skip-jni
+        - ./apache-ant-1.10.9/bin/ant dist
+        - ./apache-ant-1.10.9/bin/ant test
+        - ./apache-ant-1.10.9/bin/ant clean
+        - ./apache-ant-1.10.9/bin/ant test-skip-jni
