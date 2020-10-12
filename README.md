@@ -155,7 +155,7 @@ speed at which they compress/decompress/hash bytes.
 ## Requirements
 
  - JDK version 7 or newer,
- - ant,
+ - ant version 1.10.2 or newer,
  - ivy.
 
 If ivy is not installed yet, ant can take care of it for you, just run
