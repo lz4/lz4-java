@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -483,6 +484,19 @@ public class LZ4Test extends AbstractLZ4Test {
         13, 85, 5, 72, 13, 72, 13, 85, 5, 72, 13, -19, -24, -101, -35
       };
     testRoundTrip(data, 9, data.length - 9);
+  }
+
+  @Test
+  public void testNativeFastContinue() {
+    final byte[] src = "01234567890123456789".getBytes(StandardCharsets.US_ASCII);
+    final byte[] dest = new byte[LZ4JNI.LZ4_compressBound(src.length)];
+    final int compressLen = LZ4JNI.LZ4_compress_fast_continue(src, null, 0, src.length, dest, null, 0, dest.length, 1);
+    final byte[] compressed = Arrays.copyOf(dest, compressLen);
+
+    final byte[] decompressed = new byte[src.length];
+    final int decompressedLen = LZ4JNI.LZ4_decompress_fast(compressed, null, 0, decompressed, null, 0, decompressed.length);
+    assertEquals(compressLen, decompressedLen);
+    assertArrayEquals(src, decompressed);
   }
 
   private static void assertCompressedArrayEquals(String message, byte[] expected, byte[] actual) {
