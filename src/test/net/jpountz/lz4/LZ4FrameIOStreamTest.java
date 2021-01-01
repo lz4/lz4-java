@@ -51,6 +51,12 @@ import java.util.Random;
  */
 @RunWith(Parameterized.class)
 public class LZ4FrameIOStreamTest {
+  private final static String LZ4_COMMAND;
+
+  static {
+    LZ4_COMMAND = System.getProperty("os.name").contains("Windows") ? "lz4.exe" : "lz4";
+  }
+
   private static void copy(InputStream in, OutputStream out) throws IOException {
     final byte[] buffer = new byte[1 << 10];
     int inSize = in.read(buffer);;
@@ -428,7 +434,7 @@ public class LZ4FrameIOStreamTest {
     try {
       final ProcessBuilder builder = new ProcessBuilder();
       final ArrayList<String> cmd = new ArrayList<>();
-      cmd.add("lz4");
+      cmd.add(LZ4_COMMAND);
       if (args != null) {
         cmd.addAll(Arrays.asList(args));
       }
@@ -470,7 +476,7 @@ public class LZ4FrameIOStreamTest {
   }
 
   private static boolean hasNativeLz4CLI() throws IOException, InterruptedException {
-    ProcessBuilder checkBuilder = new ProcessBuilder().command("lz4", "-V").inheritIO();
+    ProcessBuilder checkBuilder = new ProcessBuilder().command(LZ4_COMMAND, "-V").inheritIO();
     Process checkProcess = checkBuilder.start();
     return checkProcess.waitFor() == 0;
   }
@@ -498,7 +504,7 @@ public class LZ4FrameIOStreamTest {
       }
 
       final ProcessBuilder builder = new ProcessBuilder();
-      builder.command("lz4", "-d", "-vvvvvvv", lz4File.getAbsolutePath(), unCompressedFile.getAbsolutePath()).inheritIO();
+      builder.command(LZ4_COMMAND, "-d", "-vvvvvvv", lz4File.getAbsolutePath(), unCompressedFile.getAbsolutePath()).inheritIO();
       Process process = builder.start();
       int retval = process.waitFor();
       Assert.assertEquals(0, retval);
