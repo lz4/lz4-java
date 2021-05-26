@@ -400,6 +400,7 @@ public class LZ4FrameInputStream extends FilterInputStream {
    * A call to this method is valid only when this instance is supposed to read only one frame (readSingleFrame == true).
    *
    * @return the expected content size, or -1L if no expected content size is set in the frame.
+   * @throws IOException On input stream read exception
    *
    * @see #LZ4FrameInputStream(InputStream, LZ4SafeDecompressor,  XXHash32, boolean)
    */
@@ -419,6 +420,7 @@ public class LZ4FrameInputStream extends FilterInputStream {
    * Checks if the optionnal Content Size is set (FLG.Bits.CONTENT_SIZE is enabled).
    *
    * @return true if this instance is supposed to read only one frame and if the optional content size is set in the frame.
+   * @throws IOException On input stream read exception
    */
   public boolean isExpectedContentSizeDefined() throws IOException {
     if (readSingleFrame) {
