@@ -161,6 +161,13 @@ speed at which they compress/decompress/hash bytes.
 If ivy is not installed yet, ant can take care of it for you, just run
 `ant ivy-bootstrap`. The library will be installed under ${user.home}/.ant/lib.
 
+You might hit an error like the following when the ivy in ${user.home}/.ant/lib is old. You can delete it and then run `ant ivy-bootstrap` again to install the latest version.
+```
+[ivy:resolve] 		::::::::::::::::::::::::::::::::::::::::::::::
+[ivy:resolve] 		::          UNRESOLVED DEPENDENCIES         ::
+[ivy:resolve] 		::::::::::::::::::::::::::::::::::::::::::::::
+```
+
 ## Instructions
 
 For lz4-java 1.5.0 or newer, first run `git submodule init` and then `git submodule update`
