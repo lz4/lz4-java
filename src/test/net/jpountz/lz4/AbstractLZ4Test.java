@@ -100,7 +100,7 @@ public abstract class AbstractLZ4Test extends RandomizedTest {
       @Override
       public int decompress(LZ4SafeDecompressor decompressor,
           byte[] src, int srcOff, int srcLen, byte[] dest, int destOff, int maxDestLen) {
-        return -1;
+        return new LZ4DecompressorWithLength(decompressor).decompress(src, srcOff, srcLen, dest, destOff);
       }
     };
 
@@ -190,7 +190,7 @@ public abstract class AbstractLZ4Test extends RandomizedTest {
       @Override
       public int decompress(LZ4SafeDecompressor decompressor, ByteBuffer src,
           int srcOff, int srcLen, ByteBuffer dest, int destOff, int maxDestLen) {
-        return -1;
+        return new LZ4DecompressorWithLength(decompressor).decompress(src, srcOff, srcLen, dest, destOff);
       }
     };
   }
