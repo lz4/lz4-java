@@ -48,6 +48,7 @@ public abstract class LZ4SafeDecompressor implements LZ4UnknownSizeDecompressor 
    * Decompresses <code>src[srcOff:srcOff+srcLen]</code> into
    * <code>dest[destOff:destOff+maxDestLen]</code> and returns the number of
    * decompressed bytes written into <code>dest</code>.
+   * The positions and limits of the {@link ByteBuffer}s remain unchanged.
    *
    * @param src the compressed data
    * @param srcOff the start offset in src
