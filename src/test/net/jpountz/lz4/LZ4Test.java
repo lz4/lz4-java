@@ -160,6 +160,11 @@ public class LZ4Test extends AbstractLZ4Test {
     for (Tester<?> tester : Arrays.asList(Tester.BYTE_ARRAY, Tester.BYTE_BUFFER, Tester.BYTE_ARRAY_WITH_LENGTH, Tester.BYTE_BUFFER_WITH_LENGTH)) {
       testRoundTrip(tester, data, off, len, compressor, decompressor, decompressor2);
     }
+    if (data.length == len && off == 0) {
+      for (SrcDestTester<?> tester : Arrays.asList(SrcDestTester.BYTE_ARRAY, SrcDestTester.BYTE_BUFFER, SrcDestTester.BYTE_ARRAY_WITH_LENGTH, SrcDestTester.BYTE_BUFFER_WITH_LENGTH)) {
+        testRoundTrip(tester, data, compressor, decompressor, decompressor2);
+      }
+    }
   }
 
   public <T> void testRoundTrip(
@@ -247,6 +252,53 @@ public class LZ4Test extends AbstractLZ4Test {
       }
     } catch (LZ4Exception e) {
       // OK
+    }
+  }
+
+  public <T> void testRoundTrip(SrcDestTester<T> tester,
+                                byte[] data,
+                                LZ4Compressor compressor,
+                                LZ4FastDecompressor decompressor,
+                                LZ4SafeDecompressor decompressor2) {
+    final T original = tester.copyOf(data);
+    final int maxCompressedLength = tester.maxCompressedLength(data.length);
+    final T compressed = tester.allocate(maxCompressedLength);
+    final int compressedLen = tester.compress(compressor,
+                                              original,
+                                              compressed);
+    if (original instanceof ByteBuffer) {
+      assertEquals(data.length, ((ByteBuffer)original).position());
+      assertEquals(compressedLen, ((ByteBuffer)compressed).position());
+      ((ByteBuffer)original).rewind();
+      ((ByteBuffer)compressed).rewind();
+    }
+
+    // test decompression
+    final T restored = tester.allocate(data.length);
+    assertEquals(compressedLen, tester.decompress(decompressor, compressed, restored));
+    if (original instanceof ByteBuffer) {
+      assertEquals(compressedLen, ((ByteBuffer)compressed).position());
+      assertEquals(data.length, ((ByteBuffer)restored).position());
+    }
+    assertArrayEquals(data, tester.copyOf(restored, 0, data.length));
+    if (original instanceof ByteBuffer) {
+      ((ByteBuffer)compressed).rewind();
+      ((ByteBuffer)restored).rewind();
+    }
+
+    // try decompression when only the size of the compressed buffer is known
+    tester.fill(restored, randomByte());
+    // Truncate the compressed buffer to the exact size
+    final T compressedExactSize = tester.copyOf(tester.copyOf(compressed, 0, compressedLen));
+    assertEquals(data.length, tester.decompress(decompressor2, compressedExactSize, restored));
+    if (original instanceof ByteBuffer) {
+      assertEquals(compressedLen, ((ByteBuffer)compressedExactSize).position());
+      assertEquals(data.length, ((ByteBuffer)restored).position());
+    }
+    assertArrayEquals(data, tester.copyOf(restored, 0, data.length));
+    if (original instanceof ByteBuffer) {
+      ((ByteBuffer)compressedExactSize).rewind();
+      ((ByteBuffer)restored).rewind();
     }
   }
 

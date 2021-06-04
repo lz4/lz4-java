@@ -195,6 +195,175 @@ public abstract class AbstractLZ4Test extends RandomizedTest {
     };
   }
 
+  // Tester to test a simple compress/decompress(src, dest) type of APIs
+  public interface SrcDestTester<T> {
+
+    T allocate(int length);
+    T copyOf(byte[] array);
+    byte[] copyOf(T data, int off, int len);
+    int maxCompressedLength(int len);
+    int compress(LZ4Compressor compressor, T src, T dest);
+    int decompress(LZ4FastDecompressor decompressor, T src, T dest);
+    int decompress(LZ4SafeDecompressor decompressor, T src, T dest);
+    void fill(T instance, byte b);
+
+    public static class ByteArrayTester implements SrcDestTester<byte[]> {
+
+      @Override
+      public byte[] allocate(int length) {
+        return new byte[length];
+      }
+
+      @Override
+      public byte[] copyOf(byte[] array) {
+        return Arrays.copyOf(array, array.length);
+      }
+
+      @Override
+      public byte[] copyOf(byte[] data, int off, int len) {
+        return Arrays.copyOfRange(data, off, off + len);
+      }
+
+      @Override
+      public int maxCompressedLength(int len) {
+	return LZ4Utils.maxCompressedLength(len);
+      }
+
+      @Override
+      public int compress(LZ4Compressor compressor, byte[] src, byte[] dest) {
+        return compressor.compress(src, dest);
+      }
+
+      @Override
+      public int decompress(LZ4FastDecompressor decompressor, byte[] src, byte[] dest) {
+        return decompressor.decompress(src, dest);
+      }
+
+      @Override
+      public int decompress(LZ4SafeDecompressor decompressor, byte[] src, byte[] dest) {
+        return decompressor.decompress(src, dest);
+      }
+
+      @Override
+      public void fill(byte[] instance, byte b) {
+        Arrays.fill(instance, b);
+      }
+    }
+    public static final SrcDestTester<byte[]> BYTE_ARRAY = new ByteArrayTester();
+    public static final SrcDestTester<byte[]> BYTE_ARRAY_WITH_LENGTH = new ByteArrayTester() {
+      @Override
+      public int compress(LZ4Compressor compressor, byte[] src, byte[] dest) {
+        return new LZ4CompressorWithLength(compressor).compress(src, dest);
+      }
+
+      @Override
+      public int decompress(LZ4FastDecompressor decompressor, byte[] src, byte[] dest) {
+        return new LZ4DecompressorWithLength(decompressor).decompress(src, dest);
+      }
+
+      @Override
+      public int decompress(LZ4SafeDecompressor decompressor, byte[] src, byte[] dest) {
+        return new LZ4DecompressorWithLength(decompressor).decompress(src, dest);
+      }
+    };
+
+    public static class ByteBufferTester implements SrcDestTester<ByteBuffer> {
+
+      @Override
+      public ByteBuffer allocate(int length) {
+        ByteBuffer bb;
+        int slice = randomInt(5);
+        if (randomBoolean()) {
+          bb = ByteBuffer.allocate(length + slice);
+        } else {
+          bb = ByteBuffer.allocateDirect(length + slice);
+        }
+        bb.position(slice);
+        bb = bb.slice();
+        if (randomBoolean()) {
+          bb.order(ByteOrder.LITTLE_ENDIAN);
+        } else {
+          bb.order(ByteOrder.BIG_ENDIAN);
+        }
+        return bb;
+      }
+
+      @Override
+      public ByteBuffer copyOf(byte[] array) {
+        ByteBuffer bb = allocate(array.length).put(array);
+        if (randomBoolean()) {
+          bb = bb.asReadOnlyBuffer();
+        }
+        bb.position(0);
+        return bb;
+      }
+
+      @Override
+      public byte[] copyOf(ByteBuffer data, int off, int len) {
+        byte[] copy = new byte[len];
+        data.position(off);
+        data.get(copy);
+        return copy;
+      }
+
+      @Override
+      public int maxCompressedLength(int len) {
+	return LZ4Utils.maxCompressedLength(len);
+      }
+
+      @Override
+      public int compress(LZ4Compressor compressor, ByteBuffer src, ByteBuffer dest) {
+        final int pos = dest.position();
+        compressor.compress(src, dest);
+        return dest.position() - pos;
+      }
+
+      @Override
+      public int decompress(LZ4FastDecompressor decompressor, ByteBuffer src, ByteBuffer dest) {
+        final int pos = src.position();
+        decompressor.decompress(src, dest);
+        return src.position() - pos;
+      }
+
+      @Override
+      public int decompress(LZ4SafeDecompressor decompressor, ByteBuffer src, ByteBuffer dest) {
+        final int pos = dest.position();
+        decompressor.decompress(src, dest);
+        return dest.position() - pos;
+      }
+
+      @Override
+      public void fill(ByteBuffer instance, byte b) {
+        for (int i = 0; i < instance.capacity(); ++i) {
+          instance.put(i, b);
+        }
+      }
+    }
+    public static final SrcDestTester<ByteBuffer> BYTE_BUFFER = new ByteBufferTester();
+    public static final SrcDestTester<ByteBuffer> BYTE_BUFFER_WITH_LENGTH = new ByteBufferTester() {
+      @Override
+      public int compress(LZ4Compressor compressor, ByteBuffer src, ByteBuffer dest) {
+        final int pos = dest.position();
+        new LZ4CompressorWithLength(compressor).compress(src, dest);
+        return dest.position() - pos;
+      }
+
+      @Override
+      public int decompress(LZ4FastDecompressor decompressor, ByteBuffer src, ByteBuffer dest) {
+        final int pos = src.position();
+        new LZ4DecompressorWithLength(decompressor).decompress(src, dest);
+        return src.position() - pos;
+      }
+
+      @Override
+      public int decompress(LZ4SafeDecompressor decompressor, ByteBuffer src, ByteBuffer dest) {
+        final int pos = dest.position();
+        new LZ4DecompressorWithLength(decompressor).decompress(src, dest);
+        return dest.position() - pos;
+      }
+    };
+  }
+
   protected class RandomBytes {
     private final byte[] bytes;
     RandomBytes(int n) {
