@@ -135,7 +135,15 @@ public class LZ4FrameInputStream extends FilterInputStream {
       do {
 	final int mySize = in.read(readNumberBuff.array(), size, LZ4FrameOutputStream.INTEGER_BYTES - size);
 	if (mySize < 0) {
-	  return false;
+          if (firstFrameHeaderRead) {
+            if (size > 0) {
+              throw new IOException(PREMATURE_EOS);
+            } else {
+              return false;
+            }
+          } else {
+            throw new IOException(PREMATURE_EOS);
+          }
 	}
 	size += mySize;
       } while (size < LZ4FrameOutputStream.INTEGER_BYTES);
@@ -161,6 +169,7 @@ public class LZ4FrameInputStream extends FilterInputStream {
       }
       skipSize -= mySize;
     }
+    firstFrameHeaderRead = true;
   }
 
   /**

@@ -31,6 +31,7 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.SequenceInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -508,6 +509,50 @@ public class LZ4FrameIOStreamTest {
     } finally {
       lz4File.delete();
       unCompressedFile.delete();
+    }
+  }
+
+  @Test
+  public void testEmptyLZ4Input() {
+    try (InputStream is = new LZ4FrameInputStream(new ByteArrayInputStream(new byte[0]))) {
+      is.read();
+      Assert.assertFalse(true);
+    } catch (IOException ex) {
+      // OK
+    } catch (Exception ex) {
+      Assert.assertFalse(true);
+    }
+  }
+
+  @Test
+  public void testPrematureMagicNb() throws IOException {
+    try (InputStream is = new LZ4FrameInputStream(new ByteArrayInputStream(new byte[1]))) {
+      is.read();
+      Assert.assertFalse(true);
+    } catch (IOException ex) {
+      // OK
+    } catch (Exception ex) {
+      Assert.assertFalse(true);
+    }
+
+    final File lz4File = Files.createTempFile("lz4test", ".lz4").toFile();
+    try {
+      try (OutputStream os = new LZ4FrameOutputStream(new FileOutputStream(lz4File))) {
+        try (InputStream is = new FileInputStream(tmpFile)) {
+          copy(is, os);
+        }
+      }
+      try (InputStream is = new LZ4FrameInputStream(new SequenceInputStream(new FileInputStream(lz4File), new ByteArrayInputStream(new byte[1])))) {
+        validateStreamEquals(is, tmpFile);
+        is.read();
+        Assert.assertFalse(true);
+      } catch (IOException ex) {
+        // OK
+      } catch (Exception ex) {
+        Assert.assertFalse(true);
+      }
+    } finally {
+      lz4File.delete();
     }
   }
 }
