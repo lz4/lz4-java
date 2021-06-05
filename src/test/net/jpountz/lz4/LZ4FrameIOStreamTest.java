@@ -294,6 +294,15 @@ public class LZ4FrameIOStreamTest {
       try (InputStream is = new LZ4FrameInputStream(new FileInputStream(lz4File))) {
 	Assert.assertEquals(-1, is.read());
       }
+      // Extra one byte at the tail
+      try (InputStream is = new LZ4FrameInputStream(new SequenceInputStream(new FileInputStream(lz4File), new ByteArrayInputStream(new byte[1])))) {
+        is.read();
+        Assert.assertFalse(true);
+      } catch (IOException ex) {
+        // OK
+      } catch (Exception ex) {
+        Assert.assertFalse(true);
+      }
     } finally {
       lz4File.delete();
     }
@@ -542,6 +551,7 @@ public class LZ4FrameIOStreamTest {
           copy(is, os);
         }
       }
+      // Extra one byte at the tail
       try (InputStream is = new LZ4FrameInputStream(new SequenceInputStream(new FileInputStream(lz4File), new ByteArrayInputStream(new byte[1])))) {
         validateStreamEquals(is, tmpFile);
         is.read();
