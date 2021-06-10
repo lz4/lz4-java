@@ -1,5 +1,56 @@
 # Change log
 
+## 1.8.0
+
+- Upgraded LZ4 to 1.9.3. Updated the JNI bindings. Minimum glibc version in GNU/Linux platforms: 2.17 on aarch64, 2.2.5 on amd64, 2.17 on ppc64le, 2.2 on s390x.
+
+- Supported the JNI binding for Darwin aarch64.
+
+- [#174](https://github.com/lz4/lz4-java/issues/174)
+  Fixed NullPointerException when reading a malformed input by LZ4FrameInputStream.
+  (Marco Berlot, Rei Odaira)
+
+- [#169](https://github.com/lz4/lz4-java/issues/169)
+  Added information about requiring ant 1.10.2 or newer.
+  (guru prasad HB, Rei Odaira)
+
+- [#167](https://github.com/lz4/lz4-java/issues/167)
+  Supported using LZ4SafeDecompressor in LZ4DecompressorWithLength.
+  (sahilpaudel-pe, Rei Odaira)
+
+- [#163](https://github.com/lz4/lz4-java/issues/163)
+  Supported JNI binding in old CentOS 6 on amd64.
+  (dcapwell, Rei Odaira)
+
+- [#162](https://github.com/lz4/lz4-java/issues/162)
+  Added copyright notices, required by Apache License, Version 2.0.
+  (Egor Nepomnyaschih, Rei Odaira)
+
+- [#160](https://github.com/lz4/lz4-java/issues/160)
+  Added minimum glibc version to each release.
+  (patelh, Rei Odaira)
+
+- [#146](https://github.com/lz4/lz4-java/issues/146)
+  Improved LZ4FrameInputStream to read InputStream lazily.
+  Instance creation of LZ4FrameInputStream became faster.
+  (Björn Michael, Rei Odaira)
+
+- Improved the speed of the write methods of LZ4FrameOutputStream by
+  delaying calculating content checksum.
+  (Rei Odaira)
+
+- Added a debug functionality to not delete a temporary JNI library
+  when either LZ4JAVA_KEEP_TEMP_JNI_LIB or lz4java.jnilib.temp.keep is
+  set to true (will be deleted in the next run).
+  (Rei Odaira)
+
+- Enabled build with Java 13. The distribution is still
+  built with Java 7. (Rei Odaira)
+
+- Revised the documentation. (Rei Odaira)
+
+- More test coverage. (Rei Odaira)
+
 ## 1.7.1
 
 - [#156](https://github.com/lz4/lz4-java/issues/156)
