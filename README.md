@@ -1,7 +1,5 @@
 # LZ4 Java
 
-[![Build Status](https://travis-ci.org/lz4/lz4-java.svg?branch=master)](https://travis-ci.org/lz4/lz4-java)
-
 LZ4 compression for Java, based on Yann Collet's work available at
 http://code.google.com/p/lz4/.
 
