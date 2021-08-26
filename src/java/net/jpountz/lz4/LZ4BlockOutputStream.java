@@ -55,6 +55,34 @@ public class LZ4BlockOutputStream extends FilterOutputStream {
 
   static final int DEFAULT_SEED = 0x9747b28c;
 
+  /**
+   * This class is for the backward-compatibility before https://github.com/lz4/lz4-java/pull/181.
+   */
+  static class Drop4BitsChecksum implements Checksum {
+
+    private Checksum checksum;
+
+    Drop4BitsChecksum(Checksum checksum) {
+      this.checksum = checksum;
+    }
+
+    @Override public void update(int b) {
+      checksum.update(b);
+    }
+
+    @Override public void update(byte[] b, int off, int len) {
+      checksum.update(b, off, len);
+    }
+
+    @Override public long getValue() {
+      return checksum.getValue() & 0x0FFFFFFFL;
+    }
+
+    @Override public void reset() {
+      checksum.reset();
+    }
+  }
+
   private static int compressionLevel(int blockSize) {
     if (blockSize < MIN_BLOCK_SIZE) {
       throw new IllegalArgumentException("blockSize must be >= " + MIN_BLOCK_SIZE + ", got " + blockSize);
@@ -122,7 +150,7 @@ public class LZ4BlockOutputStream extends FilterOutputStream {
    * @see StreamingXXHash32#asChecksum()
    */
   public LZ4BlockOutputStream(OutputStream out, int blockSize, LZ4Compressor compressor) {
-    this(out, blockSize, compressor, XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum(), false);
+    this(out, blockSize, compressor, new Drop4BitsChecksum(XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum()), false);
   }
 
   /**
