@@ -33,6 +33,7 @@ enum XXHashJNI {
   static native int XXH32BB(ByteBuffer input, int offset, int len, int seed);
   static native long XXH32_init(int seed);
   static native void XXH32_update(long state, byte[] input, int offset, int len);
+  static native void XXH32BB_update(long state, ByteBuffer input, int offset, int len);
   static native int XXH32_digest(long state);
   static native void XXH32_free(long state);
 
@@ -40,6 +41,7 @@ enum XXHashJNI {
   static native long XXH64BB(ByteBuffer input, int offset, int len, long seed);
   static native long XXH64_init(long seed);
   static native void XXH64_update(long state, byte[] input, int offset, int len);
+  static native void XXH64BB_update(long state, ByteBuffer input, int offset, int len);
   static native long XXH64_digest(long state);
   static native void XXH64_free(long state);
 }
