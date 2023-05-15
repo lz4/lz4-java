@@ -79,4 +79,8 @@ final class LZ4JNICompressor extends LZ4Compressor {
       return safeInstance.compress(src, srcOff, srcLen, dest, destOff, maxDestLen);
     }
   }
+
+  public int compress(long srcAddr, int srcLen, long destAddr, int maxDestLen) {
+      return LZ4JNI.LZ4_compress_addr(srcAddr, srcLen, destAddr, maxDestLen);
+  }
 }
