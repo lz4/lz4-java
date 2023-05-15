@@ -103,7 +103,7 @@ public abstract class StreamingXXHash32 implements Closeable {
 
       @Override
       public long getValue() {
-        return StreamingXXHash32.this.getValue() & 0xFFFFFFFL;
+        return StreamingXXHash32.this.getValue() & 0xFFFFFFFFL;
       }
 
       @Override
