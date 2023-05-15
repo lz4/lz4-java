@@ -1,5 +1,9 @@
 package net.jpountz.xxhash;
 
+import static net.jpountz.util.ByteBufferUtils.checkRange;
+import static net.jpountz.util.SafeUtils.checkRange;
+import java.nio.ByteBuffer;
+
 /*
  * Copyright 2020 Adrien Grand and the lz4-java contributors.
  *
@@ -67,6 +71,20 @@ final class StreamingXXHash32JNI extends StreamingXXHash32 {
   public synchronized void update(byte[] bytes, int off, int len) {
     checkState();
     XXHashJNI.XXH32_update(state, bytes, off, len);
+  }
+
+  public synchronized void update(ByteBuffer buf, int off, int len) {
+    checkState();
+    if (buf.isDirect()) {
+        checkRange(buf, off, len);
+        XXHashJNI.XXH32BB_update(state, buf, off, len);
+    } else if (buf.hasArray()) {
+        XXHashJNI.XXH32_update(state, buf.array(), off + buf.arrayOffset(), len);
+    } else {
+        // XXX: What to do here?
+        throw new RuntimeException("unsupported");
+    }
+
   }
 
   @Override

@@ -6,6 +6,7 @@ import static net.jpountz.xxhash.XXHashConstants.*;
 import static net.jpountz.util.${type}Utils.*;
 import static net.jpountz.util.SafeUtils.checkRange;
 import static java.lang.Long.rotateLeft;
+import java.nio.ByteBuffer;
 
 /**
  * Streaming xxhash.
@@ -82,6 +83,11 @@ final class StreamingXXHash64Java${type} extends AbstractStreamingXXHash64Java {
     h64 ^= h64 >>> 32;
 
     return h64;
+  }
+
+  @Override
+  public void update(ByteBuffer buf, int off, int len) {
+    throw new RuntimeException("unimplemented");
   }
 
   @Override
@@ -163,4 +169,3 @@ final class StreamingXXHash64Java${type} extends AbstractStreamingXXHash64Java {
   }
 
 }
-
