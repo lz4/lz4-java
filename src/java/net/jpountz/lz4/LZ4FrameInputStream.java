@@ -380,6 +380,8 @@ public class LZ4FrameInputStream extends FilterInputStream {
 
   @Override
   public int available() throws IOException {
+    //增加空判断，避免buffer为null时抛出 NullPointerException
+    if (null == buffer) return 0;
     return buffer.remaining();
   }
 
