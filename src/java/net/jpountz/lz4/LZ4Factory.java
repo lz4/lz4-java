@@ -166,8 +166,8 @@ public final class LZ4Factory {
    * @return the fastest available {@link LZ4Factory} instance
    */
   public static LZ4Factory fastestInstance() {
-    if (PREFER_NATIVE && Native.isLoaded()
-        || Native.class.getClassLoader() == ClassLoader.getSystemClassLoader()) {
+    if (PREFER_NATIVE && (Native.isLoaded()
+        || Native.class.getClassLoader() == ClassLoader.getSystemClassLoader())) {
       try {
         return nativeInstance();
       } catch (Throwable t) {
