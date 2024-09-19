@@ -15,10 +15,15 @@ valid LZ4 stream:
    - rather slow (~ 10 times slower than LZ4),
    - good compression ratio (depending on the size and the redundancy of the
      input).
+ - interoperable (LZ4 Frame):
+   - overlay on top of lz4, that makes it system and library independent
+   - this is the version to employ in order to share lz4 compressed data
+     with other systems using different lz4 frameworks.
 
-The streams produced by those 2 compression algorithms use the same compression
-format, are very fast to decompress and can be decompressed by the same
-decompressor instance.
+The streams produced by LZ4 and LZ4 HC use the same compression format,
+are very fast to decompress and can be decompressed by the same lz4-java decompressor instance.
+
+The streams produced by LZ4 Frame can be read by other independent implementations of LZ4 Frame in any other language, including the `lz4` CLI tool.
 
 ## Implementations
 
