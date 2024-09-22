@@ -56,9 +56,15 @@ public final class LZ4Factory {
     }
   }
 
+  private static final boolean PREFER_NATIVE;
   private static LZ4Factory NATIVE_INSTANCE,
                             JAVA_UNSAFE_INSTANCE,
                             JAVA_SAFE_INSTANCE;
+
+  static {
+    final String preferNativeStr = System.getProperty("net.jpountz.lz4.PREFER_NATIVE");
+    PREFER_NATIVE = preferNativeStr == null || Boolean.valueOf(preferNativeStr);
+  }
 
   /**
    * Returns a {@link LZ4Factory} instance that returns compressors and
@@ -160,8 +166,8 @@ public final class LZ4Factory {
    * @return the fastest available {@link LZ4Factory} instance
    */
   public static LZ4Factory fastestInstance() {
-    if (Native.isLoaded()
-        || Native.class.getClassLoader() == ClassLoader.getSystemClassLoader()) {
+    if (PREFER_NATIVE && (Native.isLoaded()
+        || Native.class.getClassLoader() == ClassLoader.getSystemClassLoader())) {
       try {
         return nativeInstance();
       } catch (Throwable t) {
