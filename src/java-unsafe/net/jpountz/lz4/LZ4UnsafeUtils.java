@@ -98,7 +98,6 @@ enum LZ4UnsafeUtils {
 
   static void safeIncrementalCopy(byte[] dest, int matchOff, int dOff, int matchLen) {
     for (int i = 0; i < matchLen; ++i) {
-      dest[dOff + i] = dest[matchOff + i];
       writeByte(dest, dOff + i, readByte(dest, matchOff + i));
     }
   }
