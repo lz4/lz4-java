@@ -122,6 +122,26 @@ JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32_1update
 
 /*
  * Class:     net_jpountz_xxhash_XXHashJNI
+ * Method:    XXH32BB_update
+ * Signature: (JLjava/nio/ByteBuffer;II)V
+ */
+JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH32BB_1update
+(JNIEnv *env, jclass cls, jlong state, jobject src, jint off, jint len) {
+
+  char* in;
+  jlong h64;
+
+  in = (char*) (*env)->GetDirectBufferAddress(env, src);
+  if (in == NULL) {
+    throw_OOM(env);
+    return;
+  }
+
+  XXH32_update((XXH32_state_t*) state, in + off, len);
+}
+
+/*
+ * Class:     net_jpountz_xxhash_XXHashJNI
  * Method:    XXH32_digest
  * Signature: (J)I
  */
@@ -228,6 +248,26 @@ JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64_1update
 
   (*env)->ReleasePrimitiveArrayCritical(env, src, in, 0);
 
+}
+
+/*
+ * Class:     net_jpountz_xxhash_XXHashJNI
+ * Method:    XXH64BB_update
+ * Signature: (JLjava/nio/ByteBuffer;II)V
+ */
+JNIEXPORT void JNICALL Java_net_jpountz_xxhash_XXHashJNI_XXH64BB_1update
+(JNIEnv *env, jclass cls, jlong state, jobject src, jint off, jint len) {
+
+  char* in;
+
+  in = (char*) (*env)->GetDirectBufferAddress(env, src);
+  if (in == NULL) {
+      printf("I AM NULLLLL?\n");
+    throw_OOM(env);
+    return;
+  }
+
+  XXH64_update((XXH64_state_t*) state, in + off, len);
 }
 
 /*
