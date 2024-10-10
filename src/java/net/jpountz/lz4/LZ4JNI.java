@@ -39,5 +39,8 @@ enum LZ4JNI {
   static native int LZ4_decompress_safe(byte[] srcArray, ByteBuffer srcBuffer, int srcOff, int srcLen, byte[] destArray, ByteBuffer destBuffer, int destOff, int maxDestLen);
   static native int LZ4_compressBound(int len);
 
+  static native int LZ4_compress_addr(long srcAddr, int srcLen, long destAddr, int maxDestLen);
+  static native int LZ4_compressHC_addr(long srcAddr, int srcLen, long destAddr, int maxDestLen, int compressionLevel);
+  static native int LZ4_decompress_fast_addr(long srcAddr, long destAddr, int maxDestLen);
+  static native int LZ4_decompress_safe_addr(long srcAddr, int srcLen, long destAddr, int maxDestLen);
 }
-
