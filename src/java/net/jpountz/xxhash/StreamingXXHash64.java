@@ -1,6 +1,7 @@
 package net.jpountz.xxhash;
 
 import java.util.zip.Checksum;
+import java.nio.ByteBuffer;
 import java.io.Closeable;
 
 /*
@@ -70,6 +71,15 @@ public abstract class StreamingXXHash64 implements Closeable {
    * @param len the number of bytes to hash
    */
   public abstract void update(byte[] buf, int off, int len);
+
+  /**
+   * Updates the value of the hash with buf[off:off+len].
+   *
+   * @param buf the input data
+   * @param off the start offset in buf
+   * @param len the number of bytes to hash
+   */
+  public abstract void update(ByteBuffer buf, int off, int len);
 
   /**
    * Resets this instance to the state it had right after instantiation. The
