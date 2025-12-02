@@ -21,6 +21,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.FilenameFilter;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /** FOR INTERNAL USE ONLY */
 public enum Native {
@@ -95,6 +97,24 @@ public enum Native {
     }
   }
 
+  private static void loadLibrary(final String libName) {
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      public Void run() {
+        System.loadLibrary(libName);
+        return null;
+      }
+    });
+  }
+
+  private static void loadLibraryFile(final String libFileName) {
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      public Void run() {
+        System.load(libFileName);
+        return null;
+      }
+    });
+  }
+
   public static synchronized void load() {
     if (loaded) {
       return;
@@ -104,7 +124,7 @@ public enum Native {
 
     // Try to load lz4-java (liblz4-java.so on Linux) from the java.library.path.
     try {
-      System.loadLibrary("lz4-java");
+      loadLibrary("lz4-java");
       loaded = true;
       return;
     } catch (UnsatisfiedLinkError ex) {
@@ -134,7 +154,7 @@ public enum Native {
 	  out.write(buf, 0, read);
 	}
       }
-      System.load(tempLib.getAbsolutePath());
+      loadLibraryFile(tempLib.getAbsolutePath());
       loaded = true;
     } catch (IOException e) {
       throw new ExceptionInInitializerError("Cannot unpack liblz4-java: " + e);
