@@ -18,12 +18,16 @@
     xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks"
     xmlns:ivy="antlib:org.apache.ivy.ant"
     xmlns:junit4="antlib:com.carrotsearch.junit4"
-    xmlns:mvn="antlib:org.apache.maven.artifact.ant">
+    xmlns:mvn="antlib:org.apache.maven.artifact.ant"
+    xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
   <property name="src" location="src"/>
   <property name="build" location="build"/>
   <property name="dist"  location="dist"/>
   <property name="lib" location="lib" />
+  <property name="groupId" location="org.lz4"/>
+  <property name="artifactId"  location="lz4-java"/>
+  <property name="version" location="1.8.0" />
 
   <property name="javac.source" value="1.7" />
   <property name="javac.target" value="1.7" />
@@ -350,7 +354,7 @@
 
   <target name="jar" description="generate JAR" depends="compile, -jar, -jar-pure-java">
     <!-- Either one of -jar or -jar-pure-java is actually called,
-	 depending on the value of the lz4-pure-java property. -->
+   depending on the value of the lz4-pure-java property. -->
   </target>
 
   <target name="-jar" unless="${lz4-pure-java}">
@@ -363,7 +367,7 @@
       <fileset dir="${build}/generated-classes" />
       <fileset dir="${build}/jni" erroronmissingdir="false" />
       <manifest>
-	<attribute name="Automatic-Module-Name" value="org.lz4.java"/>
+  <attribute name="Automatic-Module-Name" value="org.lz4.java"/>
       </manifest>
     </jar>
   </target>
@@ -376,7 +380,7 @@
       <fileset dir="${build}/unsafe-classes" />
       <fileset dir="${build}/generated-classes" />
       <manifest>
-	<attribute name="Automatic-Module-Name" value="org.lz4.pure.java"/>
+  <attribute name="Automatic-Module-Name" value="org.lz4.pure.java"/>
       </manifest>
     </jar>
   </target>
@@ -469,4 +473,21 @@
   <target name="-stage" depends="clean,dist">
     <deploy repositoryid="sonatype-nexus-staging" repositoryurl="https://oss.sonatype.org/service/local/staging/deploy/maven2" />
   </target>
+
+  <!-- mkdir lib && mkdir -p src/lz4/lib && pushd lib && curl -O https://repo1.maven.org/maven2/org/apache/maven/maven-ant-tasks/2.1.3/maven-ant-tasks-2.1.3.jar && popd -->
+  <taskdef resource="org/apache/maven/artifact/ant/antlib.xml"
+             uri="antlib:org.apache.maven.artifact.ant"
+             classpath="/lz4-java/lib/maven-ant-tasks-2.1.3.jar"/>
+  <target name="install" depends="jar">
+        <!-- Define an inline POM -->
+        <artifact:pom id="lz4-pom"
+                      groupId="${groupId}"
+                      artifactId="${artifactId}"
+                      version="${version}"/>
+
+        <!-- Use the inline POM for installation -->
+        <artifact:install file="${dist}/${ivy.module}.jar">
+            <pom refid="lz4-pom"/>
+        </artifact:install>
+    </target>
 </project>
