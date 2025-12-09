@@ -80,4 +80,8 @@ final class LZ4JNISafeDecompressor extends LZ4SafeDecompressor {
     }
   }
 
+  public int decompress(long srcAddr, int srcLen, long destAddr, int maxDestLen) {
+      return LZ4JNI.LZ4_decompress_safe_addr(srcAddr, srcLen, destAddr, maxDestLen);
+  }
+
 }
