@@ -115,7 +115,7 @@ public class LZ4BlockInputStream extends FilterInputStream {
    * @see StreamingXXHash32#asChecksum()
    */
   public LZ4BlockInputStream(InputStream in, boolean stopOnEmptyBlock) {
-    this(in, LZ4Factory.fastestInstance().fastDecompressor(), XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum(), stopOnEmptyBlock);
+    this(in, LZ4Factory.fastestInstance().fastDecompressor(), new LZ4BlockOutputStream.Drop4BitsChecksum(XXHashFactory.fastestInstance().newStreamingHash32(DEFAULT_SEED).asChecksum()), stopOnEmptyBlock);
   }
 
   /**
